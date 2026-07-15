@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Condução de Veículos Oficiais, IN 1/2020 Toledo</title>
+    <script src="assets/vendor/tailwind.js"></script>
+    <link href="assets/vendor/aos.css" rel="stylesheet">
+    <script src="assets/vendor/aos.js"></script>
+    <script src="assets/vendor/lucide.js"></script>
+    <script src="assets/vendor/d3.v7.min.js"></script>
+    <link href="assets/vendor/inter.css" rel="stylesheet">
+    <style>
+        /* @MIRA:THEME:START */
+/* MIRA THEME: mira-dark (padrão)
+   Identidade clássica do canal: fundo preto, laranja vibrante,
+   glassmorphism no estilo clássico do canal. */
+:root {
+    --mira-primary: #FF904D;
+    --mira-bg: #000000;
+    --mira-text: #ffffff;
+    --mira-text-soft: rgba(255, 255, 255, 0.70);
+    --mira-text-softer: rgba(255, 255, 255, 0.50);
+    --mira-card-bg: rgba(255, 255, 255, 0.05);
+    --mira-card-border: rgba(255, 255, 255, 0.10);
+    --mira-glow-soft: rgba(255, 144, 77, 0.15);
+    --mira-glow-strong: rgba(255, 144, 77, 0.25);
+    --mira-icon-bg: rgba(255, 144, 77, 0.15);
+    --mira-icon-border: rgba(255, 144, 77, 0.30);
+    --mira-pill-bg: rgba(255, 255, 255, 0.04);
+    --mira-pill-border: rgba(255, 255, 255, 0.08);
+    --mira-stage-glow: rgba(255, 144, 77, 0.06);
+    --mira-accent-2: #FFC766;
+}
+
+
+/* ============================================================
+   MIRA — base.css
+   Estrutura compartilhada por todos os temas.
+   Os temas definem apenas as CSS variables (--mira-*).
+   ============================================================ */
+
+body {
+    background: var(--mira-bg);
+    min-height: 100vh;
+    color: var(--mira-text);
+    font-family: 'Inter', sans-serif;
+}
+
+.primary-color { color: var(--mira-primary); }
+.primary-bg { background: var(--mira-primary); }
+
+.glass-card {
+    background: var(--mira-card-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--mira-card-border);
+    box-shadow: 0 10px 30px var(--mira-glow-soft);
+    transition: all 0.3s ease;
+    border-radius: 0.75rem;
+}
+
+.glass-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px var(--mira-glow-strong);
+}
+
+.icon-hero {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    background: var(--mira-icon-bg);
+    border: 1px solid var(--mira-icon-border);
+}
+
+.attribute-pill {
+    background: var(--mira-pill-bg);
+    border: 1px solid var(--mira-pill-border);
+    transition: all 0.25s ease;
+    border-radius: 9999px;
+}
+
+.attribute-pill:hover {
+    background: var(--mira-icon-bg);
+    border-color: var(--mira-icon-border);
+    transform: translateY(-3px);
+}
+
+/* Palco de animação D3 — tamanho padrão do canvas */
+.anim-stage {
+    width: 100%;
+    height: clamp(400px, 60vh, 620px);
+    background: radial-gradient(circle at 50% 50%, var(--mira-stage-glow), transparent 70%);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+}
+
+.anim-stage svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.replay-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+    background: var(--mira-pill-bg);
+    border: 1px solid var(--mira-pill-border);
+    color: var(--mira-text-soft);
+    border-radius: 9999px;
+    padding: 6px 14px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.replay-btn:hover {
+    background: var(--mira-icon-bg);
+    color: var(--mira-primary);
+}
+
+.text-soft { color: var(--mira-text-soft); }
+.text-softer { color: var(--mira-text-softer); }
+
+@keyframes mira-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.08); opacity: 0.85; }
+}
+
+@keyframes mira-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes mira-gradient-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* @MIRA:THEME:END */
+
+        /* === CONTROLES DE SLIDE (passagem card-a-card) === */
+        html { scroll-behavior: smooth; }
+        html { scrollbar-width: thin; scrollbar-color: #2e2e2e #0d0d0d; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; background: #0d0d0d; }
+        ::-webkit-scrollbar-track { background: #0d0d0d; }
+        ::-webkit-scrollbar-thumb { background: #2e2e2e; border-radius: 999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4a4a4a; }
+        ::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+
+        #mira-progress {
+            position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+            background: linear-gradient(90deg, var(--mira-primary), var(--mira-accent-2), var(--mira-primary));
+            background-size: 200% 100%;
+            animation: mira-shimmer 2s linear infinite;
+            z-index: 9999; transition: width 0.1s linear;
+            box-shadow: 0 0 10px var(--mira-glow-strong);
+        }
+
+        @keyframes mira-shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        #mira-next {
+            position: fixed; bottom: 32px; right: 32px;
+            width: 48px; height: 48px; border-radius: 50%;
+            background: var(--mira-primary); color: var(--mira-bg);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; border: none;
+            opacity: 0; transform: translateY(20px);
+            transition: all 0.3s ease; z-index: 9998;
+            box-shadow: 0 4px 20px var(--mira-glow-strong);
+        }
+        #mira-next.visible { opacity: 1; transform: translateY(0); }
+        #mira-next:hover { transform: translateY(-3px) scale(1.1); }
+
+        /* === Acentos de animação perpétua (Regra Zero) === */
+        .divider-glow {
+            background: radial-gradient(ellipse at 50% 55%, var(--mira-glow-strong), transparent 65%);
+            animation: mira-pulse 4.5s ease-in-out infinite;
+        }
+        .cta-breathe {
+            background: radial-gradient(ellipse at 50% 60%, var(--mira-glow-strong), transparent 65%);
+            animation: mira-pulse 4s ease-in-out infinite;
+        }
+        .float-icon { animation: mira-float 3.5s ease-in-out infinite; }
+        .mira-bar {
+            height: 100%; width: 0; border-radius: 9999px;
+            background: linear-gradient(90deg, var(--mira-primary), var(--mira-accent-2), var(--mira-primary));
+            background-size: 200% 100%;
+            animation: mira-shimmer 2.5s linear infinite;
+            transition: width 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .bar-track {
+            height: 12px; width: 100%; border-radius: 9999px;
+            background: var(--mira-pill-bg); border: 1px solid var(--mira-pill-border);
+            overflow: hidden;
+        }
+        .quiz-correct { border-color: var(--mira-icon-border) !important; box-shadow: 0 0 0 1px var(--mira-icon-border), 0 10px 30px var(--mira-glow-strong); }
+        .quiz-correct .quiz-pulse-icon { animation: mira-pulse 2.2s ease-in-out infinite; display: inline-block; }
+
+        /* === Realce cíclico: loop interno perpétuo nos cards de conteúdo === */
+        .cycle-item {
+            transition: transform 0.5s ease, box-shadow 0.5s ease, background 0.5s ease, border-color 0.5s ease;
+            border-radius: 0.5rem;
+        }
+        .cycle-item.cycle-active { transform: translateX(4px); }
+        .cycle-item.cycle-active .icon-hero {
+            transform: scale(1.15);
+            box-shadow: 0 0 0 1px var(--mira-icon-border), 0 10px 26px var(--mira-glow-strong);
+        }
+        .cycle-item.cycle-active > i:first-child[data-lucide] {
+            transform: scale(1.35);
+            filter: drop-shadow(0 0 6px var(--mira-glow-strong));
+        }
+        .cycle-item.cycle-active > span:first-child {
+            color: var(--mira-accent-2);
+            transform: scale(1.12);
+            display: inline-block;
+        }
+        tr.cycle-item { transition: background 0.5s ease; }
+        tr.cycle-item.cycle-active { background: var(--mira-icon-bg); }
+        tr.cycle-item.cycle-active td:first-child { color: var(--mira-primary); }
+        .glass-card.cycle-item.cycle-active {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 44px var(--mira-glow-strong);
+            border-color: var(--mira-icon-border);
+        }
+
+        /* Timeline: ponto luminoso viajando pela linha vertical, em loop */
+        .mira-timeline { position: relative; }
+        .tl-traveler {
+            position: absolute; left: 21px; top: 0; width: 6px; height: 6px; border-radius: 50%;
+            background: var(--mira-primary); box-shadow: 0 0 10px var(--mira-glow-strong);
+            animation: tl-travel 4.5s linear infinite; z-index: 1;
+        }
+        @keyframes tl-travel {
+            0% { top: 0; opacity: 0; }
+            6% { opacity: 1; }
+            94% { opacity: 1; }
+            100% { top: calc(100% - 6px); opacity: 0; }
+        }
+
+    /* @MIRA:RESPONSIVE:START */
+/* ============================================================
+   MIRA — responsive.css  (camada de reflow mobile-first)
+   Objetivo: TODO slide 16:9 do Mira vira legível no celular em
+   retrato SEM arquivo mobile separado. O mesmo deck se reorganiza:
+   fontes encolhem, grids empilham, padding reduz, palcos escalam.
+
+   Estratégia: os decks nascem "desktop-first" (classes Tailwind com
+   tamanhos fixos: text-6xl, p-10, ...). Esta camada sobrescreve essas
+   classes abaixo de 640px. Usa !important de propósito — precisa
+   vencer o Tailwind CDN (injetado em runtime) em decks legados sem
+   reescrever o HTML. Os clamps têm teto ~= valor desktop, então em
+   telas largas nada muda; só encolhem no estreito.
+   ============================================================ */
+
+/* Guarda universal contra overflow horizontal (o "print cortado" no zap). */
+html, body { max-width: 100%; overflow-x: hidden; }
+img, svg, video, canvas, iframe, table, pre { max-width: 100%; }
+
+@media (max-width: 640px) {
+
+  /* --- Tipografia fluida: encolhe títulos gigantes no celular --- */
+  .text-9xl { font-size: clamp(3rem, 12vw, 5rem)      !important; line-height: 1.05 !important; }
+  .text-8xl { font-size: clamp(2.75rem, 11vw, 4.5rem) !important; line-height: 1.06 !important; }
+  .text-7xl { font-size: clamp(2.25rem, 10vw, 3.75rem)!important; line-height: 1.08 !important; }
+  .text-6xl { font-size: clamp(2rem, 9vw, 3rem)       !important; line-height: 1.1  !important; }
+  .text-5xl { font-size: clamp(1.75rem, 8vw, 2.5rem)  !important; line-height: 1.12 !important; }
+  .text-4xl { font-size: clamp(1.5rem, 7vw, 2rem)     !important; line-height: 1.15 !important; }
+  .text-3xl { font-size: clamp(1.35rem, 6vw, 1.75rem) !important; line-height: 1.2  !important; }
+  .text-2xl { font-size: clamp(1.2rem, 5vw, 1.5rem)   !important; line-height: 1.25 !important; }
+  .text-xl  { font-size: clamp(1.05rem, 4.5vw, 1.25rem)!important; line-height: 1.3 !important; }
+
+  h1, h2, h3 { overflow-wrap: break-word; }
+
+  .p-12 { padding: 1.25rem !important; }
+  .p-10 { padding: 1.15rem !important; }
+  .p-8  { padding: 1.05rem !important; }
+  .px-12, .px-10 { padding-left: 1.15rem !important; padding-right: 1.15rem !important; }
+  .px-8 { padding-left: 1rem !important; padding-right: 1rem !important; }
+  .py-16 { padding-top: 2.5rem !important; padding-bottom: 2.5rem !important; }
+  .gap-8 { gap: 1rem !important; }
+  .gap-10, .gap-12 { gap: 1.25rem !important; }
+
+  .min-h-screen {
+    min-height: 100dvh !important;
+    height: auto !important;
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+  }
+  .min-h-screen.justify-center,
+  .min-h-screen.items-center { justify-content: flex-start !important; }
+
+  .grid-cols-2, .grid-cols-3, .grid-cols-4 { grid-template-columns: 1fr !important; }
+
+  .anim-stage {
+    max-width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 16 / 9;
+    min-height: 0 !important;
+  }
+
+  table { font-size: 0.82rem !important; }
+  .overflow-x-auto { -webkit-overflow-scrolling: touch; }
+
+  #mira-next, #next-card {
+    bottom: max(1rem, env(safe-area-inset-bottom)) !important;
+    right: max(1rem, env(safe-area-inset-right)) !important;
+    width: 44px !important; height: 44px !important;
+  }
+}
+/* @MIRA:RESPONSIVE:END */
+</style>
+</head>
+
+<body>
+    <div id="mira-progress"></div>
+    <button id="mira-next" aria-label="Próximo slide">
+        <i data-lucide="chevron-down" class="w-6 h-6" id="mira-next-icon"></i>
+    </button>
+
+    <!-- ============ SLIDE 1: CAPA ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center relative overflow-hidden px-6">
+        <div id="capa-stage" class="absolute inset-0 pointer-events-none"></div>
+        <div class="relative z-10 text-center max-w-4xl" data-aos="fade-up">
+            <p class="attribute-pill inline-block px-5 py-2 text-sm tracking-widest uppercase text-soft mb-8">Capacitação · Controle de Frotas</p>
+            <div class="icon-hero float-icon mx-auto mb-8" style="width:72px;height:72px;border-radius:20px;">
+                <i data-lucide="car-front" class="primary-color w-9 h-9"></i>
+            </div>
+            <h1 class="text-5xl md:text-7xl font-black leading-tight mb-6">
+                Condução de<br><span class="primary-color">Veículos Oficiais</span>
+            </h1>
+            <p class="text-xl text-soft max-w-2xl mx-auto mb-4">O veículo oficial serve ao serviço público, e cada uso fica registrado.</p>
+            <p class="text-softer max-w-2xl mx-auto mb-10">Autorização, uso diário, acidentes, proibições e manutenção da frota.</p>
+            <div class="flex flex-wrap items-center justify-center gap-3 text-softer text-sm">
+                <i data-lucide="scale" class="w-4 h-4 primary-color"></i> Instrução Normativa n.º 1/2020
+                <span class="opacity-40">|</span>
+                <i data-lucide="landmark" class="w-4 h-4 primary-color"></i> Controle Interno de Toledo
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 2: AGENDA ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="list" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">O que vamos ver</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Do Controle de Frotas à manutenção</p>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-8 md:p-10" data-aos="fade-up">
+            <div class="grid md:grid-cols-2 gap-x-10 gap-y-5 cycle-group">
+                <div class="flex items-center gap-4 cycle-item" data-aos="fade-up" data-aos-delay="100"><span class="text-2xl font-black primary-color w-8 shrink-0">01</span><span class="text-lg">O Controle de Frotas (CF)</span></div>
+                <div class="flex items-center gap-4 cycle-item" data-aos="fade-up" data-aos-delay="150"><span class="text-2xl font-black primary-color w-8 shrink-0">02</span><span class="text-lg">Quem pode dirigir</span></div>
+                <div class="flex items-center gap-4 cycle-item" data-aos="fade-up" data-aos-delay="200"><span class="text-2xl font-black primary-color w-8 shrink-0">03</span><span class="text-lg">O ciclo de cada uso</span></div>
+                <div class="flex items-center gap-4 cycle-item" data-aos="fade-up" data-aos-delay="250"><span class="text-2xl font-black primary-color w-8 shrink-0">04</span><span class="text-lg">Obrigações do condutor e do usuário</span></div>
+                <div class="flex items-center gap-4 cycle-item" data-aos="fade-up" data-aos-delay="300"><span class="text-2xl font-black primary-color w-8 shrink-0">05</span><span class="text-lg">Acidentes com veículos oficiais</span></div>
+                <div class="flex items-center gap-4 cycle-item" data-aos="fade-up" data-aos-delay="350"><span class="text-2xl font-black primary-color w-8 shrink-0">06</span><span class="text-lg">Proibições</span></div>
+                <div class="flex items-center gap-4 cycle-item" data-aos="fade-up" data-aos-delay="400"><span class="text-2xl font-black primary-color w-8 shrink-0">07</span><span class="text-lg">Manutenção da frota</span></div>
+                <div class="flex items-center gap-4 cycle-item" data-aos="fade-up" data-aos-delay="450"><span class="text-2xl font-black primary-color w-8 shrink-0">08</span><span class="text-lg">Comparação, compliance e síntese</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 3: POR QUE A NORMA EXISTE ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-12" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="target" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Por que a norma existe</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">A IN 1/2020 substitui e moderniza a regra anterior</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-8 w-full max-w-5xl items-stretch cycle-group">
+            <div class="glass-card cycle-item p-10" data-aos="fade-right">
+                <div class="icon-hero mb-6"><i data-lucide="history" class="primary-color w-6 h-6"></i></div>
+                <h3 class="text-2xl font-bold mb-4">Antes · IN 1/2014</h3>
+                <ul class="space-y-3 text-soft">
+                    <li class="flex gap-3"><i data-lucide="minus" class="w-5 h-5 shrink-0 text-softer"></i> Regra mais antiga, menos detalhada.</li>
+                    <li class="flex gap-3"><i data-lucide="minus" class="w-5 h-5 shrink-0 text-softer"></i> Sem o mesmo rigor de processo.</li>
+                </ul>
+            </div>
+            <div class="glass-card cycle-item p-10" data-aos="fade-left">
+                <div class="icon-hero mb-6"><i data-lucide="badge-check" class="primary-color w-6 h-6"></i></div>
+                <h3 class="text-2xl font-bold mb-4">Agora · IN 1/2020</h3>
+                <ul class="space-y-3 text-soft">
+                    <li class="flex gap-3"><i data-lucide="check" class="primary-color w-5 h-5 shrink-0"></i> Revoga a IN 1/2014 e detalha o processo.</li>
+                    <li class="flex gap-3"><i data-lucide="check" class="primary-color w-5 h-5 shrink-0"></i> Registro biométrico, check-lists e fluxo de manutenção.</li>
+                    <li class="flex gap-3"><i data-lucide="check" class="primary-color w-5 h-5 shrink-0"></i> Alinhada ao art. 37 da Constituição e ao CTB.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 4: O CONTROLE DE FROTAS, CENTRO DE TUDO (D3 ORBITAL) ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="radar" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">O centro de tudo</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Toda decisão sobre a frota passa pelo Controle de Frotas</p>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-8 relative" data-aos="fade-up">
+            <button class="replay-btn" onclick="window.__cfReplay && window.__cfReplay()">↻ replay</button>
+            <div id="cf-stage" class="anim-stage"></div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 5: ATRIBUIÇÕES DO CF ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="clipboard-list" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">O que o CF administra</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Nove frentes de responsabilidade (art. 9º)</p>
+        </div>
+        <div class="glass-card w-full max-w-4xl p-8 md:p-10 space-y-3 cycle-group" data-aos="fade-up">
+            <div class="flex gap-3 items-start cycle-item" data-aos="fade-up" data-aos-delay="50"><span class="primary-color font-black w-6 shrink-0">1</span><p class="text-soft">Acompanhar ocorrências e obter boletim de ocorrência.</p></div>
+            <div class="flex gap-3 items-start cycle-item" data-aos="fade-up" data-aos-delay="100"><span class="primary-color font-black w-6 shrink-0">2</span><p class="text-soft">Renovar o licenciamento anual e o DPVAT.</p></div>
+            <div class="flex gap-3 items-start cycle-item" data-aos="fade-up" data-aos-delay="150"><span class="primary-color font-black w-6 shrink-0">3</span><p class="text-soft">Processar notificações de infração de trânsito.</p></div>
+            <div class="flex gap-3 items-start cycle-item" data-aos="fade-up" data-aos-delay="200"><span class="primary-color font-black w-6 shrink-0">4</span><p class="text-soft">Identificar o infrator e coletar assinatura no formulário.</p></div>
+            <div class="flex gap-3 items-start cycle-item" data-aos="fade-up" data-aos-delay="250"><span class="primary-color font-black w-6 shrink-0">5</span><p class="text-soft">Encaminhar casos à Assessoria Jurídica e a Recursos Humanos.</p></div>
+            <div class="flex gap-3 items-start cycle-item" data-aos="fade-up" data-aos-delay="300"><span class="primary-color font-black w-6 shrink-0">6</span><p class="text-soft">Solicitar três orçamentos antes de reparos por dano.</p></div>
+            <div class="flex gap-3 items-start cycle-item" data-aos="fade-up" data-aos-delay="350"><span class="primary-color font-black w-6 shrink-0">7</span><p class="text-soft">Gerenciar o sistema e as cotas de combustível.</p></div>
+            <div class="flex gap-3 items-start cycle-item" data-aos="fade-up" data-aos-delay="400"><span class="primary-color font-black w-6 shrink-0">8</span><p class="text-soft">Retirar de circulação veículo fora das normas de segurança.</p></div>
+            <div class="flex gap-3 items-start cycle-item" data-aos="fade-up" data-aos-delay="450"><span class="primary-color font-black w-6 shrink-0">9</span><p class="text-soft">Gerir o módulo de Controle Interno no sistema SCP.</p></div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 6: CTA ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center relative overflow-hidden px-6">
+        <div class="cta-breathe absolute inset-0 pointer-events-none"></div>
+        <div class="relative z-10 text-center max-w-3xl" data-aos="zoom-in">
+            <div class="icon-hero float-icon mx-auto mb-8" style="width:72px;height:72px;border-radius:20px;">
+                <i data-lucide="flag" class="primary-color w-9 h-9"></i>
+            </div>
+            <h2 class="text-4xl md:text-5xl font-black mb-6">Use a frota sem risco</h2>
+            <p class="text-xl text-soft mb-10">Ao final, você saberá o processo completo, do cadastro do condutor até a manutenção do veículo.</p>
+            <span class="attribute-pill px-8 py-4 text-lg inline-flex items-center gap-3"><i data-lucide="play" class="w-5 h-5 primary-color"></i>Vamos começar</span>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 7: QUEM PODE DIRIGIR ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-12" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="user-check" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Três requisitos para dirigir</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Servidor não motorista, no interesse do serviço (art. 10)</p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-6 w-full max-w-5xl items-stretch cycle-group">
+            <div class="glass-card cycle-item p-8" data-aos="fade-up" data-aos-delay="100"><div class="icon-hero mb-4"><i data-lucide="id-card" class="primary-color w-6 h-6"></i></div><h3 class="text-xl font-bold mb-2">CNH válida</h3><p class="text-soft">Com a categoria compatível com o veículo.</p></div>
+            <div class="glass-card cycle-item p-8" data-aos="fade-up" data-aos-delay="200"><div class="icon-hero mb-4"><i data-lucide="database" class="primary-color w-6 h-6"></i></div><h3 class="text-xl font-bold mb-2">Cadastro no CF</h3><p class="text-soft">Dados funcionais registrados.</p></div>
+            <div class="glass-card cycle-item p-8" data-aos="fade-up" data-aos-delay="300"><div class="icon-hero mb-4"><i data-lucide="file-check" class="primary-color w-6 h-6"></i></div><h3 class="text-xl font-bold mb-2">Autorização do CF</h3><p class="text-soft">Formalizada pelo Formulário I.</p></div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 8: CATEGORIAS DE CNH ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="id-card" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">As 5 categorias de CNH</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Cada veículo exige uma categoria (art. 11)</p>
+        </div>
+        <div class="glass-card w-full max-w-4xl p-6 md:p-8 overflow-x-auto" data-aos="fade-up">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="border-b" style="border-color:var(--mira-card-border)">
+                        <th class="p-4 text-lg font-bold primary-color">Categoria</th>
+                        <th class="p-4 text-lg font-bold primary-color">Descrição</th>
+                    </tr>
+                </thead>
+                <tbody class="text-soft cycle-group">
+                    <tr class="border-b cycle-item" style="border-color:var(--mira-card-border)"><td class="p-4 font-semibold" style="color:var(--mira-text)">A</td><td class="p-4">Veículo motorizado de duas ou três rodas</td></tr>
+                    <tr class="border-b cycle-item" style="border-color:var(--mira-card-border)"><td class="p-4 font-semibold" style="color:var(--mira-text)">B</td><td class="p-4">Veículo até 3.500 kg e até 8 lugares</td></tr>
+                    <tr class="border-b cycle-item" style="border-color:var(--mira-card-border)"><td class="p-4 font-semibold" style="color:var(--mira-text)">C</td><td class="p-4">Transporte de carga acima de 3.500 kg</td></tr>
+                    <tr class="border-b cycle-item" style="border-color:var(--mira-card-border)"><td class="p-4 font-semibold" style="color:var(--mira-text)">D</td><td class="p-4">Transporte de passageiros acima de 8 lugares</td></tr>
+                    <tr class="cycle-item"><td class="p-4 font-semibold" style="color:var(--mira-text)">E</td><td class="p-4">Combinação de veículos (unidade tratora e reboque pesado)</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 9: DO FORMULÁRIO I À AUTORIZAÇÃO ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="file-check" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Como se tornar condutor</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">O caminho do cadastro até a validade</p>
+        </div>
+        <div class="glass-card w-full max-w-4xl p-8 md:p-10" data-aos="fade-up">
+            <div class="mira-timeline">
+                <div class="tl-traveler"></div>
+                <div class="flex gap-5" data-aos="fade-up" data-aos-delay="100"><div class="flex flex-col items-center"><div class="icon-hero"><span class="primary-color font-black">1</span></div><div class="tl-line w-px flex-1 my-2"></div></div><div class="pb-7"><h3 class="text-lg font-bold mb-1">Preencher</h3><p class="text-soft">Formulário I com cópia da CNH.</p></div></div>
+                <div class="flex gap-5" data-aos="fade-up" data-aos-delay="200"><div class="flex flex-col items-center"><div class="icon-hero"><span class="primary-color font-black">2</span></div><div class="tl-line w-px flex-1 my-2"></div></div><div class="pb-7"><h3 class="text-lg font-bold mb-1">Encaminhar</h3><p class="text-soft">Ao CF, por pedido de providências.</p></div></div>
+                <div class="flex gap-5" data-aos="fade-up" data-aos-delay="300"><div class="flex flex-col items-center"><div class="icon-hero"><span class="primary-color font-black">3</span></div><div class="tl-line w-px flex-1 my-2"></div></div><div class="pb-7"><h3 class="text-lg font-bold mb-1">Validar</h3><p class="text-soft">CF valida o cadastro e libera a autorização.</p></div></div>
+                <div class="flex gap-5" data-aos="fade-up" data-aos-delay="400"><div class="flex flex-col items-center"><div class="icon-hero"><span class="primary-color font-black">4</span></div></div><div><h3 class="text-lg font-bold mb-1">Manter</h3><p class="text-soft">Renovável e cancelável a qualquer tempo.</p></div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 10: REGRAS ESPECIAIS ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="shield-alert" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Situações que exigem cuidado</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Fora do expediente, CNH suspensa e terceirizados</p>
+        </div>
+        <div class="glass-card w-full max-w-4xl p-8 md:p-10 space-y-4 cycle-group" data-aos="fade-up">
+            <div class="flex gap-4 items-start cycle-item" data-aos="fade-up" data-aos-delay="100"><i data-lucide="moon" class="primary-color w-6 h-6 shrink-0 mt-0.5"></i><p class="text-lg">Fora do horário do Paço, à noite, fins de semana ou feriados: só com autorização do Secretário de Administração, Coordenador de Frotas ou Coordenador de Manutenção.</p></div>
+            <div class="flex gap-4 items-start cycle-item" data-aos="fade-up" data-aos-delay="200"><i data-lucide="ban" class="primary-color w-6 h-6 shrink-0 mt-0.5"></i><p class="text-lg">CNH suspensa ou apreendida: condutor impedido de dirigir e deve comunicar o CF imediatamente.</p></div>
+            <div class="flex gap-4 items-start cycle-item" data-aos="fade-up" data-aos-delay="300"><i data-lucide="briefcase" class="primary-color w-6 h-6 shrink-0 mt-0.5"></i><p class="text-lg">Terceirizados de manutenção precisam de credenciamento próprio no CF.</p></div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 11: DIVISOR — O CICLO DE CADA USO ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center relative overflow-hidden px-6">
+        <div class="divider-glow absolute inset-0 pointer-events-none"></div>
+        <div class="relative z-10 text-center max-w-3xl" data-aos="zoom-in">
+            <div class="icon-hero float-icon mx-auto mb-8" style="width:64px;height:64px;border-radius:18px;"><i data-lucide="repeat" class="primary-color w-8 h-8"></i></div>
+            <p class="text-softer uppercase tracking-widest text-sm mb-4">Seção</p>
+            <h2 class="text-4xl md:text-6xl font-black mb-6">O ciclo de cada uso</h2>
+            <p class="text-xl text-soft">"Cada saída do veículo deixa um rastro: biometria, check-list, e o veículo pronto para o próximo uso."</p>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 12: BIOMETRIA É OBRIGATÓRIA ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-12" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="fingerprint" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Biometria é a regra</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">A planilha manual é exceção, não rotina (art. 15, I)</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-8 w-full max-w-5xl items-stretch cycle-group">
+            <div class="glass-card cycle-item p-10" data-aos="fade-right" style="border-color:var(--mira-icon-border);">
+                <div class="icon-hero mb-6"><i data-lucide="fingerprint" class="primary-color w-6 h-6"></i></div>
+                <h3 class="text-2xl font-bold mb-4">Regra</h3>
+                <p class="text-soft">Registro biométrico de saída em todo uso do veículo.</p>
+            </div>
+            <div class="glass-card cycle-item p-10" data-aos="fade-left">
+                <div class="icon-hero mb-6"><i data-lucide="file-warning" class="primary-color w-6 h-6"></i></div>
+                <h3 class="text-2xl font-bold mb-4">Exceção</h3>
+                <p class="text-soft">Planilha manual só em casos extremos e devidamente justificados, entregue ao CF até o fim do mês.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 13: CHECK LIST ANTES DE SAIR ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-12" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="clipboard-check" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">16 pontos antes de sair</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Formulário II, de 10 a 15 minutos por verificação</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-6 w-full max-w-5xl cycle-group">
+            <div class="glass-card cycle-item p-8" data-aos="fade-up" data-aos-delay="100"><div class="icon-hero mb-4"><i data-lucide="shield" class="primary-color w-6 h-6"></i></div><h3 class="text-xl font-bold mb-2">Segurança</h3><p class="text-soft">Triângulo, macaco, chave de roda, pneu reserva, cinto de segurança.</p></div>
+            <div class="glass-card cycle-item p-8" data-aos="fade-up" data-aos-delay="200"><div class="icon-hero mb-4"><i data-lucide="droplet" class="primary-color w-6 h-6"></i></div><h3 class="text-xl font-bold mb-2">Fluidos</h3><p class="text-soft">Óleo do motor, óleo de freio, líquido de arrefecimento.</p></div>
+            <div class="glass-card cycle-item p-8" data-aos="fade-up" data-aos-delay="300"><div class="icon-hero mb-4"><i data-lucide="file-text" class="primary-color w-6 h-6"></i></div><h3 class="text-xl font-bold mb-2">Documentação</h3><p class="text-soft">CRLV no veículo, combustível suficiente para a viagem.</p></div>
+            <div class="glass-card cycle-item p-8" data-aos="fade-up" data-aos-delay="400"><div class="icon-hero mb-4"><i data-lucide="lightbulb" class="primary-color w-6 h-6"></i></div><h3 class="text-xl font-bold mb-2">Funcionamento</h3><p class="text-soft">Luzes, freios, limpadores de para-brisa, buzina.</p></div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 14: CONSERVAÇÃO E GUARDA ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="sparkles" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Zelar pelo veículo</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Deveres básicos do condutor (art. 15)</p>
+        </div>
+        <div class="glass-card w-full max-w-4xl p-8 md:p-10 space-y-4 cycle-group" data-aos="fade-up">
+            <div class="flex gap-4 items-start cycle-item" data-aos="fade-up" data-aos-delay="100"><i data-lucide="sparkles" class="primary-color w-6 h-6 shrink-0 mt-0.5"></i><p class="text-lg">Zelar pela conservação, limpeza interna e externa.</p></div>
+            <div class="flex gap-4 items-start cycle-item" data-aos="fade-up" data-aos-delay="200"><i data-lucide="key-round" class="primary-color w-6 h-6 shrink-0 mt-0.5"></i><p class="text-lg">Trancar o veículo e guardar a chave no local definido pelo CF.</p></div>
+            <div class="flex gap-4 items-start cycle-item" data-aos="fade-up" data-aos-delay="300"><i data-lucide="users" class="primary-color w-6 h-6 shrink-0 mt-0.5"></i><p class="text-lg">Não dar carona, exceto a servidores ou terceirizados em serviço.</p></div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 15: RESPONSABILIDADE NAS 4 ESFERAS ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-12" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="scale" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Quatro esferas de responsabilidade</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">O condutor responde integralmente pelos seus atos</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-6 w-full max-w-5xl cycle-group">
+            <div class="glass-card cycle-item p-8" data-aos="fade-up" data-aos-delay="100"><div class="icon-hero mb-4"><i data-lucide="clipboard-list" class="primary-color w-6 h-6"></i></div><h3 class="text-xl font-bold mb-2">Administrativa</h3><p class="text-soft">Processo disciplinar interno.</p></div>
+            <div class="glass-card cycle-item p-8" data-aos="fade-up" data-aos-delay="200"><div class="icon-hero mb-4"><i data-lucide="banknote" class="primary-color w-6 h-6"></i></div><h3 class="text-xl font-bold mb-2">Civil</h3><p class="text-soft">Ressarcimento ao erário por dolo ou culpa.</p></div>
+            <div class="glass-card cycle-item p-8" data-aos="fade-up" data-aos-delay="300"><div class="icon-hero mb-4"><i data-lucide="gavel" class="primary-color w-6 h-6"></i></div><h3 class="text-xl font-bold mb-2">Penal</h3><p class="text-soft">Consequências previstas em lei.</p></div>
+            <div class="glass-card cycle-item p-8" data-aos="fade-up" data-aos-delay="400"><div class="icon-hero mb-4"><i data-lucide="alert-octagon" class="primary-color w-6 h-6"></i></div><h3 class="text-xl font-bold mb-2">Criminal</h3><p class="text-soft">Uso indevido para fins ilícitos.</p></div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 16: TRÂNSITO, INFRAÇÃO E ABASTECIMENTO ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="fuel" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">No trânsito e no posto</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Regras do dia a dia (art. 15)</p>
+        </div>
+        <div class="glass-card w-full max-w-4xl p-8 md:p-10 space-y-4 cycle-group" data-aos="fade-up">
+            <div class="flex gap-4 items-start cycle-item" data-aos="fade-up" data-aos-delay="100"><i data-lucide="gauge" class="primary-color w-6 h-6 shrink-0 mt-0.5"></i><p class="text-lg">Observar velocidade, sinalização, cinto e proibição de celular ao dirigir.</p></div>
+            <div class="flex gap-4 items-start cycle-item" data-aos="fade-up" data-aos-delay="200"><i data-lucide="calendar-clock" class="primary-color w-6 h-6 shrink-0 mt-0.5"></i><p class="text-lg">Comparecer ao CF em até <span class="primary-color font-semibold">2 dias úteis</span> após notificação de infração.</p></div>
+            <div class="flex gap-4 items-start cycle-item" data-aos="fade-up" data-aos-delay="300"><i data-lucide="graduation-cap" class="primary-color w-6 h-6 shrink-0 mt-0.5"></i><p class="text-lg">Participar de cursos do CTB conforme o tipo de veículo conduzido.</p></div>
+            <div class="flex gap-4 items-start cycle-item" data-aos="fade-up" data-aos-delay="400"><i data-lucide="pill" class="primary-color w-6 h-6 shrink-0 mt-0.5"></i><p class="text-lg">Comunicar o uso de medicamentos que possam prejudicar a condução.</p></div>
+            <div class="flex gap-4 items-start cycle-item" data-aos="fade-up" data-aos-delay="500"><i data-lucide="fuel" class="primary-color w-6 h-6 shrink-0 mt-0.5"></i><p class="text-lg">Abastecer sempre que o tanque estiver abaixo da metade da capacidade.</p></div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 17: OBRIGAÇÕES DO USUÁRIO ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-12" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="users" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Quem usa também responde</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Deveres de quem é transportado (art. 16)</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-6 w-full max-w-5xl cycle-group">
+            <div class="glass-card cycle-item p-8" data-aos="fade-up" data-aos-delay="100"><div class="icon-hero mb-4"><i data-lucide="user-check" class="primary-color w-6 h-6"></i></div><h3 class="text-xl font-bold mb-2">Compostura</h3><p class="text-soft">Usar o veículo sem tumulto ou desordem.</p></div>
+            <div class="glass-card cycle-item p-8" data-aos="fade-up" data-aos-delay="200"><div class="icon-hero mb-4"><i data-lucide="ban" class="primary-color w-6 h-6"></i></div><h3 class="text-xl font-bold mb-2">Sem indução</h3><p class="text-soft">Não incentivar uso indevido.</p></div>
+            <div class="glass-card cycle-item p-8" data-aos="fade-up" data-aos-delay="300"><div class="icon-hero mb-4"><i data-lucide="heart-handshake" class="primary-color w-6 h-6"></i></div><h3 class="text-xl font-bold mb-2">Respeito</h3><p class="text-soft">Tratar o condutor com cordialidade.</p></div>
+            <div class="glass-card cycle-item p-8" data-aos="fade-up" data-aos-delay="400"><div class="icon-hero mb-4"><i data-lucide="megaphone" class="primary-color w-6 h-6"></i></div><h3 class="text-xl font-bold mb-2">Comunicação</h3><p class="text-soft">Relatar irregularidades ao CF.</p></div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 18: DIVISOR — QUANDO DÁ ERRADO ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center relative overflow-hidden px-6">
+        <div class="divider-glow absolute inset-0 pointer-events-none"></div>
+        <div class="relative z-10 text-center max-w-3xl" data-aos="zoom-in">
+            <div class="icon-hero float-icon mx-auto mb-8" style="width:64px;height:64px;border-radius:18px;"><i data-lucide="alert-triangle" class="primary-color w-8 h-8"></i></div>
+            <p class="text-softer uppercase tracking-widest text-sm mb-4">Seção</p>
+            <h2 class="text-4xl md:text-6xl font-black mb-6">Quando dá errado</h2>
+            <p class="text-xl text-soft">"Um acidente não é o fim do protocolo, é o início de um novo: sinalizar, comunicar, documentar."</p>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 19: PROTOCOLO DE ACIDENTE (D3) ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="siren" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Protocolo em caso de acidente</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Passos do art. 17, com destaque para a emergência</p>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-8 relative" data-aos="fade-up">
+            <button class="replay-btn" onclick="window.__acidenteReplay && window.__acidenteReplay()">↻ replay</button>
+            <div id="acidente-stage" class="anim-stage"></div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 20: CASOS ESPECIAIS DE ACIDENTE ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-12" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="help-circle" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Situações que fogem da rotina</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">O que fazer em cada uma</p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-6 w-full max-w-5xl items-stretch cycle-group">
+            <div class="glass-card cycle-item p-8" data-aos="fade-up" data-aos-delay="100"><div class="icon-hero mb-4"><i data-lucide="car-front" class="primary-color w-6 h-6"></i></div><h3 class="text-xl font-bold mb-2">Fuga do outro condutor</h3><p class="text-soft">Ir à delegacia, informar a placa se possível.</p></div>
+            <div class="glass-card cycle-item p-8" data-aos="fade-up" data-aos-delay="200"><div class="icon-hero mb-4"><i data-lucide="map-pin" class="primary-color w-6 h-6"></i></div><h3 class="text-xl font-bold mb-2">Sem vítima e sem autoridade</h3><p class="text-soft">Deslocar-se à polícia para lavrar o boletim.</p></div>
+            <div class="glass-card cycle-item p-8" data-aos="fade-up" data-aos-delay="300"><div class="icon-hero mb-4"><i data-lucide="file-x" class="primary-color w-6 h-6"></i></div><h3 class="text-xl font-bold mb-2">Perícia dispensada</h3><p class="text-soft">Solicitar que isso conste no boletim.</p></div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 21: PROIBIÇÕES, PARTE 1 ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="ban" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">O que nunca fazer</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Metade dos 12 incisos do art. 18</p>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-6 md:p-8 overflow-x-auto" data-aos="fade-up">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="border-b" style="border-color:var(--mira-card-border)">
+                        <th class="p-4 text-lg font-bold primary-color">Proibição</th>
+                        <th class="p-4 text-lg font-bold primary-color">Detalhe</th>
+                    </tr>
+                </thead>
+                <tbody class="text-soft cycle-group">
+                    <tr class="border-b cycle-item" style="border-color:var(--mira-card-border)"><td class="p-4 font-semibold" style="color:var(--mira-text)">Uso particular</td><td class="p-4">Refeições, caronas ou transporte de objetos fora do serviço</td></tr>
+                    <tr class="border-b cycle-item" style="border-color:var(--mira-card-border)"><td class="p-4 font-semibold" style="color:var(--mira-text)">Transporte indevido</td><td class="p-4">Servidores que não estão em serviço</td></tr>
+                    <tr class="border-b cycle-item" style="border-color:var(--mira-card-border)"><td class="p-4 font-semibold" style="color:var(--mira-text)">Fumar ou álcool</td><td class="p-4">Vedado no interior do veículo</td></tr>
+                    <tr class="border-b cycle-item" style="border-color:var(--mira-card-border)"><td class="p-4 font-semibold" style="color:var(--mira-text)">Sobrepeso</td><td class="p-4">De passageiros ou de carga</td></tr>
+                    <tr class="border-b cycle-item" style="border-color:var(--mira-card-border)"><td class="p-4 font-semibold" style="color:var(--mira-text)">Embriaguez</td><td class="p-4">Ou qualquer substância que altere a capacidade psicomotora</td></tr>
+                    <tr class="cycle-item"><td class="p-4 font-semibold" style="color:var(--mira-text)">Excursões e passeios</td><td class="p-4">Uso fora da finalidade oficial</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 22: PROIBIÇÕES, PARTE 2 ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="octagon-x" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">E mais seis vedações</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">A outra metade do art. 18</p>
+        </div>
+        <div class="glass-card w-full max-w-4xl p-8 md:p-10 space-y-3 cycle-group" data-aos="fade-up">
+            <div class="flex gap-3 items-start cycle-item" data-aos="fade-up" data-aos-delay="100"><i data-lucide="moon" class="primary-color w-5 h-5 shrink-0 mt-0.5"></i><p class="text-soft">Uso fora do expediente sem autorização formal do CF.</p></div>
+            <div class="flex gap-3 items-start cycle-item" data-aos="fade-up" data-aos-delay="150"><i data-lucide="home" class="primary-color w-5 h-5 shrink-0 mt-0.5"></i><p class="text-soft">Pernoite fora do estacionamento oficial ou em residências, sem autorização.</p></div>
+            <div class="flex gap-3 items-start cycle-item" data-aos="fade-up" data-aos-delay="200"><i data-lucide="wrench" class="primary-color w-5 h-5 shrink-0 mt-0.5"></i><p class="text-soft">Retirar ou incluir equipamento sem autorização do CF.</p></div>
+            <div class="flex gap-3 items-start cycle-item" data-aos="fade-up" data-aos-delay="250"><i data-lucide="droplet" class="primary-color w-5 h-5 shrink-0 mt-0.5"></i><p class="text-soft">Manutenção, abastecimento ou lavagem sem ordem de serviço do SCF.</p></div>
+            <div class="flex gap-3 items-start cycle-item" data-aos="fade-up" data-aos-delay="300"><i data-lucide="package-x" class="primary-color w-5 h-5 shrink-0 mt-0.5"></i><p class="text-soft">Transportar pessoas ou objetos em desacordo com o CTB.</p></div>
+            <div class="flex gap-3 items-start cycle-item" data-aos="fade-up" data-aos-delay="350"><i data-lucide="circle-dollar-sign" class="primary-color w-5 h-5 shrink-0 mt-0.5"></i><p class="text-soft">Qualquer uso que gere custo ao Município sem consentimento do CF.</p></div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 23: DIVISOR — MANUTENÇÃO DA FROTA ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center relative overflow-hidden px-6">
+        <div class="divider-glow absolute inset-0 pointer-events-none"></div>
+        <div class="relative z-10 text-center max-w-3xl" data-aos="zoom-in">
+            <div class="icon-hero float-icon mx-auto mb-8" style="width:64px;height:64px;border-radius:18px;"><i data-lucide="wrench" class="primary-color w-8 h-8"></i></div>
+            <p class="text-softer uppercase tracking-widest text-sm mb-4">Seção</p>
+            <h2 class="text-4xl md:text-6xl font-black mb-6">Manutenção da frota</h2>
+            <p class="text-xl text-soft">"Manutenção não é reação ao problema, é rotina prevista em quatro frentes."</p>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 24: QUATRO TIPOS DE MANUTENÇÃO ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-12" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="wrench" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Quatro tipos de manutenção</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Cada um com seu momento (art. 19)</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-6 w-full max-w-5xl cycle-group">
+            <div class="glass-card cycle-item p-8" data-aos="fade-up" data-aos-delay="100"><div class="icon-hero mb-4"><i data-lucide="clipboard-check" class="primary-color w-6 h-6"></i></div><h3 class="text-xl font-bold mb-2">Operativa</h3><p class="text-soft">Verificação a cada uso, 10 a 15 minutos.</p></div>
+            <div class="glass-card cycle-item p-8" data-aos="fade-up" data-aos-delay="200"><div class="icon-hero mb-4"><i data-lucide="calendar-check" class="primary-color w-6 h-6"></i></div><h3 class="text-xl font-bold mb-2">Preventiva</h3><p class="text-soft">Conforme prazo do manual do fabricante.</p></div>
+            <div class="glass-card cycle-item p-8" data-aos="fade-up" data-aos-delay="300"><div class="icon-hero mb-4"><i data-lucide="hammer" class="primary-color w-6 h-6"></i></div><h3 class="text-xl font-bold mb-2">Corretiva</h3><p class="text-soft">Conserta avarias já constatadas.</p></div>
+            <div class="glass-card cycle-item p-8" data-aos="fade-up" data-aos-delay="400"><div class="icon-hero mb-4"><i data-lucide="hard-hat" class="primary-color w-6 h-6"></i></div><h3 class="text-xl font-bold mb-2">Reforma geral</h3><p class="text-soft">Investimento maior, com teto de gasto.</p></div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 25: MANUTENÇÃO CORRETIVA, 3 NÍVEIS (PROGRESSO) ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="gauge" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Três níveis de urgência</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Nem toda avaria para o veículo (art. 33)</p>
+        </div>
+        <div class="glass-card w-full max-w-4xl p-8 md:p-10 space-y-8" data-aos="fade-up">
+            <div data-aos="fade-up" data-aos-delay="100">
+                <div class="flex justify-between items-baseline mb-2"><span class="font-semibold text-lg">Indispensável</span><span class="primary-color font-black text-sm uppercase tracking-wide">Execução imediata</span></div>
+                <div class="bar-track"><div class="mira-bar" data-target="100"></div></div>
+                <p class="text-softer text-sm mt-2">Impede a operação do veículo.</p>
+            </div>
+            <div data-aos="fade-up" data-aos-delay="200">
+                <div class="flex justify-between items-baseline mb-2"><span class="font-semibold text-lg">Necessário</span><span class="primary-color font-black text-sm uppercase tracking-wide">Primeira oportunidade</span></div>
+                <div class="bar-track"><div class="mira-bar" data-target="65"></div></div>
+                <p class="text-softer text-sm mt-2">Não impede o uso, mas exige atenção.</p>
+            </div>
+            <div data-aos="fade-up" data-aos-delay="300">
+                <div class="flex justify-between items-baseline mb-2"><span class="font-semibold text-lg">Útil</span><span class="primary-color font-black text-sm uppercase tracking-wide">Sem prioridade</span></div>
+                <div class="bar-track"><div class="mira-bar" data-target="30"></div></div>
+                <p class="text-softer text-sm mt-2">Preserva as características do veículo.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 26: REFORMA GERAL ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="hard-hat" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">O teto da reforma geral</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Até 50% do valor FIPE, com fluxo obrigatório (art. 35 a 37)</p>
+        </div>
+        <div class="glass-card w-full max-w-4xl p-8 md:p-10" data-aos="fade-up">
+            <div class="mira-timeline">
+                <div class="tl-traveler"></div>
+                <div class="flex gap-5" data-aos="fade-up" data-aos-delay="100"><div class="flex flex-col items-center"><div class="icon-hero"><span class="primary-color font-black">1</span></div><div class="tl-line w-px flex-1 my-2"></div></div><div class="pb-7"><h3 class="text-lg font-bold mb-1">Empenho</h3><p class="text-soft">Dotação orçamentária garantida.</p></div></div>
+                <div class="flex gap-5" data-aos="fade-up" data-aos-delay="200"><div class="flex flex-col items-center"><div class="icon-hero"><span class="primary-color font-black">2</span></div><div class="tl-line w-px flex-1 my-2"></div></div><div class="pb-7"><h3 class="text-lg font-bold mb-1">Orçamento prévio</h3><p class="text-soft">Aprovado antes de iniciar.</p></div></div>
+                <div class="flex gap-5" data-aos="fade-up" data-aos-delay="300"><div class="flex flex-col items-center"><div class="icon-hero"><span class="primary-color font-black">3</span></div><div class="tl-line w-px flex-1 my-2"></div></div><div class="pb-7"><h3 class="text-lg font-bold mb-1">Ordem de serviço</h3><p class="text-soft">Emitida pelo sistema SCF.</p></div></div>
+                <div class="flex gap-5" data-aos="fade-up" data-aos-delay="400"><div class="flex flex-col items-center"><div class="icon-hero" style="background:var(--mira-primary)"><span class="font-black" style="color:var(--mira-bg)">4</span></div></div><div><h3 class="text-lg font-bold mb-1 primary-color">Aprovação (teto 50% FIPE)</h3><p class="text-soft">Coordenador de Frotas e ordenador da despesa.</p></div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 27: OS 6 FORMULÁRIOS ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-12" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="folder-open" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Os formulários do processo</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Cada etapa tem seu registro</p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-5 w-full max-w-5xl cycle-group">
+            <div class="glass-card cycle-item p-6" data-aos="fade-up" data-aos-delay="100"><div class="icon-hero mb-3"><i data-lucide="file-check" class="primary-color w-5 h-5"></i></div><h3 class="text-base font-bold mb-1">Formulário I</h3><p class="text-soft text-sm">Cadastro de condutor autorizado.</p></div>
+            <div class="glass-card cycle-item p-6" data-aos="fade-up" data-aos-delay="150"><div class="icon-hero mb-3"><i data-lucide="clipboard-check" class="primary-color w-5 h-5"></i></div><h3 class="text-base font-bold mb-1">Formulário II</h3><p class="text-soft text-sm">Check list de manutenção operativa.</p></div>
+            <div class="glass-card cycle-item p-6" data-aos="fade-up" data-aos-delay="200"><div class="icon-hero mb-3"><i data-lucide="clipboard-list" class="primary-color w-5 h-5"></i></div><h3 class="text-base font-bold mb-1">Formulário III</h3><p class="text-soft text-sm">Check list rápido, para uso geral.</p></div>
+            <div class="glass-card cycle-item p-6" data-aos="fade-up" data-aos-delay="250"><div class="icon-hero mb-3"><i data-lucide="package-check" class="primary-color w-5 h-5"></i></div><h3 class="text-base font-bold mb-1">Formulário IV</h3><p class="text-soft text-sm">Termo de entrega de peças substituídas.</p></div>
+            <div class="glass-card cycle-item p-6" data-aos="fade-up" data-aos-delay="300"><div class="icon-hero mb-3"><i data-lucide="file-warning" class="primary-color w-5 h-5"></i></div><h3 class="text-base font-bold mb-1">Formulário V</h3><p class="text-soft text-sm">Registro manual, só em caso extremo.</p></div>
+            <div class="glass-card cycle-item p-6" data-aos="fade-up" data-aos-delay="350"><div class="icon-hero mb-3"><i data-lucide="calendar-plus" class="primary-color w-5 h-5"></i></div><h3 class="text-base font-bold mb-1">Formulário VI</h3><p class="text-soft text-sm">Requisição de reserva de veículo.</p></div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 28: TESTE RÁPIDO ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="clipboard-check" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Teste rápido</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Proibido ou permitido?</p>
+        </div>
+        <div class="glass-card w-full max-w-4xl p-8 md:p-10" data-aos="fade-up">
+            <p class="text-xl md:text-2xl font-semibold mb-8">Um servidor usa o veículo oficial para almoçar em serviço fora do Município de Toledo. É permitido?</p>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="glass-card p-6" data-aos="fade-up" data-aos-delay="100"><div class="flex items-center gap-3 mb-2"><span class="text-xl font-black text-softer">A</span><span class="text-softer text-sm uppercase tracking-wide">Incorreto</span></div><p class="text-soft">Não, refeição é sempre uso particular vedado.</p></div>
+                <div class="glass-card quiz-correct p-6" data-aos="fade-up" data-aos-delay="200"><div class="flex items-center gap-3 mb-2"><span class="text-xl font-black primary-color">B</span><span class="primary-color text-sm uppercase tracking-wide font-semibold"><i data-lucide="check" class="inline w-4 h-4 quiz-pulse-icon"></i> Correta</span></div><p>Sim. A IN abre exceção para refeição quando em serviço fora do Município (art. 18, II).</p></div>
+            </div>
+            <p class="text-softer mt-6"><i data-lucide="info" class="inline w-4 h-4 primary-color"></i> Dentro de Toledo, refeição continua sendo uso particular vedado.</p>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 29: TOLEDO X TJPR ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="git-compare" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Mesma base, focos diferentes</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Comparação entre normas públicas</p>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-6 md:p-8 overflow-x-auto" data-aos="fade-up">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="border-b" style="border-color:var(--mira-card-border)">
+                        <th class="p-4 text-lg font-bold primary-color">Aspecto</th>
+                        <th class="p-4 text-lg font-bold primary-color">Toledo (IN 1/2020)</th>
+                        <th class="p-4 text-lg font-bold primary-color">TJPR (Res. 294/2021)</th>
+                    </tr>
+                </thead>
+                <tbody class="text-soft cycle-group">
+                    <tr class="border-b cycle-item" style="border-color:var(--mira-card-border)"><td class="p-4 font-semibold" style="color:var(--mira-text)">Poder</td><td class="p-4">Executivo municipal</td><td class="p-4">Judiciário estadual</td></tr>
+                    <tr class="border-b cycle-item" style="border-color:var(--mira-card-border)"><td class="p-4 font-semibold" style="color:var(--mira-text)">Ênfase</td><td class="p-4">Processo operacional: biometria, check-lists, formulários</td><td class="p-4">Classificação de veículos, cúpula, tetos por valor venal</td></tr>
+                    <tr class="cycle-item"><td class="p-4 font-semibold" style="color:var(--mira-text)">Em comum</td><td class="p-4" colspan="2">Autorização formal, vínculo com a CNH, proibição de uso particular e ressarcimento por dolo ou culpa.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 30: GLOSSÁRIO E FONTES ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="book-open" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Glossário e fontes</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Siglas e referências para consulta</p>
+        </div>
+        <div class="glass-card w-full max-w-4xl p-8 md:p-10 space-y-3 cycle-group" data-aos="fade-up">
+            <div class="flex gap-3 items-start cycle-item" data-aos="fade-up" data-aos-delay="100"><i data-lucide="tag" class="primary-color w-5 h-5 shrink-0 mt-0.5"></i><p class="text-soft"><span class="font-semibold" style="color:var(--mira-text)">CF</span>: Controle de Frotas. <span class="font-semibold" style="color:var(--mira-text)">CNH</span>: Carteira Nacional de Habilitação. <span class="font-semibold" style="color:var(--mira-text)">CTB</span>: Código de Trânsito Brasileiro.</p></div>
+            <div class="flex gap-3 items-start cycle-item" data-aos="fade-up" data-aos-delay="150"><i data-lucide="tag" class="primary-color w-5 h-5 shrink-0 mt-0.5"></i><p class="text-soft"><span class="font-semibold" style="color:var(--mira-text)">BO</span>: Boletim de Ocorrência. <span class="font-semibold" style="color:var(--mira-text)">DPVAT</span>: Seguro Obrigatório de Danos Pessoais.</p></div>
+            <div class="flex gap-3 items-start cycle-item" data-aos="fade-up" data-aos-delay="200"><i data-lucide="tag" class="primary-color w-5 h-5 shrink-0 mt-0.5"></i><p class="text-soft"><span class="font-semibold" style="color:var(--mira-text)">SCF</span>: Sistema de Controle de Frotas. <span class="font-semibold" style="color:var(--mira-text)">SCP</span>: Sistema de Contabilidade Pública. <span class="font-semibold" style="color:var(--mira-text)">SIM-AM</span>: Sistema de Informações Municipais.</p></div>
+            <div class="flex gap-3 items-start cycle-item" data-aos="fade-up" data-aos-delay="250"><i data-lucide="tag" class="primary-color w-5 h-5 shrink-0 mt-0.5"></i><p class="text-soft"><span class="font-semibold" style="color:var(--mira-text)">FIPE</span>: Fundação Instituto de Pesquisas Econômicas, tabela de valor venal.</p></div>
+            <div class="flex gap-3 items-start cycle-item" data-aos="fade-up" data-aos-delay="300"><i data-lucide="file-text" class="primary-color w-5 h-5 shrink-0 mt-0.5"></i><p class="text-soft">Fonte: Instrução Normativa n.º 1/2020, Controle Interno, Prefeitura de Toledo (PR), assinada por Cleusa Elaine Schnee Ullmann.</p></div>
+        </div>
+    </section>
+
+    <script>
+        AOS.init({ duration: 800, once: true });
+        lucide.createIcons();
+
+        const cssVar = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+        const PRIMARY = cssVar('--mira-primary');
+
+        document.querySelectorAll('.tl-line').forEach(el => { el.style.background = 'var(--mira-card-border)'; });
+
+        // ===== CAPA: partículas orbitando (loop perpétuo) =====
+        (function () {
+            const stage = document.getElementById('capa-stage');
+            if (!stage) return;
+            const W = window.innerWidth, H = window.innerHeight;
+            const svg = d3.select('#capa-stage').append('svg').attr('viewBox', `0 0 ${W} ${H}`);
+            const cx = W / 2, cy = H / 2;
+            const particles = d3.range(26).map(() => ({
+                r: 180 + Math.random() * Math.min(W, H) * 0.35,
+                angle: Math.random() * Math.PI * 2,
+                speed: 0.002 + Math.random() * 0.004,
+                size: 1.5 + Math.random() * 3
+            }));
+            const dots = svg.selectAll('circle').data(particles).join('circle')
+                .attr('r', d => d.size).attr('fill', PRIMARY).attr('opacity', 0.32);
+            d3.timer(() => {
+                dots.attr('cx', d => { d.angle += d.speed; return cx + Math.cos(d.angle) * d.r; })
+                    .attr('cy', d => cy + Math.sin(d.angle) * d.r * 0.6);
+            });
+        })();
+
+        // ===== SLIDE 4: CF HUB-SPOKE (satélites orbitando, loop) =====
+        (function () {
+            const CENTRO = 'CF';
+            const SATELITES = ['Condutores', 'Manutenção', 'Combustível', 'Acidentes', 'Formulários'];
+            const W = 960, H = 540;
+            const svg = d3.select('#cf-stage').append('svg').attr('viewBox', `0 0 ${W} ${H}`);
+            const cx = W / 2, cy = H / 2, R = 190;
+
+            svg.append('ellipse').attr('cx', cx).attr('cy', cy).attr('rx', R).attr('ry', R * 0.62)
+                .attr('fill', 'none').attr('stroke', 'rgba(255,255,255,0.10)').attr('stroke-dasharray', '4 6');
+
+            const core = svg.append('g').attr('transform', `translate(${cx},${cy})`);
+            core.append('circle').attr('r', 0).attr('fill', 'rgba(255,255,255,0.06)')
+                .attr('stroke', PRIMARY).attr('stroke-width', 2.5)
+                .transition().duration(800).ease(d3.easeBackOut).attr('r', 60);
+            core.append('text').text(CENTRO).attr('text-anchor', 'middle').attr('dy', 6)
+                .attr('fill', PRIMARY).attr('font-size', 22).attr('font-weight', 800)
+                .attr('opacity', 0).transition().delay(500).attr('opacity', 1);
+
+            const pulse = core.append('circle').attr('r', 60).attr('fill', 'none').attr('stroke', PRIMARY).attr('opacity', 0);
+            function corePulse() {
+                pulse.attr('r', 60).attr('opacity', 0.6)
+                    .transition().duration(1600).ease(d3.easeCubicOut).attr('r', 105).attr('opacity', 0)
+                    .on('end', corePulse);
+            }
+            corePulse();
+
+            const sats = svg.selectAll('g.sat')
+                .data(SATELITES.map((s, i) => ({ label: s, angle: (i / SATELITES.length) * Math.PI * 2 })))
+                .join('g').attr('class', 'sat');
+            sats.append('circle').attr('r', 0).attr('fill', 'rgba(255,255,255,0.08)')
+                .attr('stroke', PRIMARY).attr('stroke-opacity', 0.5)
+                .transition().delay((d, i) => 800 + i * 150).duration(500).ease(d3.easeBackOut).attr('r', 32);
+            sats.append('text').text(d => d.label).attr('text-anchor', 'middle').attr('dy', 4)
+                .attr('fill', 'rgba(255,255,255,0.85)').attr('font-size', 11).attr('font-weight', 600)
+                .attr('opacity', 0).transition().delay((d, i) => 1000 + i * 150).attr('opacity', 1);
+            function orbit() {
+                sats.attr('transform', d => {
+                    d.angle += 0.004;
+                    return `translate(${cx + Math.cos(d.angle) * R},${cy + Math.sin(d.angle) * R * 0.62})`;
+                });
+            }
+            d3.timer(orbit);
+            window.__cfReplay = function () { corePulse(); };
+        })();
+
+        // ===== SLIDE 19: PROTOCOLO DE ACIDENTE (fluxo de 6 nós, partícula viajando, loop) =====
+        (function () {
+            const ETAPAS = ['Sinalizar', 'Comunicar o CF', 'Acionar a autoridade', '192 ou 193 (vítimas)', 'Coletar dados', 'Não abandonar'];
+            const W = 1040, H = 540;
+            const svg = d3.select('#acidente-stage').append('svg').attr('viewBox', `0 0 ${W} ${H}`);
+            const topY = H * 0.36, botY = H * 0.66;
+            const pos = ETAPAS.map((d, i) => ({
+                label: d, n: i + 1,
+                x: 90 + i * ((W - 180) / (ETAPAS.length - 1)),
+                y: i % 2 === 0 ? topY : botY,
+                alert: d.indexOf('192') !== -1
+            }));
+
+            const linePath = d3.line().x(p => p.x).y(p => p.y).curve(d3.curveCatmullRom.alpha(0.5));
+            const path = svg.append('path').attr('d', linePath(pos))
+                .attr('fill', 'none').attr('stroke', 'rgba(255,255,255,0.12)').attr('stroke-width', 2);
+            const totalLen = path.node().getTotalLength();
+            path.attr('stroke-dasharray', totalLen).attr('stroke-dashoffset', totalLen)
+                .transition().duration(1600).ease(d3.easeCubicInOut).attr('stroke-dashoffset', 0);
+
+            const nodes = svg.selectAll('g.node').data(pos).join('g')
+                .attr('transform', d => `translate(${d.x},${d.y})`);
+            nodes.append('circle').attr('r', 0)
+                .attr('fill', d => d.alert ? PRIMARY : 'rgba(255,255,255,0.06)')
+                .attr('stroke', PRIMARY).attr('stroke-width', 2)
+                .transition().delay((d, i) => 300 + i * 200).duration(500).ease(d3.easeBackOut).attr('r', 30);
+            nodes.append('text').text(d => d.n).attr('text-anchor', 'middle').attr('dy', 6)
+                .attr('fill', d => d.alert ? '#000' : PRIMARY).attr('font-size', 18).attr('font-weight', 800)
+                .attr('opacity', 0).transition().delay((d, i) => 500 + i * 200).attr('opacity', 1);
+            nodes.append('text').text(d => d.label).attr('text-anchor', 'middle')
+                .attr('dy', d => d.y === topY ? -44 : 52)
+                .attr('fill', d => d.alert ? PRIMARY : 'rgba(255,255,255,0.75)').attr('font-size', 14).attr('font-weight', 600)
+                .attr('opacity', 0).transition().delay((d, i) => 650 + i * 200).attr('opacity', 1);
+
+            const alertNode = svg.selectAll('g.node').filter(d => d.alert);
+            function alertPulse() {
+                alertNode.select('circle')
+                    .transition().duration(700).attr('r', 36)
+                    .transition().duration(700).attr('r', 30)
+                    .on('end', alertPulse);
+            }
+            alertPulse();
+
+            const particle = svg.append('circle').attr('r', 7).attr('fill', PRIMARY)
+                .style('filter', `drop-shadow(0 0 8px ${PRIMARY})`).attr('opacity', 0);
+            particle.attr('cx', 0).attr('cy', 0);
+            function travel() {
+                particle.attr('opacity', 1);
+                particle.transition().duration(5200).ease(d3.easeCubicInOut)
+                    .attrTween('transform', () => t => {
+                        const p = path.node().getPointAtLength(t * totalLen);
+                        return `translate(${p.x},${p.y})`;
+                    })
+                    .transition().duration(300).attr('opacity', 0).on('end', travel);
+            }
+            setTimeout(travel, 1600);
+            window.__acidenteReplay = travel;
+        })();
+
+        // ===== BARRAS DE PROGRESSO: preenchem ao entrar em tela + shimmer (loop) =====
+        (function () {
+            const bars = document.querySelectorAll('.mira-bar');
+            if (!bars.length) return;
+            const io = new IntersectionObserver((entries) => {
+                entries.forEach(e => {
+                    if (e.isIntersecting) {
+                        const el = e.target;
+                        el.style.width = (el.dataset.target || '100') + '%';
+                        io.unobserve(el);
+                    }
+                });
+            }, { threshold: 0.4 });
+            bars.forEach(b => io.observe(b));
+        })();
+
+        // ===== REALCE CÍCLICO: loop interno perpétuo em cards de conteúdo =====
+        (function () {
+            const groups = document.querySelectorAll('.cycle-group');
+            groups.forEach((group, gi) => {
+                const items = Array.from(group.children).filter(el => el.classList.contains('cycle-item'));
+                if (items.length < 2) return;
+                let idx = 0, timer = null;
+                function tick() {
+                    items.forEach((it, i) => it.classList.toggle('cycle-active', i === idx));
+                    idx = (idx + 1) % items.length;
+                }
+                function start() { if (timer) return; tick(); timer = setInterval(tick, 2000 + (gi % 4) * 200); }
+                function stop() { clearInterval(timer); timer = null; items.forEach(it => it.classList.remove('cycle-active')); }
+                new IntersectionObserver((entries) => {
+                    entries.forEach(e => e.isIntersecting ? start() : stop());
+                }, { threshold: 0.35 }).observe(group);
+            });
+        })();
+
+        // === CONTROLES DE SLIDE: navegação card-a-card ===
+        (function () {
+            const cardSections = Array.from(document.querySelectorAll('body > section'));
+            if (cardSections.length === 0) return;
+
+            const progress = document.getElementById('mira-progress');
+            const nextBtn = document.getElementById('mira-next');
+            const nextIcon = document.getElementById('mira-next-icon');
+
+            const atBottom = () =>
+                (window.scrollY + window.innerHeight) >= (document.documentElement.scrollHeight - 100);
+
+            function currentIndex() {
+                const y = window.scrollY + window.innerHeight * 0.3;
+                let idx = -1;
+                for (let i = 0; i < cardSections.length; i++) {
+                    if (cardSections[i].offsetTop <= y) idx = i;
+                }
+                return idx;
+            }
+
+            function goTo(i) {
+                const idx = Math.max(0, Math.min(cardSections.length - 1, i));
+                cardSections[idx].scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            window.addEventListener('scroll', () => {
+                const docH = document.documentElement.scrollHeight - window.innerHeight;
+                progress.style.width = (docH > 0 ? (window.scrollY / docH) * 100 : 0) + '%';
+                nextBtn.classList.toggle('visible', window.scrollY > 300);
+                nextIcon.setAttribute('data-lucide', atBottom() ? 'chevron-up' : 'chevron-down');
+                lucide.createIcons();
+            });
+
+            nextBtn.addEventListener('click', () => {
+                if (atBottom()) { window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+                goTo(currentIndex() + 1);
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (['ArrowRight', 'ArrowDown', 'PageDown'].includes(e.key)) {
+                    e.preventDefault();
+                    goTo(currentIndex() + 1);
+                } else if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(e.key)) {
+                    e.preventDefault();
+                    const idx = currentIndex();
+                    if (idx <= 0) window.scrollTo({ top: 0, behavior: 'smooth' });
+                    else goTo(idx - 1);
+                } else if (e.key === 'Home') {
+                    e.preventDefault();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else if (e.key === 'End') {
+                    e.preventDefault();
+                    goTo(cardSections.length - 1);
+                } else if (e.key.toLowerCase() === 'f') {
+                    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+                    else document.exitFullscreen();
+                }
+            });
+        })();
+    </script>
+
+    <!-- Modo edição (reordenar slides): tecla E ou ?edit=1 -->
+    <script src="mira/mira-edit.js" defer></script>
+    <!-- mira-draw (desenhar sobre o slide): tecla P ou ?draw=1 -->
+    <script src="mira/mira-draw.js" defer></script>
+</body>
+
+</html>
