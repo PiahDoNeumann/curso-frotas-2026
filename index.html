@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Curso Frotas 2026</title>
+    <link href="primeira-aula/assets/vendor/inter.css" rel="stylesheet">
+    <style>
+        :root {
+            --mira-primary: #FF904D;
+            --mira-bg: #000000;
+            --mira-text: #ffffff;
+            --mira-text-soft: rgba(255, 255, 255, 0.70);
+            --mira-text-softer: rgba(255, 255, 255, 0.50);
+            --mira-card-bg: rgba(255, 255, 255, 0.05);
+            --mira-card-border: rgba(255, 255, 255, 0.10);
+            --mira-glow-soft: rgba(255, 144, 77, 0.15);
+            --mira-glow-strong: rgba(255, 144, 77, 0.25);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background: var(--mira-bg);
+            color: var(--mira-text);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            padding: 4rem 1.5rem;
+        }
+
+        .wrap {
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: clamp(1.75rem, 4vw, 2.5rem);
+            font-weight: 700;
+            margin: 0 0 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--mira-text-soft);
+            margin: 0 0 2.5rem;
+        }
+
+        .aula-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.9rem;
+        }
+
+        .aula-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 1.25rem 1.5rem;
+            background: var(--mira-card-bg);
+            border: 1px solid var(--mira-card-border);
+            border-radius: 0.75rem;
+            text-decoration: none;
+            color: var(--mira-text);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .aula-card:hover {
+            border-color: var(--mira-primary);
+            box-shadow: 0 10px 30px var(--mira-glow-soft);
+        }
+
+        .aula-nome {
+            font-weight: 600;
+        }
+
+        .aula-desc {
+            color: var(--mira-text-softer);
+            font-size: 0.9rem;
+            margin-top: 0.2rem;
+        }
+
+        .aula-seta {
+            color: var(--mira-primary);
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <h1>Curso Frotas 2026</h1>
+        <p class="subtitle">Aulas disponíveis</p>
+
+        <div class="aula-list">
+            <a class="aula-card" href="primeira-aula/">
+                <div>
+                    <div class="aula-nome">Primeira Aula</div>
+                    <div class="aula-desc">Condução de Veículos Oficiais, IN 1/2020 Toledo</div>
+                </div>
+                <span class="aula-seta">→</span>
+            </a>
+        </div>
+    </div>
+</body>
+
+</html>
