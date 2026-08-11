@@ -1,0 +1,1700 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>A sua aposentadoria, sem enrolação | ToledoPrev</title>
+    <script src="assets/vendor/tailwind.js"></script>
+    <link href="assets/vendor/aos.css" rel="stylesheet">
+    <script src="assets/vendor/aos.js"></script>
+    <script src="assets/vendor/lucide.js"></script>
+    <script src="assets/vendor/d3.v7.min.js"></script>
+    <link href="assets/vendor/inter.css" rel="stylesheet">
+    <style>
+        /* Fonte ampliada para apresentacao: escala todas as classes rem do Tailwind */
+        html { font-size: 145%; }
+
+        /* @MIRA:THEME:START */
+/* MIRA THEME: light-minimal
+   Fundo claro, tipografia escura, laranja como acento pontual.
+   Para ambientes corporativos com projetor fraco ou impressão. */
+:root {
+    --mira-primary: #E8722A;
+    --mira-crop: #35D07F;
+    --mira-bg: #FAFAF7;
+    --mira-text: #1A1A1A;
+    --mira-text-soft: rgba(26, 26, 26, 0.72);
+    --mira-text-softer: rgba(26, 26, 26, 0.50);
+    --mira-card-bg: rgba(255, 255, 255, 0.85);
+    --mira-card-border: rgba(0, 0, 0, 0.08);
+    --mira-glow-soft: rgba(232, 114, 42, 0.10);
+    --mira-glow-strong: rgba(232, 114, 42, 0.18);
+    --mira-icon-bg: rgba(232, 114, 42, 0.12);
+    --mira-icon-border: rgba(232, 114, 42, 0.30);
+    --mira-pill-bg: rgba(0, 0, 0, 0.03);
+    --mira-pill-border: rgba(0, 0, 0, 0.08);
+    --mira-stage-glow: rgba(232, 114, 42, 0.05);
+    --mira-accent-2: #2A6FE8;
+}
+
+
+/* ============================================================
+   MIRA — base.css
+   Estrutura compartilhada por todos os temas.
+   Os temas definem apenas as CSS variables (--mira-*).
+   ============================================================ */
+
+body {
+    background: var(--mira-bg);
+    min-height: 100vh;
+    color: var(--mira-text);
+    font-family: 'Inter', sans-serif;
+}
+
+.primary-color { color: var(--mira-primary); }
+.primary-bg { background: var(--mira-primary); }
+
+.glass-card {
+    background: var(--mira-card-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--mira-card-border);
+    box-shadow: 0 10px 30px var(--mira-glow-soft);
+    transition: all 0.3s ease;
+    border-radius: 0.75rem;
+}
+
+.glass-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px var(--mira-glow-strong);
+}
+
+.icon-hero {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    background: var(--mira-icon-bg);
+    border: 1px solid var(--mira-icon-border);
+}
+
+.attribute-pill {
+    background: var(--mira-pill-bg);
+    border: 1px solid var(--mira-pill-border);
+    transition: all 0.25s ease;
+    border-radius: 9999px;
+}
+
+.attribute-pill:hover {
+    background: var(--mira-icon-bg);
+    border-color: var(--mira-icon-border);
+    transform: translateY(-3px);
+}
+
+/* Palco de animação D3 — tamanho padrão do canvas */
+.anim-stage {
+    width: 100%;
+    height: clamp(400px, 60vh, 620px);
+    background: radial-gradient(circle at 50% 50%, var(--mira-stage-glow), transparent 70%);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+}
+
+.anim-stage svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.replay-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+    background: var(--mira-pill-bg);
+    border: 1px solid var(--mira-pill-border);
+    color: var(--mira-text-soft);
+    border-radius: 9999px;
+    padding: 6px 14px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.replay-btn:hover {
+    background: var(--mira-icon-bg);
+    color: var(--mira-primary);
+}
+
+.text-soft { color: var(--mira-text-soft); }
+.text-softer { color: var(--mira-text-softer); }
+
+@keyframes mira-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.08); opacity: 0.85; }
+}
+
+@keyframes mira-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes mira-gradient-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* @MIRA:THEME:END */
+
+        /* Diretriz de titulo da capa (CLAUDE.md): quebra equilibrada so no primeiro slide */
+        body > section:first-of-type h1,
+        body > section:first-of-type h2 { text-wrap: balance; }
+
+        /* === CONTROLES DE SLIDE (passagem card-a-card) === */
+        html { scroll-behavior: smooth; }
+        html { scrollbar-width: thin; scrollbar-color: #cfcfc8 #f0f0ea; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; background: #f0f0ea; }
+        ::-webkit-scrollbar-track { background: #f0f0ea; }
+        ::-webkit-scrollbar-thumb { background: #cfcfc8; border-radius: 999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #b3b3aa; }
+        ::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+
+        #mira-progress {
+            position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+            background: linear-gradient(90deg, var(--mira-primary), var(--mira-accent-2), var(--mira-primary));
+            background-size: 200% 100%;
+            animation: mira-shimmer 2s linear infinite;
+            z-index: 9999; transition: width 0.1s linear;
+            box-shadow: 0 0 10px var(--mira-glow-strong);
+        }
+
+        @keyframes mira-shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        #mira-next {
+            position: fixed; bottom: 32px; right: 32px;
+            width: 48px; height: 48px; border-radius: 50%;
+            background: var(--mira-primary); color: var(--mira-bg);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; border: none;
+            opacity: 0; transform: translateY(20px);
+            transition: all 0.3s ease; z-index: 9998;
+            box-shadow: 0 4px 20px var(--mira-glow-strong);
+        }
+        #mira-next.visible { opacity: 1; transform: translateY(0); }
+        #mira-next:hover { transform: translateY(-3px) scale(1.1); }
+
+        /* === Componentes deste deck === */
+
+        /* Barra de progresso animada em loop */
+        .meter {
+            height: 18px;
+            border-radius: 999px;
+            background: var(--mira-pill-bg);
+            border: 1px solid var(--mira-pill-border);
+            overflow: hidden;
+            position: relative;
+        }
+        .meter > span {
+            display: block;
+            height: 100%;
+            width: 0%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, var(--mira-primary), var(--mira-accent-2));
+            transition: width 1.4s cubic-bezier(.22,.9,.28,1);
+        }
+
+        /* Papel branco: holerite e documentos */
+        .paper {
+            background: #FFFFFF;
+            border: 1px solid rgba(0, 0, 0, 0.10);
+            border-radius: 6px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.10);
+            position: relative;
+        }
+        .paper-stamp {
+            position: absolute;
+            top: 14px; right: 14px;
+            transform: rotate(-8deg);
+            border: 2px solid rgba(200, 40, 40, 0.55);
+            color: rgba(200, 40, 40, 0.75);
+            font-size: 11px; font-weight: 800; letter-spacing: 0.12em;
+            padding: 4px 10px; border-radius: 4px;
+        }
+        .paper table { width: 100%; border-collapse: collapse; }
+        .paper td { padding: 7px 10px; border-bottom: 1px solid rgba(0,0,0,0.06); font-size: 14px; }
+        .paper .row-hl { background: var(--mira-icon-bg); }
+
+        /* Tabelas de dados */
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th {
+            text-align: left; font-size: 13px; text-transform: uppercase;
+            letter-spacing: 0.06em; color: var(--mira-text-softer);
+            padding: 10px 12px; border-bottom: 2px solid var(--mira-pill-border);
+        }
+        .data-table td {
+            padding: 11px 12px; border-bottom: 1px solid var(--mira-card-border);
+            font-size: 15px;
+        }
+        .data-table tbody tr:hover { background: var(--mira-pill-bg); }
+        .data-table .num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+        /* Aviso forte */
+        .warn-box {
+            border-left: 4px solid var(--mira-primary);
+            background: var(--mira-icon-bg);
+            border-radius: 8px;
+        }
+
+        /* Numeral grande de destaque */
+        .big-number {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 900;
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .cta-breathe {
+            background: radial-gradient(ellipse at 50% 60%, var(--mira-glow-strong), transparent 65%);
+            animation: mira-pulse 4s ease-in-out infinite;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .cta-breathe { animation: none; }
+            #mira-progress { animation: none; }
+        }
+
+/* @MIRA:RESPONSIVE:START */
+/* ============================================================
+   MIRA — responsive.css  (camada de reflow mobile-first)
+   Objetivo: TODO slide 16:9 do Mira vira legível no celular em
+   retrato SEM arquivo mobile separado. O mesmo deck se reorganiza:
+   fontes encolhem, grids empilham, padding reduz, palcos escalam.
+   ============================================================ */
+
+/* Guarda universal contra overflow horizontal (o "print cortado" no zap). */
+html, body { max-width: 100%; overflow-x: hidden; }
+img, svg, video, canvas, iframe, table, pre { max-width: 100%; }
+
+@media (max-width: 640px) {
+
+  /* --- Tipografia fluida: encolhe títulos gigantes no celular --- */
+  .text-9xl { font-size: clamp(3rem, 12vw, 5rem)      !important; line-height: 1.05 !important; }
+  .text-8xl { font-size: clamp(2.75rem, 11vw, 4.5rem) !important; line-height: 1.06 !important; }
+  .text-7xl { font-size: clamp(2.25rem, 10vw, 3.75rem)!important; line-height: 1.08 !important; }
+  .text-6xl { font-size: clamp(2rem, 9vw, 3rem)       !important; line-height: 1.1  !important; }
+  .text-5xl { font-size: clamp(1.75rem, 8vw, 2.5rem)  !important; line-height: 1.12 !important; }
+  .text-4xl { font-size: clamp(1.5rem, 7vw, 2rem)     !important; line-height: 1.15 !important; }
+  .text-3xl { font-size: clamp(1.35rem, 6vw, 1.75rem) !important; line-height: 1.2  !important; }
+  .text-2xl { font-size: clamp(1.2rem, 5vw, 1.5rem)   !important; line-height: 1.25 !important; }
+  .text-xl  { font-size: clamp(1.05rem, 4.5vw, 1.25rem)!important; line-height: 1.3 !important; }
+
+  h1, h2, h3 { overflow-wrap: break-word; }
+
+  /* --- Espaçamento: paddings de desktop sufocam o celular --- */
+  .p-12 { padding: 1.25rem !important; }
+  .p-10 { padding: 1.15rem !important; }
+  .p-8  { padding: 1.05rem !important; }
+  .px-12, .px-10 { padding-left: 1.15rem !important; padding-right: 1.15rem !important; }
+  .px-8 { padding-left: 1rem !important; padding-right: 1rem !important; }
+  .py-16 { padding-top: 2.5rem !important; padding-bottom: 2.5rem !important; }
+  .gap-8 { gap: 1rem !important; }
+  .gap-10, .gap-12 { gap: 1.25rem !important; }
+
+  /* --- Layout: seção de slide sempre alcançável pelo topo --- */
+  .min-h-screen {
+    min-height: 100dvh !important;
+    height: auto !important;
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+  }
+  .min-h-screen.justify-center,
+  .min-h-screen.items-center { justify-content: flex-start !important; }
+
+  /* --- Grids/flex de 2+ colunas empilham --- */
+  .grid-cols-2, .grid-cols-3, .grid-cols-4 { grid-template-columns: 1fr !important; }
+
+  /* --- Palco de animação: nunca estoura a largura --- */
+  .anim-stage {
+    max-width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 16 / 9;
+    min-height: 0 !important;
+  }
+
+  /* --- Tabelas: fonte menor + rolagem horizontal se precisar. --- */
+  table { font-size: 0.82rem !important; }
+  .overflow-x-auto { -webkit-overflow-scrolling: touch; }
+
+  /* --- Controles flutuantes respeitam a safe-area do iPhone. --- */
+  #mira-next, #next-card {
+    bottom: max(1rem, env(safe-area-inset-bottom)) !important;
+    right: max(1rem, env(safe-area-inset-right)) !important;
+    width: 44px !important; height: 44px !important;
+  }
+}
+/* @MIRA:RESPONSIVE:END */
+</style>
+</head>
+
+<body>
+    <div id="mira-progress"></div>
+    <button id="mira-next" aria-label="Próximo slide">
+        <i data-lucide="chevron-down" class="w-6 h-6" id="mira-next-icon"></i>
+    </button>
+
+    <!-- ============ SLIDE 1: CAPA ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center relative overflow-hidden px-6">
+        <div id="capa-stage" class="absolute inset-0 pointer-events-none"></div>
+        <div class="relative z-10 text-center max-w-4xl" data-aos="fade-up">
+            <p class="attribute-pill inline-block px-5 py-2 text-sm tracking-widest uppercase text-soft mb-8">ToledoPrev · Motoristas do Município</p>
+            <h1 class="text-5xl md:text-7xl font-black leading-tight mb-6">
+                A sua aposentadoria,<br>
+                <span class="primary-color">sem enrolação</span>
+            </h1>
+            <p class="text-lg md:text-xl text-soft max-w-2xl mx-auto mb-6">Todo mês some 14% do seu contracheque. Hoje você vai ver exatamente para onde esse dinheiro vai, e quando ele volta.</p>
+            <p class="text-softer max-w-2xl mx-auto mb-10 text-sm">Dados do Relatório de Gestão Atuarial 2026, aprovado pelo Conselho de Administração em junho de 2026.</p>
+            <div class="flex items-center justify-center gap-3 text-softer text-sm flex-wrap">
+                <i data-lucide="bus-front" class="w-4 h-4 primary-color"></i> Motoristas do transporte municipal
+                <span class="opacity-40">|</span>
+                <i data-lucide="clock" class="w-4 h-4 primary-color"></i> 1 hora
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 2: AGENDA ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="list-checks" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">O roteiro de hoje</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Seis paradas, uma hora, nenhum palavrão técnico sem tradução</p>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-8 md:p-10" data-aos="fade-up">
+            <ol class="space-y-5">
+                <li class="flex gap-4 items-start"><span class="icon-hero" style="width:38px;height:38px;border-radius:12px;"><span class="primary-color font-black">1</span></span><div><p class="text-xl font-bold">Para onde vai o desconto do seu contracheque</p><p class="text-soft">Os 14% seus, os 21% da Prefeitura e o caminho do dinheiro.</p></div></li>
+                <li class="flex gap-4 items-start"><span class="icon-hero" style="width:38px;height:38px;border-radius:12px;"><span class="primary-color font-black">2</span></span><div><p class="text-xl font-bold">Quem somos nós, os 5.998 do ToledoPrev</p><p class="text-soft">Quantos estão na ativa, quantos já se aposentaram.</p></div></li>
+                <li class="flex gap-4 items-start"><span class="icon-hero" style="width:38px;height:38px;border-radius:12px;"><span class="primary-color font-black">3</span></span><div><p class="text-xl font-bold">Quando você sai e com quanto</p><p class="text-soft">As regras de aposentadoria, o valor do benefício, a pensão da família, o tempo de INSS e como pedir.</p></div></li>
+                <li class="flex gap-4 items-start"><span class="icon-hero" style="width:38px;height:38px;border-radius:12px;"><span class="primary-color font-black">4</span></span><div><p class="text-xl font-bold">O fundo tem dinheiro para pagar?</p><p class="text-soft">Quanto entra, quanto sai e quanto está guardado.</p></div></li>
+                <li class="flex gap-4 items-start"><span class="icon-hero" style="width:38px;height:38px;border-radius:12px;"><span class="primary-color font-black">5</span></span><div><p class="text-xl font-bold">A parte que ninguém gosta de contar</p><p class="text-soft">O déficit, a despesa crescendo e o que está sendo feito.</p></div></li>
+                <li class="flex gap-4 items-start"><span class="icon-hero" style="width:38px;height:38px;border-radius:12px;"><span class="primary-color font-black">6</span></span><div><p class="text-xl font-bold">Quem vigia esse dinheiro</p><p class="text-soft">Conselhos, atuária independente e auditoria.</p></div></li>
+            </ol>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 3: O CONTRACHEQUE ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <h2 class="text-4xl md:text-5xl font-black">Aquela linha no fim do contracheque</h2>
+            <p class="text-soft text-lg mt-3">"Contribuição previdenciária: 14%"</p>
+        </div>
+        <div class="w-full max-w-3xl paper p-6 md:p-8" data-aos="fade-up">
+            <div class="paper-stamp">EXEMPLO FICTÍCIO</div>
+            <p class="text-xs tracking-widest uppercase text-softer mb-1">Município de Toledo</p>
+            <p class="font-bold text-lg mb-4">Demonstrativo de pagamento</p>
+            <p class="text-sm text-soft mb-5">Servidor: João da Silva · Matrícula 4521 · Cargo: Motorista · Competência 07/2026</p>
+            <table>
+                <tbody>
+                    <tr><td>Vencimento base</td><td class="text-right">R$ 4.809,60</td></tr>
+                    <tr><td>Adicional de tempo de serviço</td><td class="text-right">R$ 480,96</td></tr>
+                    <tr class="row-hl"><td class="font-bold">Contribuição previdenciária (14%)</td><td class="text-right font-bold primary-color">- R$ 740,68</td></tr>
+                    <tr><td>Imposto de renda</td><td class="text-right">- R$ 128,40</td></tr>
+                    <tr><td class="font-bold">Líquido a receber</td><td class="text-right font-bold">R$ 4.421,48</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="text-xl md:text-2xl font-bold mt-8 text-center max-w-2xl" data-aos="fade-up">Isso não é imposto. Imposto some. Isso volta.</p>
+    </section>
+
+    <!-- ============ SLIDE 4: O CAMINHO DO DINHEIRO (D3) ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-8" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="route" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">O caminho do seu dinheiro</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Do contracheque ao ToledoPrev, e do ToledoPrev de volta para você</p>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-6 md:p-8 relative" data-aos="fade-up">
+            <button class="replay-btn" onclick="window.__caminhoReplay && window.__caminhoReplay()">↻ replay</button>
+            <div id="caminho-stage" class="anim-stage"></div>
+        </div>
+        <p class="text-softer mt-6 text-center max-w-2xl" data-aos="fade-up">O dinheiro não entra no caixa da Prefeitura. É fundo separado, com CNPJ próprio, conselho e conta bancária própria.</p>
+    </section>
+
+    <!-- ============ SLIDE 5: VOCÊ 14, PREFEITURA 21 ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <h2 class="text-4xl md:text-5xl font-black">Você não está sozinho nessa conta</h2>
+            <p class="text-soft text-lg mt-3">Para cada R$ 1 que sai do seu bolso, o Município põe R$ 1,50</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-8 w-full max-w-5xl items-stretch">
+            <div id="versus-a" class="glass-card p-8 md:p-10 transition-all duration-700" data-aos="fade-right">
+                <div class="icon-hero mb-6"><i data-lucide="user" class="primary-color w-6 h-6"></i></div>
+                <p class="text-sm uppercase tracking-widest text-softer">Você, servidor</p>
+                <h3 class="big-number primary-color mb-4">14%</h3>
+                <ul class="space-y-3 text-soft">
+                    <li class="flex gap-3"><i data-lucide="check" class="primary-color w-5 h-5 shrink-0"></i> Incide sobre a sua base de cálculo, todo mês.</li>
+                    <li class="flex gap-3"><i data-lucide="check" class="primary-color w-5 h-5 shrink-0"></i> Em 2025, os ativos juntos contribuíram R$ 37,1 milhões.</li>
+                    <li class="flex gap-3"><i data-lucide="check" class="primary-color w-5 h-5 shrink-0"></i> Era 11% até 2019.</li>
+                </ul>
+            </div>
+            <div id="versus-b" class="glass-card p-8 md:p-10 transition-all duration-700" data-aos="fade-left">
+                <div class="icon-hero mb-6"><i data-lucide="landmark" class="primary-color w-6 h-6"></i></div>
+                <p class="text-sm uppercase tracking-widest text-softer">O Município, patronal</p>
+                <h3 class="big-number primary-color mb-4">21%</h3>
+                <ul class="space-y-3 text-soft">
+                    <li class="flex gap-3"><i data-lucide="check" class="primary-color w-5 h-5 shrink-0"></i> Em 2025, R$ 55,6 milhões de contribuição.</li>
+                    <li class="flex gap-3"><i data-lucide="check" class="primary-color w-5 h-5 shrink-0"></i> Mais R$ 69,8 milhões de aporte extra por ano.</li>
+                    <li class="flex gap-3"><i data-lucide="check" class="primary-color w-5 h-5 shrink-0"></i> Esse aporte serve só para cobrir o buraco do passado.</li>
+                </ul>
+            </div>
+        </div>
+        <p class="text-softer mt-8 text-center" data-aos="fade-up">Somando tudo, a conta do ano fechou em R$ 272,5 milhões de entrada.</p>
+    </section>
+
+    <!-- ============ SLIDE 6: SOBRE O QUE INCIDEM OS 14% ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="calculator" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Os 14% não caem sobre tudo</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">E é aqui que muito motorista se surpreende na hora de aposentar</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-8 w-full max-w-5xl items-stretch">
+            <div class="glass-card p-8 md:p-10" data-aos="fade-right">
+                <div class="icon-hero mb-6"><i data-lucide="circle-check" class="primary-color w-6 h-6"></i></div>
+                <h3 class="text-2xl md:text-3xl font-bold mb-4">Entra na conta</h3>
+                <ul class="space-y-3 text-soft">
+                    <li class="flex gap-3"><i data-lucide="check" class="primary-color w-5 h-5 shrink-0"></i> Vencimento base</li>
+                    <li class="flex gap-3"><i data-lucide="check" class="primary-color w-5 h-5 shrink-0"></i> Adicional de tempo de serviço</li>
+                </ul>
+                <p class="text-softer mt-5 text-sm">São as chamadas verbas fixas do cargo efetivo. É só sobre elas que incidem os 14%.</p>
+            </div>
+            <div class="glass-card p-8 md:p-10" data-aos="fade-left">
+                <div class="icon-hero mb-6"><i data-lucide="circle-x" class="primary-color w-6 h-6"></i></div>
+                <h3 class="text-2xl md:text-3xl font-bold mb-4">Não entra na conta</h3>
+                <ul class="space-y-3 text-soft">
+                    <li class="flex gap-3"><i data-lucide="x" class="primary-color w-5 h-5 shrink-0"></i> Hora extra</li>
+                    <li class="flex gap-3"><i data-lucide="x" class="primary-color w-5 h-5 shrink-0"></i> Adicional noturno</li>
+                    <li class="flex gap-3"><i data-lucide="x" class="primary-color w-5 h-5 shrink-0"></i> Insalubridade e periculosidade</li>
+                    <li class="flex gap-3"><i data-lucide="x" class="primary-color w-5 h-5 shrink-0"></i> Produtividade, função gratificada, cargo em comissão</li>
+                </ul>
+            </div>
+        </div>
+        <div class="warn-box w-full max-w-5xl p-5 mt-6 flex gap-4 items-start" data-aos="fade-up">
+            <i data-lucide="triangle-alert" class="primary-color w-6 h-6 shrink-0 mt-1"></i>
+            <p class="text-soft"><span class="font-bold" style="color: var(--mira-text);">Leia com calma:</span> se boa parte do que você recebe hoje vem de hora extra e adicional noturno, essa parte não está sendo descontada e também não vai entrar na sua aposentadoria. Quem vive de extra costuma sentir a queda no primeiro mês de aposentado.</p>
+        </div>
+        <p class="text-softer mt-5 text-center max-w-3xl text-sm" data-aos="fade-up">Dois casos especiais: quem tem dois cargos efetivos acumuláveis contribui sobre cada um deles. Quem está em licença sem remuneração pode continuar contribuindo como facultativo, pagando a sua parte mais a patronal, 35% no total.</p>
+    </section>
+
+    <!-- ============ SLIDE 7: CTA ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center relative overflow-hidden px-6">
+        <div class="cta-breathe absolute inset-0 pointer-events-none"></div>
+        <div class="relative z-10 text-center max-w-3xl" data-aos="zoom-in">
+            <div class="icon-hero mx-auto mb-8" style="width:72px;height:72px;border-radius:20px;">
+                <i data-lucide="vault" class="primary-color w-9 h-9"></i>
+            </div>
+            <h2 class="text-5xl md:text-6xl font-black mb-6">Vamos abrir o cofre</h2>
+            <p class="text-xl text-soft mb-10">Os próximos slides são só número, mas todo número aqui é o seu.</p>
+            <span class="attribute-pill px-8 py-4 text-lg font-bold inline-block"><i data-lucide="arrow-down" class="inline w-5 h-5 mr-2 primary-color"></i>Abrir o cofre</span>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 8: 11% PARA 14% (TIMELINE) ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="history" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Por que subiu de 11% para 14%</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">A mudança que ninguém comemorou e todo mundo precisava</p>
+        </div>
+        <div class="glass-card w-full max-w-4xl p-8 md:p-10" data-aos="fade-up">
+            <div class="space-y-8">
+                <div class="flex gap-5"><div class="icon-hero shrink-0"><i data-lucide="calendar" class="primary-color w-5 h-5"></i></div><div><p class="text-sm uppercase tracking-widest text-softer">Até 2019</p><p class="text-xl font-bold">Servidor contribuía com 11%</p><p class="text-soft">Entrava menos dinheiro do que o fundo assumia de compromisso lá na frente.</p></div></div>
+                <div class="flex gap-5"><div class="icon-hero shrink-0"><i data-lucide="scale" class="primary-color w-5 h-5"></i></div><div><p class="text-sm uppercase tracking-widest text-softer">2019</p><p class="text-xl font-bold">Emenda Constitucional 103</p><p class="text-soft">Muda as regras da previdência no país inteiro, inclusive para servidor municipal.</p></div></div>
+                <div class="flex gap-5"><div class="icon-hero shrink-0"><i data-lucide="trending-up" class="primary-color w-5 h-5"></i></div><div><p class="text-sm uppercase tracking-widest text-softer">2020</p><p class="text-xl font-bold">Alíquota vai para 14%</p><p class="text-soft">A patronal fica em 21%. O desconto no contracheque aumentou.</p></div></div>
+                <div class="flex gap-5"><div class="icon-hero shrink-0"><i data-lucide="shield-check" class="primary-color w-5 h-5"></i></div><div><p class="text-sm uppercase tracking-widest text-softer">Hoje</p><p class="text-xl font-bold">O relatório é direto: sem isso, o rombo seria maior</p><p class="text-soft">Doeu no contracheque, segurou o fundo. É o que está escrito, com todas as letras.</p></div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 9: DIVISOR, QUEM SOMOS ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center max-w-3xl" data-aos="zoom-in">
+            <div class="icon-hero mx-auto mb-8" style="width:72px;height:72px;border-radius:20px;">
+                <i data-lucide="users" class="primary-color w-9 h-9"></i>
+            </div>
+            <p class="text-sm uppercase tracking-widest text-softer mb-4">Parada 2</p>
+            <h2 class="text-4xl md:text-6xl font-black mb-6">Quem somos nós</h2>
+            <p class="text-2xl text-soft">"Você não é um número no relatório. Você é um dos 5.998."</p>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 10: OS 5.998 (D3) ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-8" data-aos="fade-up">
+            <h2 class="text-4xl md:text-5xl font-black">Somos 5.998 pessoas nessa conta</h2>
+            <p class="text-soft text-lg mt-3">Quem está na ativa, quem já se aposentou e quem recebe pensão</p>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-6 md:p-8 relative" data-aos="fade-up">
+            <button class="replay-btn" onclick="window.__pessoasReplay && window.__pessoasReplay()">↻ replay</button>
+            <div id="pessoas-stage" class="anim-stage"></div>
+        </div>
+        <p class="text-softer mt-6 text-center max-w-2xl" data-aos="fade-up">Em um ano entraram 420 servidores novos na ativa, crescimento de 10,67%. Cada bolinha na tela vale cerca de 30 pessoas.</p>
+    </section>
+
+    <!-- ============ SLIDE 11: A CASA EM NÚMEROS (TABELA + PROPORÇÃO) ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-8" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="scale" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">A casa em números</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Quem é quem, e quantos sustentam a conta</p>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-6 md:p-8 overflow-x-auto" data-aos="fade-up">
+            <table class="data-table">
+                <thead>
+                    <tr><th>Grupo</th><th class="num">Quantas pessoas</th><th class="num">Idade média</th><th class="num">Média por mês</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td class="font-bold">Ativos, quem está trabalhando</td><td class="num">4.357</td><td class="num">42,21 anos</td><td class="num">R$ 4.809,60</td></tr>
+                    <tr><td class="font-bold">Aposentados</td><td class="num">1.447</td><td class="num">65,14 anos</td><td class="num">R$ 6.271,93</td></tr>
+                    <tr><td class="font-bold">Pensionistas</td><td class="num">194</td><td class="num">60,79 anos</td><td class="num">R$ 3.184,87</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="w-full max-w-5xl grid md:grid-cols-2 gap-6 mt-6">
+            <div class="glass-card p-6 flex items-center gap-6" data-aos="fade-right">
+                <p class="big-number primary-color" style="font-size:3rem;">2,66</p>
+                <p class="text-soft text-sm">pessoas na ativa para cada aposentado ou pensionista. Era 2,50 em 2022 e 2,51 em 2024. Quanto maior esse número, mais folgada fica a conta.</p>
+            </div>
+            <div class="warn-box p-6 flex gap-4 items-start" data-aos="fade-left">
+                <i data-lucide="triangle-alert" class="primary-color w-6 h-6 shrink-0 mt-1"></i>
+                <p class="text-soft text-sm"><span class="font-bold" style="color: var(--mira-text);">Atenção:</span> essas médias juntam todos os cargos do Município. O relatório não separa motorista de professor nem de médico. Não use para calcular a sua aposentadoria.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 12: DIVISOR, QUANDO VOCÊ SAI ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center max-w-3xl" data-aos="zoom-in">
+            <div class="icon-hero mx-auto mb-8" style="width:72px;height:72px;border-radius:20px;">
+                <i data-lucide="calendar-clock" class="primary-color w-9 h-9"></i>
+            </div>
+            <p class="text-sm uppercase tracking-widest text-softer mb-4">Parada 3</p>
+            <h2 class="text-4xl md:text-6xl font-black mb-6">Quando você sai, e com quanto</h2>
+            <p class="text-2xl text-soft">"Essa é a parte que interessa. A partir daqui é o seu futuro na tela."</p>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 13: A RÉGUA DA VIDA (D3) ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-8" data-aos="fade-up">
+            <h2 class="text-4xl md:text-5xl font-black">A idade em que a média sai</h2>
+            <p class="text-soft text-lg mt-3">Projeção de aposentadoria: 56,87 anos, ou 56 anos e 10 meses</p>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-6 md:p-8 relative" data-aos="fade-up">
+            <button class="replay-btn" onclick="window.__reguaReplay && window.__reguaReplay()">↻ replay</button>
+            <div id="regua-stage" class="anim-stage"></div>
+        </div>
+        <p class="text-softer mt-6 text-center max-w-2xl" data-aos="fade-up">A projeção caiu de 59 anos em 2024 para 56,87 agora. Quem já está aposentado hoje tem, em média, 65,14 anos.</p>
+    </section>
+
+    <!-- ============ SLIDE 14: MÉDIA NÃO É REGRA ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <h2 class="text-4xl md:text-5xl font-black">Média não é regra</h2>
+            <p class="text-soft text-lg mt-3">O que o relatório diz e o que ele não diz</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-8 w-full max-w-5xl items-stretch">
+            <div class="glass-card p-8 md:p-10" data-aos="fade-right">
+                <div class="icon-hero mb-6"><i data-lucide="file-check" class="primary-color w-6 h-6"></i></div>
+                <h3 class="text-2xl md:text-3xl font-bold mb-4">O que o relatório traz</h3>
+                <ul class="space-y-3 text-soft">
+                    <li class="flex gap-3"><i data-lucide="check" class="primary-color w-5 h-5 shrink-0"></i> A idade média projetada do conjunto dos servidores.</li>
+                    <li class="flex gap-3"><i data-lucide="check" class="primary-color w-5 h-5 shrink-0"></i> Quanto o fundo tem e quanto vai precisar pagar.</li>
+                    <li class="flex gap-3"><i data-lucide="check" class="primary-color w-5 h-5 shrink-0"></i> É estatística, serve para planejar o fundo.</li>
+                </ul>
+            </div>
+            <div class="glass-card p-8 md:p-10" data-aos="fade-left">
+                <div class="icon-hero mb-6"><i data-lucide="file-x" class="primary-color w-6 h-6"></i></div>
+                <h3 class="text-2xl md:text-3xl font-bold mb-4">O que ele não traz</h3>
+                <ul class="space-y-3 text-soft">
+                    <li class="flex gap-3"><i data-lucide="x" class="primary-color w-5 h-5 shrink-0"></i> A sua regra pessoal de saída.</li>
+                    <li class="flex gap-3"><i data-lucide="x" class="primary-color w-5 h-5 shrink-0"></i> O valor exato do seu benefício.</li>
+                    <li class="flex gap-3"><i data-lucide="x" class="primary-color w-5 h-5 shrink-0"></i> A sua data.</li>
+                </ul>
+                <p class="text-soft mt-5">Essas três coisas vêm da Cartilha Previdenciária e da sua ficha funcional. É o que vem nos próximos slides.</p>
+            </div>
+        </div>
+        <p class="text-xl font-bold mt-8 text-center max-w-3xl" data-aos="fade-up">Regra a gente vê agora. A sua data, só o ToledoPrev responde, com a sua matrícula na mão.</p>
+    </section>
+
+    <!-- ============ SLIDE 15: AS QUATRO PORTAS DE SAÍDA ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="door-open" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">As quatro portas de saída</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Todo benefício do ToledoPrev cabe em uma dessas quatro, mais a pensão para a família</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-6 w-full max-w-5xl">
+            <div class="glass-card p-8" data-aos="fade-up" data-aos-delay="100"><div class="icon-hero mb-5"><i data-lucide="hourglass" class="primary-color w-6 h-6"></i></div><h3 class="text-2xl font-bold mb-2">Por tempo de contribuição</h3><p class="text-soft">A porta principal, a que quase todo mundo usa. Junta idade, tempo de contribuição, tempo de serviço público e tempo no cargo.</p></div>
+            <div class="glass-card p-8" data-aos="fade-up" data-aos-delay="200"><div class="icon-hero mb-5"><i data-lucide="cake" class="primary-color w-6 h-6"></i></div><h3 class="text-2xl font-bold mb-2">Por idade</h3><p class="text-soft">65 anos para homem, 60 para mulher, com 10 anos de serviço público e 5 no cargo. O valor sai proporcional ao tempo de contribuição.</p></div>
+            <div class="glass-card p-8" data-aos="fade-up" data-aos-delay="300"><div class="icon-hero mb-5"><i data-lucide="stethoscope" class="primary-color w-6 h-6"></i></div><h3 class="text-2xl font-bold mb-2">Por invalidez</h3><p class="text-soft">Depois de 24 meses afastado e com laudo da Junta Médica Oficial dizendo que não dá para voltar nem para readaptar em outro cargo.</p></div>
+            <div class="glass-card p-8" data-aos="fade-up" data-aos-delay="400"><div class="icon-hero mb-5"><i data-lucide="alarm-clock" class="primary-color w-6 h-6"></i></div><h3 class="text-2xl font-bold mb-2">Compulsória, aos 75</h3><p class="text-soft">Não é escolha. Ao completar 75 anos, homem ou mulher, sai do serviço público obrigatoriamente. Valor proporcional.</p></div>
+        </div>
+        <div class="warn-box w-full max-w-5xl p-5 mt-6 flex gap-4 items-start" data-aos="fade-up">
+            <i data-lucide="shield-alert" class="primary-color w-6 h-6 shrink-0 mt-1"></i>
+            <p class="text-soft"><span class="font-bold" style="color: var(--mira-text);">A reforma de 2019 ainda não pegou aqui.</span> A EC 103/2019 só vale para o servidor de Toledo depois que o Município adequar a lei municipal, e isso ainda não foi feito. Até lá valem as regras que você vai ver agora, da Constituição e das Emendas 20/98, 41/03 e 47/05.</p>
+        </div>
+        <p class="text-softer mt-5 text-center max-w-3xl text-sm" data-aos="fade-up">Base legal: artigo 40 da Constituição Federal e Lei Municipal nº 1.929/2006, artigos 30 a 33.</p>
+    </section>
+
+    <!-- ============ SLIDE 16: A REGRA PERMANENTE ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <h2 class="text-4xl md:text-5xl font-black">A regra que vale para quem entrou depois</h2>
+            <p class="text-soft text-lg mt-3">Aposentadoria por tempo de contribuição, regra permanente. As quatro condições valem juntas</p>
+        </div>
+        <div class="glass-card w-full max-w-4xl p-6 md:p-8 overflow-x-auto" data-aos="fade-up">
+            <table class="data-table">
+                <thead>
+                    <tr><th>Você precisa ter</th><th class="num">Homem</th><th class="num">Mulher</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td class="font-bold">Idade</td><td class="num">60 anos</td><td class="num">55 anos</td></tr>
+                    <tr><td class="font-bold">Tempo de contribuição</td><td class="num">35 anos</td><td class="num">30 anos</td></tr>
+                    <tr><td class="font-bold">Tempo de serviço público</td><td class="num">10 anos</td><td class="num">10 anos</td></tr>
+                    <tr><td class="font-bold">Tempo no cargo efetivo</td><td class="num">5 anos</td><td class="num">5 anos</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="grid md:grid-cols-2 gap-6 w-full max-w-4xl mt-6">
+            <div class="glass-card p-6" data-aos="fade-up"><p class="font-bold mb-1">Quanto vem</p><p class="text-soft text-sm">100% da média atualizada das suas contribuições, sem passar do que você ganhava no cargo.</p></div>
+            <div class="glass-card p-6" data-aos="fade-up" data-aos-delay="100"><p class="font-bold mb-1">Como reajusta</p><p class="text-soft text-sm">Na data e no percentual do INSS, sem paridade. Ou seja, aumento dos servidores da ativa não sobe o seu benefício.</p></div>
+        </div>
+        <p class="text-softer mt-5 text-center max-w-3xl text-sm" data-aos="fade-up">Professor em sala tem regra própria, 5 anos a menos de idade e de contribuição. Motorista de transporte escolar não é professor: a regra do magistério vale só para quem exerce a docência.</p>
+    </section>
+
+    <!-- ============ SLIDE 17: REGRAS DE TRANSIÇÃO ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-8" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="git-branch" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Entrou faz tempo? Você pode ter regra melhor</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Três regras de transição, e o que decide é a data em que você entrou no serviço público</p>
+        </div>
+        <div class="w-full max-w-5xl grid md:grid-cols-3 gap-5">
+            <div class="glass-card p-6" data-aos="fade-up" data-aos-delay="100">
+                <p class="attribute-pill inline-block px-3 py-1 text-xs mb-3">Entrou até 16/12/1998</p>
+                <h3 class="text-xl font-bold mb-2">Sai mais cedo, ganha menos</h3>
+                <p class="text-soft text-sm mb-3">53 anos para homem, 48 para mulher, 5 anos no cargo, mais um pedágio de 20% sobre o tempo que faltava lá em 1998.</p>
+                <p class="text-sm"><span class="font-bold">Pegadinha:</span> perde 5% do valor para cada ano que antecipar em relação a 60 e 55. Sem paridade.</p>
+                <p class="text-softer text-xs mt-3">EC 41/2003, art. 2º</p>
+            </div>
+            <div class="glass-card p-6" data-aos="fade-up" data-aos-delay="200">
+                <p class="attribute-pill inline-block px-3 py-1 text-xs mb-3">Entrou até 31/12/2003</p>
+                <h3 class="text-xl font-bold mb-2">Espera mais, leva integral</h3>
+                <p class="text-soft text-sm mb-3">60 anos e 35 de contribuição para homem, 55 e 30 para mulher, mais 20 anos de serviço público, 10 de carreira e 5 no cargo.</p>
+                <p class="text-sm"><span class="font-bold">Vantagem:</span> 100% da última remuneração de contribuição, com paridade.</p>
+                <p class="text-softer text-xs mt-3">EC 41/2003, art. 6º</p>
+            </div>
+            <div class="glass-card p-6" data-aos="fade-up" data-aos-delay="300">
+                <p class="attribute-pill inline-block px-3 py-1 text-xs mb-3">Entrou até 16/12/1998</p>
+                <h3 class="text-xl font-bold mb-2">Cada ano a mais tira um da idade</h3>
+                <p class="text-soft text-sm mb-3">35 anos de contribuição para homem, 30 para mulher, 25 de serviço público, 15 de carreira e 5 no cargo. Idade base 60 e 55, caindo 1 ano para cada ano a mais de contribuição.</p>
+                <p class="text-sm"><span class="font-bold">Vantagem:</span> 100% da última remuneração, com paridade.</p>
+                <p class="text-softer text-xs mt-3">EC 47/2005, art. 3º</p>
+            </div>
+        </div>
+        <div class="warn-box w-full max-w-5xl p-5 mt-6 flex gap-4 items-start" data-aos="fade-up">
+            <i data-lucide="info" class="primary-color w-6 h-6 shrink-0 mt-1"></i>
+            <p class="text-soft"><span class="font-bold" style="color: var(--mira-text);">Paridade é a palavra que vale dinheiro:</span> com paridade, quando o servidor da ativa ganha aumento, o seu benefício sobe junto. Sem paridade, o seu reajuste segue o do INSS. Ao longo de vinte anos de aposentadoria, essa diferença é enorme.</p>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 18: QUANTO VALE O SEU BENEFÍCIO ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <h2 class="text-4xl md:text-5xl font-black">De onde sai o valor do seu benefício</h2>
+            <p class="text-soft text-lg mt-3">Duas contas diferentes, e o que separa é a data da sua posse</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-8 w-full max-w-5xl items-stretch">
+            <div class="glass-card p-8 md:p-10" data-aos="fade-right">
+                <p class="attribute-pill inline-block px-4 py-2 text-sm mb-4">Tomou posse até 31/12/2003</p>
+                <h3 class="text-2xl font-bold mb-3">A última remuneração do cargo</h3>
+                <p class="text-soft">A conta parte do que você ganhava no fim, no cargo efetivo.</p>
+            </div>
+            <div class="glass-card p-8 md:p-10" data-aos="fade-left">
+                <p class="attribute-pill inline-block px-4 py-2 text-sm mb-4">Tomou posse depois de 31/12/2003</p>
+                <h3 class="text-2xl font-bold mb-3">A média das contribuições desde julho de 1994</h3>
+                <p class="text-soft">A conta pega a média de tudo que você contribuiu, corrigido. Por isso hora extra fora da base pesa contra você.</p>
+            </div>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-6 md:p-8 mt-6" data-aos="fade-up">
+            <div class="grid md:grid-cols-3 gap-6">
+                <div><p class="font-bold mb-1">Piso garantido</p><p class="text-soft text-sm">Se a conta proporcional der abaixo do salário mínimo, o benefício é igualado ao salário mínimo federal.</p></div>
+                <div><p class="font-bold mb-1">Teto da conta</p><p class="text-soft text-sm">O benefício não pode passar da remuneração que você tinha no cargo efetivo em que se aposentou.</p></div>
+                <div><p class="font-bold mb-1">Abono de permanência</p><p class="text-soft text-sm">Bateu todos os requisitos e quis continuar trabalhando? Você recebe de volta um valor igual ao da sua contribuição, até se aposentar.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 19: QUANTO CAI NA CONTA (D3) ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-8" data-aos="fade-up">
+            <h2 class="text-4xl md:text-5xl font-black">Quanto recebe quem já saiu</h2>
+            <p class="text-soft text-lg mt-3">Média do aposentado contra média de quem está na ativa</p>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-6 md:p-8 relative" data-aos="fade-up">
+            <button class="replay-btn" onclick="window.__barrasReplay && window.__barrasReplay()">↻ replay</button>
+            <div id="barras-stage" class="anim-stage"></div>
+        </div>
+        <p class="text-softer mt-6 text-center max-w-3xl" data-aos="fade-up">O aposentado ganha mais na média porque quem se aposenta é quem fez carreira inteira, com progressões e regras antigas de integralidade. Não é promessa para quem entrou agora, é o retrato de hoje.</p>
+    </section>
+
+    <!-- ============ SLIDE 20: PENSÃO PARA A FAMÍLIA ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="heart-handshake" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">A pensão que fica para a família</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">194 famílias recebem hoje pelo ToledoPrev</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-6 w-full max-w-5xl">
+            <div class="glass-card p-8" data-aos="fade-up" data-aos-delay="100"><div class="icon-hero mb-5"><i data-lucide="banknote" class="primary-color w-6 h-6"></i></div><h3 class="text-2xl font-bold mb-2">Quanto a família recebe</h3><p class="text-soft">100% da sua remuneração até o teto do INSS, mais 70% do que passar desse teto. O valor é dividido em partes iguais entre os dependentes.</p></div>
+            <div class="glass-card p-8" data-aos="fade-up" data-aos-delay="200"><div class="icon-hero mb-5"><i data-lucide="wallet" class="primary-color w-6 h-6"></i></div><h3 class="text-2xl font-bold mb-2">Quanto está sendo pago hoje</h3><p class="text-soft">Média de R$ 3.184,87 por família, somando R$ 617.864,78 por mês. Subiu 6,28% no último ano, a maior variação entre os três grupos.</p></div>
+            <div class="glass-card p-8" data-aos="fade-up" data-aos-delay="300"><div class="icon-hero mb-5"><i data-lucide="repeat" class="primary-color w-6 h-6"></i></div><h3 class="text-2xl font-bold mb-2">Quando um sai, os outros dividem de novo</h3><p class="text-soft">Se a parte de um dependente cessa, por exemplo quando o filho completa 21 anos, o valor é redividido entre os que continuam.</p></div>
+            <div class="glass-card p-8" data-aos="fade-up" data-aos-delay="400"><div class="icon-hero mb-5"><i data-lucide="clipboard-check" class="primary-color w-6 h-6"></i></div><h3 class="text-2xl font-bold mb-2">O que fazer agora</h3><p class="text-soft">Manter os dependentes atualizados no cadastro. Cadastro errado atrasa a vida da família na pior hora possível.</p></div>
+        </div>
+        <p class="text-softer mt-6 text-center max-w-3xl text-sm" data-aos="fade-up">Base legal: artigo 40 da Constituição Federal e artigo 37 da Lei Municipal nº 1.929/2006.</p>
+    </section>
+
+    <!-- ============ SLIDE 21: QUEM SÃO OS SEUS DEPENDENTES ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <h2 class="text-4xl md:text-5xl font-black">Quem o ToledoPrev considera seu dependente</h2>
+            <p class="text-soft text-lg mt-3">Três classes, e existir alguém numa classe exclui as de baixo</p>
+        </div>
+        <div class="w-full max-w-4xl space-y-4">
+            <div class="glass-card p-6 flex gap-5 items-start" data-aos="fade-up" data-aos-delay="100">
+                <span class="icon-hero shrink-0"><span class="primary-color font-black">1ª</span></span>
+                <div><p class="text-xl font-bold">Cônjuge, companheiro e filhos</p><p class="text-soft">Cônjuge, companheira ou companheiro, e filho ou equiparado não emancipado, menor de 21 anos ou inválido. Enteado e menor sob tutela entram aqui se comprovarem dependência econômica.</p></div>
+            </div>
+            <div class="glass-card p-6 flex gap-5 items-start" data-aos="fade-up" data-aos-delay="200">
+                <span class="icon-hero shrink-0"><span class="primary-color font-black">2ª</span></span>
+                <div><p class="text-xl font-bold">Os pais</p><p class="text-soft">Só entram se não houver ninguém da 1ª classe. Precisam comprovar dependência econômica com documento.</p></div>
+            </div>
+            <div class="glass-card p-6 flex gap-5 items-start" data-aos="fade-up" data-aos-delay="300">
+                <span class="icon-hero shrink-0"><span class="primary-color font-black">3ª</span></span>
+                <div><p class="text-xl font-bold">Irmão não emancipado</p><p class="text-soft">Menor de 21 anos ou inválido, e só se não houver ninguém das classes anteriores. Também precisa comprovar dependência econômica.</p></div>
+            </div>
+        </div>
+        <div class="warn-box w-full max-w-4xl p-5 mt-6 flex gap-4 items-start" data-aos="fade-up">
+            <i data-lucide="heart" class="primary-color w-6 h-6 shrink-0 mt-1"></i>
+            <p class="text-soft"><span class="font-bold" style="color: var(--mira-text);">Vive junto e não casou no papel?</span> A união estável vale, desde que comprovada. Ela é presumida quando existem filhos em comum e esforço recíproco para formar a família. Junte comprovante de residência, conta conjunta, foto, o que tiver, e leve no ToledoPrev antes de precisar.</p>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 22: COMPENSAÇÃO PREVIDENCIÁRIA (D3) ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-8" data-aos="fade-up">
+            <h2 class="text-4xl md:text-5xl font-black">Trabalhou de carteira assinada antes? Conta</h2>
+            <p class="text-soft text-lg mt-3">Compensação previdenciária: o INSS devolve dinheiro ao ToledoPrev</p>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-6 md:p-8 relative" data-aos="fade-up">
+            <button class="replay-btn" onclick="window.__inssReplay && window.__inssReplay()">↻ replay</button>
+            <div id="inss-stage" class="anim-stage"></div>
+        </div>
+        <div class="warn-box w-full max-w-5xl p-5 mt-6 flex gap-4 items-start" data-aos="fade-up">
+            <i data-lucide="folder-open" class="primary-color w-6 h-6 shrink-0 mt-1"></i>
+            <p class="text-soft"><span class="font-bold" style="color: var(--mira-text);">Recado prático:</span> guarde carteira de trabalho, número do PIS e contratos antigos. Esse papel vira tempo de contribuição, e tempo de contribuição vira dinheiro na sua aposentadoria.</p>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 23: COMO PEDIR O BENEFÍCIO ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="route" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">O caminho do pedido, passo a passo</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Tudo começa num atendimento, não num requerimento</p>
+        </div>
+        <div class="glass-card w-full max-w-4xl p-8 md:p-10" data-aos="fade-up">
+            <div class="space-y-7">
+                <div class="flex gap-5"><span class="icon-hero shrink-0"><span class="primary-color font-black">1</span></span><div><p class="text-xl font-bold">Atendimento no Setor de Concessão de Benefícios</p><p class="text-soft">Na Secretaria de Recursos Humanos. Eles levantam o seu histórico e conferem período por período de contribuição.</p></div></div>
+                <div class="flex gap-5"><span class="icon-hero shrink-0"><span class="primary-color font-black">2</span></span><div><p class="text-xl font-bold">Você recebe uma simulação</p><p class="text-soft">Com as regras em que você se encaixa e quanto dá em cada uma. Quem escolhe a mais vantajosa é você, não eles.</p></div></div>
+                <div class="flex gap-5"><span class="icon-hero shrink-0"><span class="primary-color font-black">3</span></span><div><p class="text-xl font-bold">Junta a documentação e as certidões</p><p class="text-soft">Documentos pessoais, funcionais e as Certidões de Tempo de Contribuição de cada emprego anterior. É aqui que a carteira de trabalho antiga faz falta.</p></div></div>
+                <div class="flex gap-5"><span class="icon-hero shrink-0"><span class="primary-color font-black">4</span></span><div><p class="text-xl font-bold">Requerimento e análise jurídica</p><p class="text-soft">Com a papelada completa, o pedido é formalizado e analisado.</p></div></div>
+                <div class="flex gap-5"><span class="icon-hero shrink-0"><span class="primary-color font-black">5</span></span><div><p class="text-xl font-bold">Portaria publicada e cargo vago</p><p class="text-soft">A publicação da Portaria encerra o processo. Depois disso, o Tribunal de Contas do Paraná ainda homologa a sua aposentadoria.</p></div></div>
+            </div>
+            <div class="warn-box p-5 mt-8">
+                <p class="text-soft"><span class="font-bold" style="color: var(--mira-text);">Invalidez e pensão começam diferente:</span> a invalidez começa pelo laudo da Junta Médica Oficial do Município. A pensão começa pela família reunindo a documentação e a prova de vínculo. Do meio para frente, o caminho é o mesmo.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 24: DIVISOR, O FUNDO TEM DINHEIRO? ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center max-w-3xl" data-aos="zoom-in">
+            <div class="icon-hero mx-auto mb-8" style="width:72px;height:72px;border-radius:20px;">
+                <i data-lucide="landmark" class="primary-color w-9 h-9"></i>
+            </div>
+            <p class="text-sm uppercase tracking-widest text-softer mb-4">Parada 4</p>
+            <h2 class="text-4xl md:text-6xl font-black mb-6">Mas o fundo tem dinheiro para pagar?</h2>
+            <p class="text-2xl text-soft">"A pergunta que todo mundo faz no corredor. A resposta está em três números."</p>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 25: ENTRA MAIS DO QUE SAI (D3) ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-8" data-aos="fade-up">
+            <h2 class="text-4xl md:text-5xl font-black">Em 2025 entrou o dobro do que saiu</h2>
+            <p class="text-soft text-lg mt-3">Solvência financeira de 219,86%</p>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-6 md:p-8 relative" data-aos="fade-up">
+            <button class="replay-btn" onclick="window.__canosReplay && window.__canosReplay()">↻ replay</button>
+            <div id="canos-stage" class="anim-stage"></div>
+        </div>
+        <p class="text-softer mt-6 text-center max-w-2xl" data-aos="fade-up">Traduzindo a palavra difícil: solvência acima de 100% quer dizer que entrou mais do que saiu.</p>
+    </section>
+
+    <!-- ============ SLIDE 26: QUATRO ANOS NO AZUL (TABELA) ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <h2 class="text-4xl md:text-5xl font-black">Não foi sorte de um ano só</h2>
+            <p class="text-soft text-lg mt-3">Receita, despesa e sobra, de 2022 a 2025</p>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-6 md:p-8 overflow-x-auto" data-aos="fade-up">
+            <table class="data-table">
+                <thead>
+                    <tr><th>Ano</th><th class="num">Entrou</th><th class="num">Saiu</th><th class="num">Sobrou</th><th class="num">Solvência</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td class="font-bold">2022</td><td class="num">R$ 146,2 mi</td><td class="num">R$ 89,6 mi</td><td class="num">R$ 56,6 mi</td><td class="num">163,17%</td></tr>
+                    <tr><td class="font-bold">2023</td><td class="num">R$ 194,8 mi</td><td class="num">R$ 101,4 mi</td><td class="num">R$ 93,3 mi</td><td class="num">192,04%</td></tr>
+                    <tr><td class="font-bold">2024</td><td class="num">R$ 210,3 mi</td><td class="num">R$ 112,8 mi</td><td class="num">R$ 97,5 mi</td><td class="num">186,45%</td></tr>
+                    <tr><td class="font-bold primary-color">2025</td><td class="num font-bold">R$ 272,5 mi</td><td class="num font-bold">R$ 123,9 mi</td><td class="num font-bold primary-color">R$ 148,6 mi</td><td class="num font-bold primary-color">219,86%</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="text-softer mt-6 text-center max-w-3xl" data-aos="fade-up">Quatro anos seguidos com mais entrada do que saída. O que sobra não vira lucro de ninguém: fica no fundo, rendendo, para pagar os benefícios de vocês lá na frente.</p>
+    </section>
+
+    <!-- ============ SLIDE 27: O COFRE ESTÁ ENCHENDO ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="piggy-bank" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">De 27% para 37% em dois anos</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Índice de cobertura das reservas</p>
+        </div>
+        <div class="glass-card w-full max-w-4xl p-8 md:p-10" data-aos="fade-up">
+            <div class="space-y-7" data-meter-group>
+                <div><div class="flex justify-between text-base mb-2"><span class="font-bold">2024</span><span class="text-soft font-bold">27,09%</span></div><div class="meter"><span data-meter="27.09"></span></div></div>
+                <div><div class="flex justify-between text-base mb-2"><span class="font-bold">2025</span><span class="text-soft font-bold">32,40%</span></div><div class="meter"><span data-meter="32.40"></span></div></div>
+                <div><div class="flex justify-between text-base mb-2"><span class="font-bold">2026</span><span class="primary-color font-bold">37,22%</span></div><div class="meter"><span data-meter="37.22"></span></div></div>
+            </div>
+            <p class="text-soft mt-7">Traduzindo: de cada R$ 100 que o fundo vai precisar pagar lá na frente, ele já tem <span class="font-bold" style="color: var(--mira-text);">R$ 37,22 guardados hoje</span>. Há dois anos tinha R$ 27,09.</p>
+        </div>
+        <div class="w-full max-w-4xl grid md:grid-cols-3 gap-5 mt-6">
+            <div class="glass-card p-6" data-aos="fade-up" data-aos-delay="100"><p class="text-xs uppercase tracking-widest text-softer mb-1">Guardado e investido</p><p class="text-2xl font-black mb-1">R$ 794,4 mi</p><p class="text-soft text-sm">Eram R$ 552,1 milhões em 2024.</p></div>
+            <div class="glass-card p-6" data-aos="fade-up" data-aos-delay="200"><p class="text-xs uppercase tracking-widest text-softer mb-1">Rendeu em 2025</p><p class="text-2xl font-black mb-1 primary-color">14,78%</p><p class="text-soft text-sm">Contra uma meta de 9,20%.</p></div>
+            <div class="glass-card p-6" data-aos="fade-up" data-aos-delay="300"><p class="text-xs uppercase tracking-widest text-softer mb-1">Sobrou de rendimento</p><p class="text-2xl font-black mb-1 primary-color">R$ 94,6 mi</p><p class="text-soft text-sm">59,12% acima do mínimo exigido.</p></div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 28: DIVISOR, A PARTE DIFÍCIL ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center max-w-3xl" data-aos="zoom-in">
+            <div class="icon-hero mx-auto mb-8" style="width:72px;height:72px;border-radius:20px;">
+                <i data-lucide="triangle-alert" class="primary-color w-9 h-9"></i>
+            </div>
+            <p class="text-sm uppercase tracking-widest text-softer mb-4">Parada 5</p>
+            <h2 class="text-4xl md:text-6xl font-black mb-6">Agora a parte que ninguém gosta de contar</h2>
+            <p class="text-2xl text-soft">"Se alguém só te contar a parte boa, desconfie. Aqui vai a conta inteira."</p>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 29: O DÉFICIT ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <h2 class="text-4xl md:text-5xl font-black">O déficit existe, e está diminuindo</h2>
+            <p class="text-soft text-lg mt-3">O que o fundo tem hoje contra tudo o que vai ter que pagar</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-8 w-full max-w-5xl items-stretch">
+            <div class="glass-card p-8 md:p-10" data-aos="fade-right">
+                <div class="icon-hero mb-6"><i data-lucide="vault" class="primary-color w-6 h-6"></i></div>
+                <p class="text-sm uppercase tracking-widest text-softer mb-1">O que tem no cofre hoje</p>
+                <p class="big-number mb-4">R$ 794,4 <span class="text-2xl">milhões</span></p>
+                <p class="text-soft">É o dinheiro já guardado e investido, chamado no relatório de ativos garantidores.</p>
+            </div>
+            <div class="glass-card p-8 md:p-10" data-aos="fade-left">
+                <div class="icon-hero mb-6"><i data-lucide="receipt" class="primary-color w-6 h-6"></i></div>
+                <p class="text-sm uppercase tracking-widest text-softer mb-1">O que vai precisar pagar</p>
+                <p class="big-number mb-4">R$ 2,13 <span class="text-2xl">bilhões</span></p>
+                <p class="text-soft">Somando os benefícios de quem já está aposentado e os de quem ainda vai se aposentar, ao longo de décadas.</p>
+            </div>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-6 md:p-8 mt-8" data-aos="fade-up">
+            <p class="text-2xl font-bold mb-3">A diferença é o déficit: R$ 1,19 bilhão.</p>
+            <p class="text-soft mb-5">Era R$ 1,33 bilhão em 2024 e R$ 1,21 bilhão em 2025. Está caindo. E atenção: não é dívida vencida, não é conta para pagar amanhã. É compromisso de longo prazo, espalhado por décadas. Por isso existe o aporte anual de R$ 69,8 milhões, que a Prefeitura paga só para cobrir esse buraco.</p>
+            <p class="font-bold mb-2">Por que ele vem caindo:</p>
+            <ul class="space-y-2 text-soft">
+                <li class="flex gap-3"><i data-lucide="check" class="primary-color w-5 h-5 shrink-0"></i> A régua ficou mais realista: a taxa de juros atuarial subiu de 4,90% para 5,81%, porque o fundo bateu a meta.</li>
+                <li class="flex gap-3"><i data-lucide="check" class="primary-color w-5 h-5 shrink-0"></i> O dinheiro rendeu acima do esperado: 14,78% contra meta de 9,20%.</li>
+                <li class="flex gap-3"><i data-lucide="check" class="primary-color w-5 h-5 shrink-0"></i> Entrou mais gente na ativa: 420 servidores a mais em um ano, mais contribuição todo mês.</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 30: O ALERTA HONESTO ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <h2 class="text-4xl md:text-5xl font-black">A despesa cresce mais rápido que a conta previa</h2>
+            <p class="text-soft text-lg mt-3">Média de 10,96% acima do projetado nos últimos quatro anos</p>
+        </div>
+        <div class="glass-card w-full max-w-4xl p-8 md:p-10" data-aos="fade-up">
+            <p class="text-soft mb-7">Quanto a despesa executada ficou acima do que a conta atuarial tinha projetado:</p>
+            <div class="space-y-5" data-meter-group>
+                <div><div class="flex justify-between text-sm mb-1"><span class="font-bold">2022</span><span class="text-soft">18,60% acima</span></div><div class="meter"><span data-meter="100"></span></div></div>
+                <div><div class="flex justify-between text-sm mb-1"><span class="font-bold">2023</span><span class="text-soft">9,76% acima</span></div><div class="meter"><span data-meter="52"></span></div></div>
+                <div><div class="flex justify-between text-sm mb-1"><span class="font-bold">2024</span><span class="text-soft">7,98% acima</span></div><div class="meter"><span data-meter="43"></span></div></div>
+                <div><div class="flex justify-between text-sm mb-1"><span class="font-bold">2025</span><span class="text-soft">7,51% acima</span></div><div class="meter"><span data-meter="40"></span></div></div>
+            </div>
+            <p class="text-soft mt-8">A boa notícia é que a diferença vem caindo. A explicação é simples: mais gente se aposentou do que a conta esperava, e benefício concedido não volta atrás. Por isso o próprio relatório recomenda continuar estudando as regras e debatendo com servidores e gestores.</p>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 31: QUEM VIGIA O DINHEIRO ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="shield-check" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Não é uma pessoa decidindo sozinha</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">A governança do ToledoPrev</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-6 w-full max-w-5xl">
+            <div class="glass-card p-8" data-aos="fade-up" data-aos-delay="100"><div class="icon-hero mb-5"><i data-lucide="calculator" class="primary-color w-6 h-6"></i></div><h3 class="text-2xl font-bold mb-2">Atuária independente</h3><p class="text-soft">Michele Dall'Agnol, registro MIBA 2.991, da Athena Atuarial, refaz a conta do fundo todo ano. Empresa de fora, não é funcionária da Prefeitura.</p></div>
+            <div class="glass-card p-8" data-aos="fade-up" data-aos-delay="200"><div class="icon-hero mb-5"><i data-lucide="users" class="primary-color w-6 h-6"></i></div><h3 class="text-2xl font-bold mb-2">Conselhos com cadeira sua</h3><p class="text-soft">O Conselho de Administração tem 6 titulares, sendo 3 eleitos entre os segurados. O Fiscal tem 4, sendo 2 eleitos. Você vota, e pode se candidatar.</p></div>
+            <div class="glass-card p-8" data-aos="fade-up" data-aos-delay="300"><div class="icon-hero mb-5"><i data-lucide="gavel" class="primary-color w-6 h-6"></i></div><h3 class="text-2xl font-bold mb-2">Tribunal de Contas do Paraná</h3><p class="text-soft">Analisa todas as contas do fundo e homologa cada processo de aposentadoria e de pensão, um por um.</p></div>
+            <div class="glass-card p-8" data-aos="fade-up" data-aos-delay="400"><div class="icon-hero mb-5"><i data-lucide="badge-check" class="primary-color w-6 h-6"></i></div><h3 class="text-2xl font-bold mb-2">Certificado a cada semestre</h3><p class="text-soft">O Governo Federal emite o Certificado de Regularidade Previdenciária, o CRP, atestando que o fundo está cumprindo a lei. Conselheiro também precisa de certificação CP RPPS.</p></div>
+            <div class="glass-card p-8" data-aos="fade-up" data-aos-delay="500"><div class="icon-hero mb-5"><i data-lucide="building-2" class="primary-color w-6 h-6"></i></div><h3 class="text-2xl font-bold mb-2">Pró-Gestão</h3><p class="text-soft">Este relatório existe para cumprir o requisito 3.2.3 do Pró-Gestão, programa nacional de boas práticas dos fundos de servidor. E quem paga, no fim, se o fundo faltar, é a Prefeitura.</p></div>
+        </div>
+        <p class="text-softer mt-6 text-center max-w-3xl" data-aos="fade-up">O ToledoPrev existe desde 15 de novembro de 2001 e é gerido pelos próprios segurados, com Comitê de Investimentos e Diretor-Executivo escolhido entre os servidores.</p>
+    </section>
+
+    <!-- ============ SLIDE 32: O QUE FAZER AMANHÃ ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="check-check" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Quatro coisas para fazer essa semana</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Sai da sala e resolve</p>
+        </div>
+        <div class="glass-card w-full max-w-4xl p-8 md:p-10" data-aos="fade-up">
+            <ol class="space-y-6">
+                <li class="flex gap-5"><span class="icon-hero shrink-0"><i data-lucide="file-text" class="primary-color w-5 h-5"></i></span><div><p class="text-xl font-bold">Confira a linha do desconto no seu contracheque</p><p class="text-soft">Veja se a base de cálculo está certa. Erro ali hoje é benefício menor depois.</p></div></li>
+                <li class="flex gap-5"><span class="icon-hero shrink-0"><i data-lucide="folder-search" class="primary-color w-5 h-5"></i></span><div><p class="text-xl font-bold">Ache a sua carteira de trabalho e os papéis de emprego antigo</p><p class="text-soft">Esse tempo vira dinheiro na compensação previdenciária, e o fundo recebe do INSS por causa dele.</p></div></li>
+                <li class="flex gap-5"><span class="icon-hero shrink-0"><i data-lucide="users-round" class="primary-color w-5 h-5"></i></span><div><p class="text-xl font-bold">Atualize os seus dependentes no cadastro</p><p class="text-soft">É o que garante a pensão da sua família sem briga e sem atraso.</p></div></li>
+                <li class="flex gap-5"><span class="icon-hero shrink-0"><i data-lucide="calendar-check" class="primary-color w-5 h-5"></i></span><div><p class="text-xl font-bold">Peça a sua simulação no Setor de Benefícios</p><p class="text-soft">Telefone (45) 3055-8981, na Secretaria de Recursos Humanos. Eles conferem o seu tempo e mostram cada regra em que você se encaixa. Média de relatório não é a sua regra.</p></div></li>
+            </ol>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 33: RESUMO EM CINCO NÚMEROS ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <h2 class="text-4xl md:text-5xl font-black">Se você só levar cinco números daqui</h2>
+            <p class="text-soft text-lg mt-3">O resumo da hora</p>
+        </div>
+        <div class="w-full max-w-5xl grid md:grid-cols-2 gap-5">
+            <div class="glass-card p-7 flex items-center gap-6" data-aos="fade-up" data-aos-delay="100"><p class="big-number primary-color" style="font-size:2.6rem;">14 + 21</p><p class="text-soft">por cento. Seu desconto e o que a Prefeitura põe em cima, todo mês.</p></div>
+            <div class="glass-card p-7 flex items-center gap-6" data-aos="fade-up" data-aos-delay="200"><p class="big-number primary-color" style="font-size:2.6rem;">5.998</p><p class="text-soft">segurados no ToledoPrev, sendo 4.357 na ativa.</p></div>
+            <div class="glass-card p-7 flex items-center gap-6" data-aos="fade-up" data-aos-delay="300"><p class="big-number primary-color" style="font-size:2.6rem;">56,87</p><p class="text-soft">anos, a idade média projetada de saída. Caiu de 59.</p></div>
+            <div class="glass-card p-7 flex items-center gap-6" data-aos="fade-up" data-aos-delay="400"><p class="big-number primary-color" style="font-size:2.6rem;">219,86%</p><p class="text-soft">de solvência: em 2025 entrou mais que o dobro do que saiu.</p></div>
+            <div class="glass-card p-7 flex items-center gap-6 md:col-span-2" data-aos="fade-up" data-aos-delay="500"><p class="big-number primary-color" style="font-size:2.6rem;">37,22%</p><p class="text-soft">de cobertura das reservas, contra 27,09% dois anos atrás. O cofre está enchendo, e o déficit está caindo.</p></div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 34: PERGUNTAS E FONTES ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center relative overflow-hidden px-6 py-16">
+        <div class="cta-breathe absolute inset-0 pointer-events-none"></div>
+        <div class="relative z-10 text-center max-w-3xl" data-aos="zoom-in">
+            <div class="icon-hero mx-auto mb-8" style="width:72px;height:72px;border-radius:20px;">
+                <i data-lucide="message-circle-question" class="primary-color w-9 h-9"></i>
+            </div>
+            <h2 class="text-5xl md:text-6xl font-black mb-6">Agora é com vocês</h2>
+            <p class="text-xl text-soft mb-10">Pergunta boba não existe. Pergunta que não foi feita custa caro lá na frente.</p>
+            <div class="flex flex-wrap items-center justify-center gap-4 mb-6">
+                <span class="attribute-pill px-6 py-3 text-base"><i data-lucide="phone" class="inline w-4 h-4 mr-2 primary-color"></i>Benefícios: (45) 3055-8981</span>
+                <span class="attribute-pill px-6 py-3 text-base"><i data-lucide="phone" class="inline w-4 h-4 mr-2 primary-color"></i>Diretoria: (45) 3055-8840</span>
+            </div>
+            <div class="flex flex-wrap items-center justify-center gap-4 mb-10">
+                <span class="attribute-pill px-6 py-3 text-base"><i data-lucide="map-pin" class="inline w-4 h-4 mr-2 primary-color"></i>Rua Raimundo Leonardi, 1586, Centro</span>
+                <span class="attribute-pill px-6 py-3 text-base"><i data-lucide="mail" class="inline w-4 h-4 mr-2 primary-color"></i>toledoprev@toledo.pr.gov.br</span>
+                <span class="attribute-pill px-6 py-3 text-base"><i data-lucide="globe" class="inline w-4 h-4 mr-2 primary-color"></i>toledoprev.toledo.pr.gov.br</span>
+            </div>
+            <div class="glass-card p-6 text-left">
+                <p class="text-sm text-softer leading-relaxed">Fontes: Relatório de Gestão Atuarial do ToledoPrev, exercício 2026, elaborado pela Athena Atuarial, atuária Michele Dall'Agnol, MIBA 2.991, aprovado pela Resolução nº 026/2025 do Conselho de Administração, Processo SEI nº 01.01.023957/2026-33. Cartilha Previdenciária do ToledoPrev, gestão 2019 a 2021, base das regras de aposentadoria e pensão apresentadas aqui. Essas regras seguem vigentes: o Município ainda não fez a adequação da EC 103/2019 na lei municipal, e até que faça valem a Constituição Federal e as Emendas 20/98, 41/03 e 47/05. Os valores de contracheque e documentos exibidos nesta apresentação são exemplos fictícios, criados só para ilustrar.</p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        AOS.init({ duration: 800, once: true });
+        lucide.createIcons();
+
+        const cssVar = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+        const PRIMARY = cssVar('--mira-primary');
+        const ACCENT = cssVar('--mira-accent-2');
+        const TXT = cssVar('--mira-text');
+        const SOFT = 'rgba(26, 26, 26, 0.72)';
+        const SOFTER = 'rgba(26, 26, 26, 0.45)';
+        const LINE = 'rgba(26, 26, 26, 0.14)';
+        const FILL = 'rgba(26, 26, 26, 0.04)';
+        const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        // Só anima o slide que está na tela. Sem isso, os timers de todos os
+        // palcos rodam ao mesmo tempo e o Tailwind CDN reescaneia o DOM a cada
+        // mutação, travando a apresentação.
+        function whenVisible(node, onIn, onOut) {
+            if (!node) return;
+            let dentro = false;
+            const obs = new IntersectionObserver(entries => {
+                entries.forEach(e => {
+                    if (e.isIntersecting && !dentro) { dentro = true; onIn(); }
+                    else if (!e.isIntersecting && dentro) { dentro = false; onOut(); }
+                });
+            }, { threshold: 0.25 });
+            obs.observe(node);
+        }
+
+        // ===== CAPA: partículas orbitando (loop) =====
+        (function () {
+            const W = window.innerWidth, H = window.innerHeight;
+            const svg = d3.select('#capa-stage').append('svg').attr('viewBox', `0 0 ${W} ${H}`);
+            const cx = W / 2, cy = H / 2;
+            const particles = d3.range(26).map(() => ({
+                r: 180 + Math.random() * Math.min(W, H) * 0.35,
+                angle: Math.random() * Math.PI * 2,
+                speed: 0.002 + Math.random() * 0.004,
+                size: 1.5 + Math.random() * 3
+            }));
+            const dots = svg.selectAll('circle').data(particles).join('circle')
+                .attr('r', 0).attr('fill', PRIMARY).attr('opacity', 0.30);
+            dots.transition().delay((d, i) => i * 40).duration(700).attr('r', d => d.size);
+            if (REDUCED) return;
+            let t = null;
+            whenVisible(document.querySelector('#capa-stage'),
+                () => {
+                    t = d3.timer(() => {
+                        dots.attr('cx', d => { d.angle += d.speed; return cx + Math.cos(d.angle) * d.r; })
+                            .attr('cy', d => cy + Math.sin(d.angle) * d.r * 0.6);
+                    });
+                },
+                () => { if (t) t.stop(); });
+        })();
+
+        // ===== SLIDE 4: O CAMINHO DO DINHEIRO =====
+        (function () {
+            const stage = d3.select('#caminho-stage');
+            if (stage.empty()) return;
+            const W = 960, H = 540;
+            const svg = stage.append('svg').attr('viewBox', `0 0 ${W} ${H}`);
+
+            const fontes = [
+                { label: 'Você', sub: '14%', y: 120 },
+                { label: 'Prefeitura', sub: '21%', y: 270 },
+                { label: 'Rendimento', sub: 'dos investimentos', y: 420 }
+            ];
+            const destinos = [
+                { label: 'Aposentadoria', y: 190 },
+                { label: 'Pensão da família', y: 350 }
+            ];
+            const xF = 140, xC = W / 2, xD = W - 140, yC = H / 2;
+
+            // caminhos
+            const paths = [];
+            fontes.forEach(f => {
+                paths.push({ tipo: 'in', d: `M ${xF + 60} ${f.y} C ${xF + 190} ${f.y}, ${xC - 170} ${yC}, ${xC - 82} ${yC}` });
+            });
+            destinos.forEach(dd => {
+                paths.push({ tipo: 'out', d: `M ${xC + 82} ${yC} C ${xC + 170} ${yC}, ${xD - 190} ${dd.y}, ${xD - 70} ${dd.y}` });
+            });
+
+            const pathSel = svg.selectAll('path.link').data(paths).join('path')
+                .attr('class', 'link').attr('d', d => d.d).attr('fill', 'none')
+                .attr('stroke', LINE).attr('stroke-width', 2.5)
+                .attr('stroke-dasharray', function () { return this.getTotalLength(); })
+                .attr('stroke-dashoffset', function () { return this.getTotalLength(); });
+
+            // nós de origem
+            const gF = svg.selectAll('g.f').data(fontes).join('g').attr('class', 'f')
+                .attr('transform', d => `translate(${xF},${d.y})`).attr('opacity', 0);
+            gF.append('rect').attr('x', -60).attr('y', -34).attr('width', 120).attr('height', 68).attr('rx', 14)
+                .attr('fill', FILL).attr('stroke', PRIMARY).attr('stroke-opacity', 0.45);
+            gF.append('text').text(d => d.label).attr('text-anchor', 'middle').attr('dy', -4)
+                .attr('fill', TXT).attr('font-size', 17).attr('font-weight', 800);
+            gF.append('text').text(d => d.sub).attr('text-anchor', 'middle').attr('dy', 18)
+                .attr('fill', PRIMARY).attr('font-size', 15).attr('font-weight', 700);
+
+            // cofre central
+            const gC = svg.append('g').attr('transform', `translate(${xC},${yC})`).attr('opacity', 0);
+            gC.append('circle').attr('r', 82).attr('fill', 'rgba(232,114,42,0.10)')
+                .attr('stroke', PRIMARY).attr('stroke-width', 3);
+            gC.append('text').text('ToledoPrev').attr('text-anchor', 'middle').attr('dy', -4)
+                .attr('fill', TXT).attr('font-size', 20).attr('font-weight', 900);
+            gC.append('text').text('fundo separado').attr('text-anchor', 'middle').attr('dy', 20)
+                .attr('fill', SOFT).attr('font-size', 13);
+            const pulse = gC.append('circle').attr('r', 82).attr('fill', 'none')
+                .attr('stroke', PRIMARY).attr('opacity', 0);
+
+            // destinos
+            const gD = svg.selectAll('g.d').data(destinos).join('g').attr('class', 'd')
+                .attr('transform', d => `translate(${xD},${d.y})`).attr('opacity', 0);
+            gD.append('rect').attr('x', -70).attr('y', -30).attr('width', 140).attr('height', 60).attr('rx', 14)
+                .attr('fill', FILL).attr('stroke', ACCENT).attr('stroke-opacity', 0.45);
+            gD.append('text').text(d => d.label).attr('text-anchor', 'middle').attr('dy', 6)
+                .attr('fill', TXT).attr('font-size', 15).attr('font-weight', 700);
+
+            let coinTimer = null, pulseTimer = null;
+
+            function moeda(pathNode, cor) {
+                const len = pathNode.getTotalLength();
+                const c = svg.append('circle').attr('r', 6).attr('fill', cor)
+                    .style('filter', `drop-shadow(0 0 6px ${cor})`);
+                c.transition().duration(2200).ease(d3.easeCubicInOut)
+                    .attrTween('transform', () => t => {
+                        const p = pathNode.getPointAtLength(t * len);
+                        return `translate(${p.x},${p.y})`;
+                    })
+                    .on('end', () => c.remove());
+            }
+
+            function loop() {
+                if (coinTimer) coinTimer.stop();
+                if (pulseTimer) pulseTimer.stop();
+                const nodes = pathSel.nodes();
+                let k = 0;
+                coinTimer = d3.interval(() => {
+                    const entrada = nodes[k % 3];
+                    moeda(entrada, PRIMARY);
+                    if (k % 2 === 0) moeda(nodes[3], ACCENT);
+                    else moeda(nodes[4], ACCENT);
+                    k++;
+                }, 700);
+                pulseTimer = d3.interval(() => {
+                    pulse.attr('r', 82).attr('opacity', 0.55)
+                        .transition().duration(1500).ease(d3.easeCubicOut).attr('r', 122).attr('opacity', 0);
+                }, 2000);
+            }
+
+            function entrada() {
+                gF.transition().delay((d, i) => 200 + i * 180).duration(500).attr('opacity', 1);
+                gC.transition().delay(900).duration(600).attr('opacity', 1);
+                pathSel.transition().delay((d, i) => 1100 + i * 160).duration(800).ease(d3.easeCubicOut)
+                    .attr('stroke-dashoffset', 0);
+                gD.transition().delay((d, i) => 1900 + i * 180).duration(500).attr('opacity', 1);
+                clearTimeout(window.__caminhoT);
+                window.__caminhoT = setTimeout(loop, 2400);
+            }
+            function parar() {
+                clearTimeout(window.__caminhoT);
+                if (coinTimer) coinTimer.stop();
+                if (pulseTimer) pulseTimer.stop();
+            }
+            whenVisible(stage.node(), entrada, parar);
+            window.__caminhoReplay = () => {
+                svg.selectAll('circle').filter(function () { return d3.select(this).attr('r') === '6'; }).remove();
+                gF.attr('opacity', 0); gC.attr('opacity', 0); gD.attr('opacity', 0);
+                pathSel.attr('stroke-dashoffset', function () { return this.getTotalLength(); });
+                entrada();
+            };
+        })();
+
+        // ===== SLIDE 9: OS 5.998 =====
+        (function () {
+            const stage = d3.select('#pessoas-stage');
+            if (stage.empty()) return;
+            const W = 960, H = 540;
+            const svg = stage.append('svg').attr('viewBox', `0 0 ${W} ${H}`);
+
+            const grupos = [
+                { nome: 'Ativos', total: 4357, cor: PRIMARY, cx: 250, n: 145 },
+                { nome: 'Aposentados', total: 1447, cor: ACCENT, cx: 580, n: 48 },
+                { nome: 'Pensionistas', total: 194, cor: '#7A7A7A', cx: 810, n: 7 }
+            ];
+
+            const cyBase = 250;
+            const pontos = [];
+            grupos.forEach((g, gi) => {
+                const cols = Math.ceil(Math.sqrt(g.n * 1.6));
+                for (let i = 0; i < g.n; i++) {
+                    const col = i % cols, row = Math.floor(i / cols);
+                    pontos.push({
+                        g: gi, cor: g.cor,
+                        x: g.cx - (cols * 15) / 2 + col * 15,
+                        y: cyBase - row * 15 + 40,
+                        fase: Math.random() * Math.PI * 2
+                    });
+                }
+            });
+
+            const dots = svg.selectAll('circle.p').data(pontos).join('circle').attr('class', 'p')
+                .attr('cx', W / 2).attr('cy', H / 2).attr('r', 0).attr('fill', d => d.cor).attr('opacity', 0.85);
+
+            const rot = svg.selectAll('g.rot').data(grupos).join('g').attr('class', 'rot')
+                .attr('transform', d => `translate(${d.cx},${cyBase + 120})`).attr('opacity', 0);
+            rot.append('text').attr('text-anchor', 'middle').attr('fill', TXT)
+                .attr('font-size', 26).attr('font-weight', 900).attr('class', 'cnt').text('0');
+            rot.append('text').attr('text-anchor', 'middle').attr('dy', 26).attr('fill', SOFT)
+                .attr('font-size', 15).text(d => d.nome);
+
+            svg.append('text').attr('x', W / 2).attr('y', 40).attr('text-anchor', 'middle')
+                .attr('fill', SOFTER).attr('font-size', 14)
+                .text('cada bolinha vale cerca de 30 pessoas');
+
+            let breathe = null;
+
+            function entrada() {
+                dots.attr('cx', W / 2).attr('cy', H / 2).attr('r', 0)
+                    .transition().delay((d, i) => i * 8).duration(700).ease(d3.easeCubicOut)
+                    .attr('cx', d => d.x).attr('cy', d => d.y).attr('r', 5.5);
+
+                rot.transition().delay(900).duration(400).attr('opacity', 1);
+                rot.select('text.cnt').each(function (d) {
+                    const el = d3.select(this);
+                    el.transition().delay(900).duration(1600).tween('n', () => {
+                        const i = d3.interpolateNumber(0, d.total);
+                        return t => el.text(Math.round(i(t)).toLocaleString('pt-BR'));
+                    });
+                });
+
+                if (breathe) breathe.stop();
+                if (REDUCED) return;
+                clearTimeout(window.__pessoasT);
+                window.__pessoasT = setTimeout(() => {
+                    breathe = d3.timer(el => {
+                        const t = el / 1000;
+                        dots.attr('cx', d => d.x + Math.cos(t + d.fase) * 2.2)
+                            .attr('cy', d => d.y + Math.sin(t * 1.3 + d.fase) * 2.2);
+                    });
+                }, 2600);
+            }
+            function parar() { clearTimeout(window.__pessoasT); if (breathe) breathe.stop(); }
+            whenVisible(stage.node(), entrada, parar);
+            window.__pessoasReplay = () => { parar(); entrada(); };
+        })();
+
+        // ===== SLIDE 13: A RÉGUA DA VIDA =====
+        (function () {
+            const stage = d3.select('#regua-stage');
+            if (stage.empty()) return;
+            const W = 960, H = 540;
+            const svg = stage.append('svg').attr('viewBox', `0 0 ${W} ${H}`);
+            const x = d3.scaleLinear().domain([20, 75]).range([90, W - 90]);
+            const y = H / 2 + 20;
+
+            svg.append('line').attr('x1', x(20)).attr('x2', x(75)).attr('y1', y).attr('y2', y)
+                .attr('stroke', LINE).attr('stroke-width', 3);
+
+            const ticks = d3.range(20, 76, 5);
+            svg.selectAll('line.t').data(ticks).join('line').attr('class', 't')
+                .attr('x1', d => x(d)).attr('x2', d => x(d)).attr('y1', y - 8).attr('y2', y + 8)
+                .attr('stroke', LINE).attr('stroke-width', 1.5);
+            svg.selectAll('text.t').data(ticks).join('text').attr('class', 't')
+                .attr('x', d => x(d)).attr('y', y + 30).attr('text-anchor', 'middle')
+                .attr('fill', SOFTER).attr('font-size', 13).text(d => d);
+
+            const marcos = [
+                { idade: 42.21, label: 'Idade média de quem está na ativa', up: true, cor: SOFT },
+                { idade: 56.87, label: 'Saída projetada: 56,87 anos', up: false, cor: PRIMARY },
+                { idade: 65.14, label: 'Idade média de quem já se aposentou', up: true, cor: ACCENT }
+            ];
+
+            const gM = svg.selectAll('g.m').data(marcos).join('g').attr('class', 'm')
+                .attr('transform', d => `translate(${x(d.idade)},${y})`).attr('opacity', 0);
+            gM.append('line').attr('y1', 0).attr('y2', d => d.up ? -70 : 70)
+                .attr('stroke', d => d.cor).attr('stroke-width', 2).attr('stroke-dasharray', '3 4');
+            gM.append('circle').attr('r', 8).attr('fill', d => d.cor);
+            gM.append('text').text(d => d.label).attr('text-anchor', 'middle')
+                .attr('y', d => d.up ? -84 : 92).attr('fill', d => d.cor)
+                .attr('font-size', 15).attr('font-weight', 700);
+
+            const orb = svg.append('circle').attr('r', 13).attr('fill', PRIMARY).attr('opacity', 0)
+                .style('filter', `drop-shadow(0 0 10px ${PRIMARY})`).attr('cy', y);
+
+            let anim = null;
+            function viagem() {
+                orb.interrupt();
+                orb.attr('cx', x(42.21)).attr('cy', y).attr('opacity', 1)
+                    .transition().duration(3000).ease(d3.easeCubicInOut).attr('cx', x(56.87))
+                    .transition().duration(600).attr('r', 20).attr('opacity', 0.4)
+                    .transition().duration(600).attr('r', 13).attr('opacity', 1)
+                    .transition().duration(500).attr('opacity', 0)
+                    .on('end', viagem);
+            }
+            function entrada() {
+                gM.attr('opacity', 0).transition().delay((d, i) => 300 + i * 400).duration(600).attr('opacity', 1);
+                clearTimeout(anim);
+                anim = setTimeout(viagem, 1800);
+            }
+            whenVisible(stage.node(), entrada, () => { clearTimeout(anim); orb.interrupt().attr('opacity', 0); });
+            window.__reguaReplay = entrada;
+        })();
+
+        // ===== SLIDE 15: BARRAS DE BENEFÍCIO =====
+        (function () {
+            const stage = d3.select('#barras-stage');
+            if (stage.empty()) return;
+            const W = 960, H = 540;
+            const svg = stage.append('svg').attr('viewBox', `0 0 ${W} ${H}`);
+            const dados = [
+                { label: 'Quem está na ativa', valor: 4809.60, cor: SOFT, x: 300 },
+                { label: 'Quem já se aposentou', valor: 6271.93, cor: PRIMARY, x: 640 }
+            ];
+            const base = H - 120, topo = 90;
+            const y = d3.scaleLinear().domain([0, 7000]).range([base, topo]);
+            const bw = 150;
+
+            svg.append('line').attr('x1', 90).attr('x2', W - 90).attr('y1', base).attr('y2', base)
+                .attr('stroke', LINE).attr('stroke-width', 2);
+
+            const g = svg.selectAll('g.b').data(dados).join('g').attr('class', 'b')
+                .attr('transform', d => `translate(${d.x},0)`);
+
+            const rects = g.append('rect').attr('x', -bw / 2).attr('y', base).attr('width', bw)
+                .attr('height', 0).attr('rx', 10).attr('fill', d => d.cor).attr('opacity', 0.85);
+
+            const vals = g.append('text').attr('text-anchor', 'middle').attr('fill', TXT)
+                .attr('font-size', 26).attr('font-weight', 900).attr('y', base - 14).text('');
+
+            g.append('text').text(d => d.label).attr('text-anchor', 'middle').attr('y', base + 36)
+                .attr('fill', SOFT).attr('font-size', 16).attr('font-weight', 600);
+
+            g.append('text').text('média mensal').attr('text-anchor', 'middle').attr('y', base + 58)
+                .attr('fill', SOFTER).attr('font-size', 13);
+
+            const dif = svg.append('text').attr('x', W / 2).attr('y', 50).attr('text-anchor', 'middle')
+                .attr('fill', PRIMARY).attr('font-size', 18).attr('font-weight', 800).attr('opacity', 0)
+                .text('R$ 1.462,33 de diferença na média');
+
+            let pulseT = null;
+            function entrada() {
+                if (pulseT) pulseT.stop();
+                rects.interrupt().attr('y', base).attr('height', 0);
+                rects.transition().delay((d, i) => 300 + i * 350).duration(1200).ease(d3.easeCubicOut)
+                    .attr('y', d => y(d.valor)).attr('height', d => base - y(d.valor));
+                vals.interrupt().attr('y', base - 14).text('');
+                vals.transition().delay((d, i) => 300 + i * 350).duration(1200)
+                    .attr('y', d => y(d.valor) - 16)
+                    .tween('n', function (d) {
+                        const el = d3.select(this);
+                        const i = d3.interpolateNumber(0, d.valor);
+                        return t => el.text('R$ ' + i(t).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+                    });
+                dif.attr('opacity', 0).transition().delay(1900).duration(600).attr('opacity', 1);
+                if (REDUCED) return;
+                clearTimeout(window.__barrasT);
+                window.__barrasT = setTimeout(() => {
+                    let on = true;
+                    pulseT = d3.interval(() => {
+                        rects.filter((d, i) => i === (on ? 1 : 0))
+                            .transition().duration(500).attr('opacity', 1)
+                            .transition().duration(500).attr('opacity', 0.85);
+                        on = !on;
+                    }, 1600);
+                }, 2200);
+            }
+            whenVisible(stage.node(), entrada, () => { clearTimeout(window.__barrasT); if (pulseT) pulseT.stop(); });
+            window.__barrasReplay = entrada;
+        })();
+
+        // ===== SLIDE 17: COMPENSAÇÃO INSS =====
+        (function () {
+            const stage = d3.select('#inss-stage');
+            if (stage.empty()) return;
+            const W = 960, H = 540;
+            const svg = stage.append('svg').attr('viewBox', `0 0 ${W} ${H}`);
+            const xA = 200, xB = 760, yc = 250;
+
+            const cofre = (x, titulo, sub, cor) => {
+                const g = svg.append('g').attr('transform', `translate(${x},${yc})`).attr('opacity', 0);
+                g.append('rect').attr('x', -110).attr('y', -80).attr('width', 220).attr('height', 160).attr('rx', 18)
+                    .attr('fill', FILL).attr('stroke', cor).attr('stroke-width', 2.5);
+                g.append('text').text(titulo).attr('text-anchor', 'middle').attr('dy', -10)
+                    .attr('fill', TXT).attr('font-size', 22).attr('font-weight', 900);
+                g.append('text').text(sub).attr('text-anchor', 'middle').attr('dy', 18)
+                    .attr('fill', SOFT).attr('font-size', 14);
+                return g;
+            };
+            const gA = cofre(xA, 'INSS', 'seu tempo de carteira', SOFT);
+            const gB = cofre(xB, 'ToledoPrev', 'o seu fundo hoje', PRIMARY);
+
+            const pathD = `M ${xA + 115} ${yc} C ${xA + 260} ${yc - 90}, ${xB - 260} ${yc - 90}, ${xB - 115} ${yc}`;
+            const link = svg.append('path').attr('d', pathD).attr('fill', 'none')
+                .attr('stroke', PRIMARY).attr('stroke-opacity', 0.4).attr('stroke-width', 3)
+                .attr('stroke-dasharray', function () { return this.getTotalLength(); })
+                .attr('stroke-dashoffset', function () { return this.getTotalLength(); });
+
+            svg.append('text').attr('x', W / 2).attr('y', 118).attr('text-anchor', 'middle')
+                .attr('fill', SOFT).attr('font-size', 16)
+                .text('o INSS devolve ao fundo a parte do tempo que foi dele');
+
+            const totalTxt = svg.append('text').attr('x', W / 2).attr('y', 420).attr('text-anchor', 'middle')
+                .attr('fill', PRIMARY).attr('font-size', 34).attr('font-weight', 900).attr('opacity', 0).text('');
+            svg.append('text').attr('x', W / 2).attr('y', 452).attr('text-anchor', 'middle')
+                .attr('fill', SOFTER).attr('font-size', 14)
+                .text('recebido de compensação em 2025, 156% acima do previsto');
+
+            let coins = null;
+            function entrada() {
+                if (coins) coins.stop();
+                gA.attr('opacity', 0).transition().duration(500).attr('opacity', 1);
+                gB.attr('opacity', 0).transition().delay(300).duration(500).attr('opacity', 1);
+                link.attr('stroke-dashoffset', function () { return this.getTotalLength(); })
+                    .transition().delay(800).duration(900).ease(d3.easeCubicOut).attr('stroke-dashoffset', 0);
+
+                totalTxt.attr('opacity', 0).text('')
+                    .transition().delay(1400).duration(400).attr('opacity', 1)
+                    .transition().duration(1800).tween('n', function () {
+                        const el = d3.select(this);
+                        const i = d3.interpolateNumber(0, 10573328.13);
+                        return t => el.text('R$ ' + i(t).toLocaleString('pt-BR', { maximumFractionDigits: 0 }));
+                    });
+
+                const node = link.node();
+                const len = node.getTotalLength();
+                clearTimeout(window.__inssT);
+                window.__inssT = setTimeout(() => {
+                    coins = d3.interval(() => {
+                        const c = svg.append('circle').attr('r', 8).attr('fill', PRIMARY)
+                            .style('filter', `drop-shadow(0 0 6px ${PRIMARY})`);
+                        c.transition().duration(1800).ease(d3.easeCubicInOut)
+                            .attrTween('transform', () => t => {
+                                const p = node.getPointAtLength(t * len);
+                                return `translate(${p.x},${p.y})`;
+                            })
+                            .on('end', () => c.remove());
+                    }, 600);
+                }, 1700);
+            }
+            whenVisible(stage.node(), entrada, () => { clearTimeout(window.__inssT); if (coins) coins.stop(); });
+            window.__inssReplay = entrada;
+        })();
+
+        // ===== SLIDE 19: ENTRA MAIS DO QUE SAI =====
+        (function () {
+            const stage = d3.select('#canos-stage');
+            if (stage.empty()) return;
+            const W = 960, H = 540;
+            const svg = stage.append('svg').attr('viewBox', `0 0 ${W} ${H}`);
+
+            const tankX = 330, tankY = 170, tankW = 300, tankH = 240;
+
+            // tanque
+            svg.append('rect').attr('x', tankX).attr('y', tankY).attr('width', tankW).attr('height', tankH)
+                .attr('rx', 16).attr('fill', FILL).attr('stroke', PRIMARY).attr('stroke-width', 3);
+
+            const nivel = svg.append('rect').attr('x', tankX + 4).attr('y', tankY + tankH - 4)
+                .attr('width', tankW - 8).attr('height', 0).attr('rx', 12)
+                .attr('fill', PRIMARY).attr('opacity', 0.22);
+
+            svg.append('text').attr('x', tankX + tankW / 2).attr('y', tankY - 22).attr('text-anchor', 'middle')
+                .attr('fill', TXT).attr('font-size', 20).attr('font-weight', 900).text('Caixa do ToledoPrev');
+
+            // cano de entrada (grosso)
+            const entrada = svg.append('rect').attr('x', 60).attr('y', 220).attr('width', tankX - 60).attr('height', 46)
+                .attr('rx', 8).attr('fill', FILL).attr('stroke', LINE);
+            svg.append('text').attr('x', 70).attr('y', 205).attr('fill', SOFT).attr('font-size', 15).attr('font-weight', 700)
+                .text('Entrou em 2025');
+            svg.append('text').attr('x', 70).attr('y', 300).attr('fill', PRIMARY).attr('font-size', 22).attr('font-weight', 900)
+                .text('R$ 272,5 mi');
+
+            // cano de saída (fino)
+            svg.append('rect').attr('x', tankX + tankW).attr('y', 340).attr('width', W - 60 - (tankX + tankW)).attr('height', 22)
+                .attr('rx', 6).attr('fill', FILL).attr('stroke', LINE);
+            svg.append('text').attr('x', W - 60).attr('y', 322).attr('text-anchor', 'end').attr('fill', SOFT)
+                .attr('font-size', 15).attr('font-weight', 700).text('Saiu em 2025');
+            svg.append('text').attr('x', W - 60).attr('y', 396).attr('text-anchor', 'end').attr('fill', SOFT)
+                .attr('font-size', 20).attr('font-weight', 800).text('R$ 123,9 mi');
+
+            const sobra = svg.append('text').attr('x', tankX + tankW / 2).attr('y', tankY + tankH / 2 + 8)
+                .attr('text-anchor', 'middle').attr('fill', TXT).attr('font-size', 30).attr('font-weight', 900)
+                .attr('opacity', 0).text('Sobrou R$ 148,6 mi');
+
+            let tIn = null, tOut = null;
+            function gota(y0, y1, x0, x1, cor, r, dur) {
+                const c = svg.append('circle').attr('r', r).attr('fill', cor).attr('opacity', 0.85)
+                    .attr('cx', x0).attr('cy', y0);
+                c.transition().duration(dur).ease(d3.easeLinear).attr('cx', x1).attr('cy', y1)
+                    .on('end', () => c.remove());
+            }
+
+            function loop() {
+                if (tIn) tIn.stop();
+                if (tOut) tOut.stop();
+                tIn = d3.interval(() => gota(243, 243, 70, tankX + 30, PRIMARY, 8, 1400), 260);
+                tOut = d3.interval(() => gota(351, 351, tankX + tankW, W - 70, SOFT, 5, 1400), 570);
+            }
+
+            function entradaAnim() {
+                nivel.interrupt().attr('height', 0).attr('y', tankY + tankH - 4)
+                    .transition().delay(600).duration(2200).ease(d3.easeCubicOut)
+                    .attr('height', tankH * 0.62).attr('y', tankY + tankH - 4 - tankH * 0.62);
+                sobra.attr('opacity', 0).transition().delay(2400).duration(600).attr('opacity', 1);
+                entrada.attr('opacity', 0).transition().duration(500).attr('opacity', 1);
+                clearTimeout(window.__canosT);
+                if (!REDUCED) window.__canosT = setTimeout(loop, 700);
+            }
+            whenVisible(stage.node(), entradaAnim, () => {
+                clearTimeout(window.__canosT);
+                if (tIn) tIn.stop();
+                if (tOut) tOut.stop();
+            });
+            window.__canosReplay = entradaAnim;
+        })();
+
+        // ===== COMPARAÇÃO SLIDE 5: spotlight alternando (loop) =====
+        (function () {
+            const a = document.getElementById('versus-a');
+            const b = document.getElementById('versus-b');
+            if (!a || !b || REDUCED) return;
+            let turn = true, t = null;
+            const alternar = () => {
+                const on = turn ? a : b, off = turn ? b : a;
+                on.style.transform = 'translateY(-8px) scale(1.02)';
+                on.style.boxShadow = '0 20px 50px var(--mira-glow-strong)';
+                off.style.transform = 'none';
+                off.style.boxShadow = '0 10px 30px var(--mira-glow-soft)';
+                turn = !turn;
+            };
+            whenVisible(a.closest('section'),
+                () => { alternar(); t = setInterval(alternar, 2500); },
+                () => { clearInterval(t); });
+        })();
+
+        // ===== BARRAS DE PROGRESSO: enchem na entrada e repetem em loop =====
+        (function () {
+            const grupos = Array.from(document.querySelectorAll('[data-meter-group]'));
+            grupos.forEach(grupo => {
+                const barras = Array.from(grupo.querySelectorAll('[data-meter]'));
+                const encher = () => barras.forEach((b, i) => {
+                    b.style.width = '0%';
+                    setTimeout(() => { b.style.width = b.dataset.meter + '%'; }, 120 + i * 220);
+                });
+                const obs = new IntersectionObserver(entries => {
+                    entries.forEach(e => {
+                        if (e.isIntersecting && !grupo.dataset.rodando) {
+                            grupo.dataset.rodando = '1';
+                            encher();
+                            if (!REDUCED) grupo.__t = setInterval(encher, 6000);
+                        } else if (!e.isIntersecting && grupo.dataset.rodando) {
+                            grupo.dataset.rodando = '';
+                            clearInterval(grupo.__t);
+                        }
+                    });
+                }, { threshold: 0.35 });
+                obs.observe(grupo);
+            });
+        })();
+
+        // === CONTROLES DE SLIDE: navegação card-a-card (progresso + botão + teclado) ===
+        (function () {
+            const cardSections = Array.from(document.querySelectorAll('body > section'));
+            if (cardSections.length === 0) return;
+
+            const progress = document.getElementById('mira-progress');
+            const nextBtn = document.getElementById('mira-next');
+
+            const atBottom = () =>
+                (window.scrollY + window.innerHeight) >= (document.documentElement.scrollHeight - 100);
+
+            function currentIndex() {
+                const y = window.scrollY + window.innerHeight * 0.3;
+                let idx = -1;
+                for (let i = 0; i < cardSections.length; i++) {
+                    if (cardSections[i].offsetTop <= y) idx = i;
+                }
+                return idx;
+            }
+
+            function goTo(i) {
+                const idx = Math.max(0, Math.min(cardSections.length - 1, i));
+                cardSections[idx].scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            // Redesenhar os ícones a cada evento de scroll trava a rolagem:
+            // só troca o ícone quando o sentido realmente muda.
+            let iconeAtual = 'chevron-down';
+            window.addEventListener('scroll', () => {
+                const docH = document.documentElement.scrollHeight - window.innerHeight;
+                progress.style.width = (docH > 0 ? (window.scrollY / docH) * 100 : 0) + '%';
+                nextBtn.classList.toggle('visible', window.scrollY > 300);
+                const alvo = atBottom() ? 'chevron-up' : 'chevron-down';
+                if (alvo !== iconeAtual) {
+                    iconeAtual = alvo;
+                    nextBtn.innerHTML = '<i data-lucide="' + alvo + '" class="w-6 h-6" id="mira-next-icon"></i>';
+                    lucide.createIcons();
+                }
+            }, { passive: true });
+
+            nextBtn.addEventListener('click', () => {
+                if (atBottom()) { window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+                goTo(currentIndex() + 1);
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (['ArrowRight', 'ArrowDown', 'PageDown'].includes(e.key)) {
+                    e.preventDefault();
+                    goTo(currentIndex() + 1);
+                } else if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(e.key)) {
+                    e.preventDefault();
+                    const idx = currentIndex();
+                    if (idx <= 0) window.scrollTo({ top: 0, behavior: 'smooth' });
+                    else goTo(idx - 1);
+                } else if (e.key === 'Home') {
+                    e.preventDefault();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else if (e.key === 'End') {
+                    e.preventDefault();
+                    goTo(cardSections.length - 1);
+                } else if (e.key.toLowerCase() === 'f') {
+                    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+                    else document.exitFullscreen();
+                }
+            });
+        })();
+    </script>
+
+    <!-- Modo edição (reordenar slides): tecla E ou ?edit=1 -->
+    <script src="mira/mira-edit.js" defer></script>
+    <!-- Edição livre estilo Canva (mover/redimensionar/rotacionar/duplicar/excluir/texto): tecla E -->
+    <script src="mira/mira-edit-free.js" defer></script>
+    <!-- mira-draw (desenhar sobre o slide): tecla P ou ?draw=1 -->
+    <script src="mira/mira-draw.js" defer></script>
+</body>
+
+</html>
