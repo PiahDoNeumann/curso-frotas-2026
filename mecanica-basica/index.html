@@ -1,0 +1,2446 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Mecânica Básica para Motoristas Municipais</title>
+    <script src="assets/vendor/tailwind.js"></script>
+    <link href="assets/vendor/aos.css" rel="stylesheet">
+    <script src="assets/vendor/aos.js"></script>
+    <script src="assets/vendor/lucide.js"></script>
+    <script src="assets/vendor/d3.v7.min.js"></script>
+    <link href="assets/vendor/inter.css" rel="stylesheet">
+    <style>
+        /* Fonte ampliada para apresentacao: escala todas as classes rem do Tailwind */
+        html { font-size: 145%; }
+
+        /* @MIRA:THEME:START */
+/* MIRA THEME: light-minimal
+   Fundo claro, tipografia escura, laranja como acento pontual.
+   Para ambientes corporativos com projetor fraco ou impressão. */
+:root {
+    --mira-primary: #E8722A;
+    --mira-crop: #35D07F;
+    --mira-bg: #FAFAF7;
+    --mira-text: #1A1A1A;
+    --mira-text-soft: rgba(26, 26, 26, 0.72);
+    --mira-text-softer: rgba(26, 26, 26, 0.50);
+    --mira-card-bg: rgba(255, 255, 255, 0.85);
+    --mira-card-border: rgba(0, 0, 0, 0.08);
+    --mira-glow-soft: rgba(232, 114, 42, 0.10);
+    --mira-glow-strong: rgba(232, 114, 42, 0.18);
+    --mira-icon-bg: rgba(232, 114, 42, 0.12);
+    --mira-icon-border: rgba(232, 114, 42, 0.30);
+    --mira-pill-bg: rgba(0, 0, 0, 0.03);
+    --mira-pill-border: rgba(0, 0, 0, 0.08);
+    --mira-stage-glow: rgba(232, 114, 42, 0.05);
+    --mira-accent-2: #2A6FE8;
+}
+
+
+/* ============================================================
+   MIRA — base.css
+   Estrutura compartilhada por todos os temas.
+   Os temas definem apenas as CSS variables (--mira-*).
+   ============================================================ */
+
+body {
+    background: var(--mira-bg);
+    min-height: 100vh;
+    color: var(--mira-text);
+    font-family: 'Inter', sans-serif;
+}
+
+.primary-color { color: var(--mira-primary); }
+.primary-bg { background: var(--mira-primary); }
+
+.glass-card {
+    background: var(--mira-card-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--mira-card-border);
+    box-shadow: 0 10px 30px var(--mira-glow-soft);
+    transition: all 0.3s ease;
+    border-radius: 0.75rem;
+}
+
+.glass-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px var(--mira-glow-strong);
+}
+
+.icon-hero {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    background: var(--mira-icon-bg);
+    border: 1px solid var(--mira-icon-border);
+}
+
+.attribute-pill {
+    background: var(--mira-pill-bg);
+    border: 1px solid var(--mira-pill-border);
+    transition: all 0.25s ease;
+    border-radius: 9999px;
+}
+
+.attribute-pill:hover {
+    background: var(--mira-icon-bg);
+    border-color: var(--mira-icon-border);
+    transform: translateY(-3px);
+}
+
+/* Palco de animação D3 — tamanho padrão do canvas */
+.anim-stage {
+    width: 100%;
+    height: clamp(400px, 60vh, 620px);
+    background: radial-gradient(circle at 50% 50%, var(--mira-stage-glow), transparent 70%);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+}
+
+.anim-stage svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.replay-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+    background: var(--mira-pill-bg);
+    border: 1px solid var(--mira-pill-border);
+    color: var(--mira-text-soft);
+    border-radius: 9999px;
+    padding: 6px 14px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.replay-btn:hover {
+    background: var(--mira-icon-bg);
+    color: var(--mira-primary);
+}
+
+.text-soft { color: var(--mira-text-soft); }
+.text-softer { color: var(--mira-text-softer); }
+
+@keyframes mira-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.08); opacity: 0.85; }
+}
+
+@keyframes mira-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes mira-gradient-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* @MIRA:THEME:END */
+
+        /* Diretriz de titulo da capa (CLAUDE.md): quebra equilibrada so no primeiro slide */
+        body > section:first-of-type h1,
+        body > section:first-of-type h2 { text-wrap: balance; }
+
+        /* === CONTROLES DE SLIDE (passagem card-a-card) === */
+        html { scroll-behavior: smooth; }
+        /* Scroll discreto (padrao Mira): a navegacao e por teclado/botao e o
+           progresso ja aparece na barra do topo; a scrollbar fica quase invisivel. */
+        html { scrollbar-width: thin; scrollbar-color: #2e2e2e #0d0d0d; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; background: #0d0d0d; }
+        ::-webkit-scrollbar-track { background: #0d0d0d; }
+        ::-webkit-scrollbar-thumb { background: #2e2e2e; border-radius: 999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4a4a4a; }
+        ::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+
+        #mira-progress {
+            position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+            background: linear-gradient(90deg, var(--mira-primary), var(--mira-accent-2), var(--mira-primary));
+            background-size: 200% 100%;
+            animation: mira-shimmer 2s linear infinite;
+            z-index: 9999; transition: width 0.1s linear;
+            box-shadow: 0 0 10px var(--mira-glow-strong);
+        }
+
+        @keyframes mira-shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        #mira-next {
+            position: fixed; bottom: 32px; right: 32px;
+            width: 48px; height: 48px; border-radius: 50%;
+            background: var(--mira-primary); color: var(--mira-bg);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; border: none;
+            opacity: 0; transform: translateY(20px);
+            transition: all 0.3s ease; z-index: 9998;
+            box-shadow: 0 4px 20px var(--mira-glow-strong);
+        }
+        #mira-next.visible { opacity: 1; transform: translateY(0); }
+        #mira-next:hover { transform: translateY(-3px) scale(1.1); }
+
+        /* === CENAS 3D (CSS 3D puro: abre em file://, sem servidor) === */
+        .scene3d {
+            width: 100%;
+            height: clamp(420px, 66vh, 640px);
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            perspective: 1200px;
+            cursor: grab;
+            background: radial-gradient(circle at 50% 45%, var(--mira-stage-glow), transparent 72%);
+            touch-action: none;
+        }
+        .scene3d:active { cursor: grabbing; }
+        .world3d {
+            position: absolute;
+            left: 50%; top: 50%;
+            width: 0; height: 0;
+            transform-style: preserve-3d;
+        }
+        .face3d {
+            position: absolute;
+            transform-style: preserve-3d;
+            backface-visibility: visible;
+            border: 1px solid rgba(26, 26, 26, 0.18);
+            box-sizing: border-box;
+        }
+        .part3d { position: absolute; transform-style: preserve-3d; transition: transform 1.6s cubic-bezier(.55,.06,.28,1); }
+        .tag3d {
+            position: absolute;
+            white-space: nowrap;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            color: var(--mira-text);
+            background: rgba(255, 255, 255, 0.88);
+            border: 1px solid var(--mira-pill-border);
+            border-radius: 9999px;
+            padding: 3px 10px;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .scene-readout {
+            position: absolute;
+            left: 16px; bottom: 14px;
+            display: flex; gap: 8px; flex-wrap: wrap;
+            pointer-events: none;
+        }
+        .scene-readout span {
+            font-size: 12px; font-weight: 700;
+            padding: 5px 12px; border-radius: 9999px;
+            background: var(--mira-pill-bg);
+            border: 1px solid var(--mira-pill-border);
+            color: var(--mira-text-softer);
+            transition: all 0.25s ease;
+        }
+        .scene-readout span.on {
+            background: var(--mira-icon-bg);
+            border-color: var(--mira-icon-border);
+            color: var(--mira-primary);
+        }
+
+        /* Tabela do slide de periodicidade */
+        .mira-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+        .mira-table th {
+            text-align: left; padding: 12px 14px;
+            font-weight: 800; font-size: 0.8rem;
+            text-transform: uppercase; letter-spacing: 0.06em;
+            color: var(--mira-text-softer);
+            border-bottom: 2px solid var(--mira-pill-border);
+        }
+        .mira-table td {
+            padding: 11px 14px;
+            border-bottom: 1px solid var(--mira-pill-border);
+            color: var(--mira-text-soft);
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+        .mira-table tr.hot td { background: var(--mira-icon-bg); color: var(--mira-text); }
+        .mira-table tr.hot td:first-child { color: var(--mira-primary); font-weight: 700; }
+
+        /* Luzes de painel do slide vermelho x amarelo */
+        .warn-lamp {
+            width: 54px; height: 54px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            animation: mira-pulse 1.6s ease-in-out infinite;
+        }
+
+/* @MIRA:RESPONSIVE:START */
+/* ============================================================
+   MIRA — responsive.css  (camada de reflow mobile-first)
+   Objetivo: TODO slide 16:9 do Mira vira legível no celular em
+   retrato SEM arquivo mobile separado. O mesmo deck se reorganiza:
+   fontes encolhem, grids empilham, padding reduz, palcos escalam.
+
+   Estratégia: os decks nascem "desktop-first" (classes Tailwind com
+   tamanhos fixos: text-6xl, p-10, ...). Esta camada sobrescreve essas
+   classes abaixo de 640px. Usa !important de propósito — precisa
+   vencer o Tailwind CDN (injetado em runtime) em decks legados sem
+   reescrever o HTML. Os clamps têm teto ~= valor desktop, então em
+   telas largas nada muda; só encolhem no estreito.
+   ============================================================ */
+
+/* Guarda universal contra overflow horizontal (o "print cortado" no zap). */
+html, body { max-width: 100%; overflow-x: hidden; }
+img, svg, video, canvas, iframe, table, pre { max-width: 100%; }
+
+@media (max-width: 640px) {
+
+  /* --- Tipografia fluida: encolhe títulos gigantes no celular --- */
+  .text-9xl { font-size: clamp(3rem, 12vw, 5rem)      !important; line-height: 1.05 !important; }
+  .text-8xl { font-size: clamp(2.75rem, 11vw, 4.5rem) !important; line-height: 1.06 !important; }
+  .text-7xl { font-size: clamp(2.25rem, 10vw, 3.75rem)!important; line-height: 1.08 !important; }
+  .text-6xl { font-size: clamp(2rem, 9vw, 3rem)       !important; line-height: 1.1  !important; }
+  .text-5xl { font-size: clamp(1.75rem, 8vw, 2.5rem)  !important; line-height: 1.12 !important; }
+  .text-4xl { font-size: clamp(1.5rem, 7vw, 2rem)     !important; line-height: 1.15 !important; }
+  .text-3xl { font-size: clamp(1.35rem, 6vw, 1.75rem) !important; line-height: 1.2  !important; }
+  .text-2xl { font-size: clamp(1.2rem, 5vw, 1.5rem)   !important; line-height: 1.25 !important; }
+  .text-xl  { font-size: clamp(1.05rem, 4.5vw, 1.25rem)!important; line-height: 1.3 !important; }
+
+  /* Títulos: quebram entre palavras; só partem uma palavra se ela sozinha
+     estourar a largura. Sem hyphens:auto — em PT ele hifena no meio
+     ("pode-rosas") e fica feio em título de display. */
+  h1, h2, h3 { overflow-wrap: break-word; }
+
+  /* --- Espaçamento: paddings de desktop sufocam o celular --- */
+  .p-12 { padding: 1.25rem !important; }
+  .p-10 { padding: 1.15rem !important; }
+  .p-8  { padding: 1.05rem !important; }
+  .px-12, .px-10 { padding-left: 1.15rem !important; padding-right: 1.15rem !important; }
+  .px-8 { padding-left: 1rem !important; padding-right: 1rem !important; }
+  .py-16 { padding-top: 2.5rem !important; padding-bottom: 2.5rem !important; }
+  .gap-8 { gap: 1rem !important; }
+  .gap-10, .gap-12 { gap: 1.25rem !important; }
+
+  /* --- Layout: seção de slide sempre alcançável pelo topo ---
+     min-h-screen + justify-center clipa o topo quando o conteúdo é
+     maior que a tela. No celular, ancora no topo e deixa rolar. */
+  .min-h-screen {
+    min-height: 100dvh !important;
+    height: auto !important;
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+  }
+  .min-h-screen.justify-center,
+  .min-h-screen.items-center { justify-content: flex-start !important; }
+
+  /* --- Grids/flex de 2+ colunas empilham (redundante ao md: do
+         Tailwind, mas cobre grids sem breakpoint declarado). --- */
+  .grid-cols-2, .grid-cols-3, .grid-cols-4 { grid-template-columns: 1fr !important; }
+
+  /* --- Palco de animação (D3/SVG/canvas): nunca estoura a largura,
+         mantém proporção e encolhe a altura. --- */
+  .anim-stage {
+    max-width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 16 / 9;
+    min-height: 0 !important;
+  }
+  .scene3d { height: 58vh !important; min-height: 320px !important; }
+
+  /* --- Tabelas: fonte menor + rolagem horizontal se precisar. --- */
+  table { font-size: 0.82rem !important; }
+  .overflow-x-auto { -webkit-overflow-scrolling: touch; }
+
+  /* --- Controles flutuantes respeitam a safe-area do iPhone. --- */
+  #mira-next, #next-card {
+    bottom: max(1rem, env(safe-area-inset-bottom)) !important;
+    right: max(1rem, env(safe-area-inset-right)) !important;
+    width: 44px !important; height: 44px !important;
+  }
+}
+/* @MIRA:RESPONSIVE:END */
+</style>
+</head>
+
+<body>
+    <!-- Controles de slide: barra de progresso + botão flutuante "próximo" -->
+    <div id="mira-progress"></div>
+    <button id="mira-next" aria-label="Próximo slide">
+        <i data-lucide="chevron-down" class="w-6 h-6" id="mira-next-icon"></i>
+    </button>
+
+    <!-- ============ SLIDE 1: CAPA ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center relative overflow-hidden px-6">
+        <div id="capa-stage" class="absolute inset-0 pointer-events-none"></div>
+        <div class="relative z-10 text-center max-w-4xl" data-aos="fade-up">
+            <p class="attribute-pill inline-block px-5 py-2 text-sm tracking-widest uppercase text-soft mb-8">Frota Municipal · Capacitação</p>
+            <h1 class="text-5xl md:text-7xl font-black leading-tight mb-6">
+                Mecânica Básica<br>
+                <span class="primary-color">para quem dirige</span>
+            </h1>
+            <p class="text-xl text-soft max-w-2xl mx-auto mb-6">Nenhum carro quebra de repente. Ele avisa, e quem está no volante é o primeiro a ouvir.</p>
+            <p class="text-base text-softer max-w-2xl mx-auto mb-10">Uma hora sobre os sistemas do veículo, a inspeção diária e o checklist que protege você.</p>
+            <div class="flex items-center justify-center gap-3 text-softer text-sm flex-wrap">
+                <i data-lucide="wrench" class="w-4 h-4 primary-color"></i> Módulo de Noções Básicas de Mecânica
+                <span class="opacity-40">|</span>
+                <i data-lucide="scale" class="w-4 h-4 primary-color"></i> IN 1/2020, Controle Interno de Toledo
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 2: POR QUE ESTA AULA EXISTE ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-12" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="gavel" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Conservar não é favor, é dever</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">O que o CTB e a IN 1/2020 esperam de quem pega a chave</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-8 w-full max-w-5xl items-stretch">
+            <div id="dever-a" class="glass-card p-10 transition-all duration-700" data-aos="fade-right">
+                <div class="icon-hero mb-6"><i data-lucide="book-open" class="primary-color w-6 h-6"></i></div>
+                <h3 class="text-2xl md:text-3xl font-bold mb-4">Código de Trânsito Brasileiro</h3>
+                <ul class="space-y-3 text-soft">
+                    <li class="flex gap-3"><i data-lucide="check" class="primary-color w-5 h-5 shrink-0"></i> É obrigação do condutor conservar o veículo em perfeitas condições de uso.</li>
+                    <li class="flex gap-3"><i data-lucide="check" class="primary-color w-5 h-5 shrink-0"></i> Para cumprir isso, ele precisa de noção básica de mecânica.</li>
+                    <li class="flex gap-3"><i data-lucide="check" class="primary-color w-5 h-5 shrink-0"></i> Cuidar das peças vitais faz parte do ato de dirigir.</li>
+                </ul>
+            </div>
+            <div id="dever-b" class="glass-card p-10 transition-all duration-700" data-aos="fade-left">
+                <div class="icon-hero mb-6"><i data-lucide="clipboard-list" class="primary-color w-6 h-6"></i></div>
+                <h3 class="text-2xl md:text-3xl font-bold mb-4">IN 1/2020, art. 15, II</h3>
+                <ul class="space-y-3 text-soft">
+                    <li class="flex gap-3"><i data-lucide="check" class="primary-color w-5 h-5 shrink-0"></i> Inspecionar o veículo antes de cada utilização.</li>
+                    <li class="flex gap-3"><i data-lucide="check" class="primary-color w-5 h-5 shrink-0"></i> Conferir documentação regular e equipamentos de segurança obrigatórios.</li>
+                    <li class="flex gap-3"><i data-lucide="check" class="primary-color w-5 h-5 shrink-0"></i> Fazer diariamente a manutenção operativa pelo FORMULÁRIO II.</li>
+                </ul>
+            </div>
+        </div>
+        <p class="text-softer mt-8 text-center max-w-2xl" data-aos="fade-up">Duas normas, uma federal e uma municipal, dizendo a mesma coisa: a conservação começa em quem dirige.</p>
+    </section>
+
+    <!-- ============ SLIDE 3: O PAINEL ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-8" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="gauge" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Seu painel fala sete idiomas</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Cada instrumento responde uma pergunta diferente</p>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-8 relative" data-aos="fade-up">
+            <div id="painel-stage" class="anim-stage"></div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 4: VERMELHO X AMARELO ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-12" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="alert-triangle" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Vermelho manda parar</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">A cor da luz define a urgência, não o incômodo</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-8 w-full max-w-5xl items-stretch">
+            <div class="glass-card p-10" data-aos="fade-right">
+                <div class="warn-lamp mb-6" style="background: rgba(214, 46, 46, 0.14); border: 1px solid rgba(214, 46, 46, 0.35);">
+                    <i data-lucide="octagon-alert" class="w-7 h-7" style="color:#D62E2E;"></i>
+                </div>
+                <h3 class="text-2xl md:text-3xl font-bold mb-4" style="color:#D62E2E;">Luz vermelha acesa</h3>
+                <p class="text-soft mb-4">Pare em local seguro. Óleo, temperatura, freio e bateria em vermelho significam risco de dano grave ao motor ou de acidente.</p>
+                <p class="text-softer text-sm">FORMULÁRIO II, item 11: indicação vermelha que permanece acesa deve ser relatada.</p>
+            </div>
+            <div class="glass-card p-10" data-aos="fade-left">
+                <div class="warn-lamp mb-6" style="background: rgba(214, 158, 46, 0.16); border: 1px solid rgba(214, 158, 46, 0.38); animation-delay: .8s;">
+                    <i data-lucide="triangle-alert" class="w-7 h-7" style="color:#C9902A;"></i>
+                </div>
+                <h3 class="text-2xl md:text-3xl font-bold mb-4" style="color:#C9902A;">Luz amarela acesa</h3>
+                <p class="text-soft mb-4">Siga com atenção e informe. É um sistema pedindo verificação, não autorização para ignorar até a próxima revisão.</p>
+                <p class="text-softer text-sm">Anote no checklist e avise o Encarregado de Frotas na volta.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 5: SINAIS FORA DO PAINEL ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="ear" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Ruído, cheiro e fumaça também são painel</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">A cor da fumaça é o diagnóstico mais barato que existe</p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-6 w-full max-w-5xl mb-6">
+            <div class="glass-card p-6" data-aos="fade-up" data-aos-delay="100">
+                <div id="fumaca-branca" class="w-full" style="height:150px;"></div>
+                <h3 class="text-xl font-bold mt-2 mb-2">Fumaça branca</h3>
+                <p class="text-soft text-sm">Vapor de água condensada saindo do escapamento. Situação normal, principalmente na partida em dia frio.</p>
+            </div>
+            <div class="glass-card p-6" data-aos="fade-up" data-aos-delay="200">
+                <div id="fumaca-azul" class="w-full" style="height:150px;"></div>
+                <h3 class="text-xl font-bold mt-2 mb-2">Fumaça azulada</h3>
+                <p class="text-soft text-sm">O motor está consumindo óleo na câmara de combustão. Anote no checklist e informe: o custo cresce rápido.</p>
+            </div>
+            <div class="glass-card p-6" data-aos="fade-up" data-aos-delay="300">
+                <div id="fumaca-preta" class="w-full" style="height:150px;"></div>
+                <h3 class="text-xl font-bold mt-2 mb-2">Fumaça preta</h3>
+                <p class="text-soft text-sm">Excesso de combustível queimado ou combustível alterado. Consumo alto e perda de rendimento.</p>
+            </div>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-6 flex items-start gap-4" data-aos="fade-up" data-aos-delay="400">
+            <div class="icon-hero"><i data-lucide="waves" class="primary-color w-6 h-6"></i></div>
+            <p class="text-soft"><span class="font-bold" style="color:var(--mira-text);">Ruído, trepidação e puxada para um lado</span> nunca são manias do veículo: são direção com folga, freio gasto ou suspensão cansada. Todos terminam em oficina, e quanto antes, mais barato.</p>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 6: CTA DE MEIO DE AULA ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center relative overflow-hidden px-6">
+        <div class="cta-breathe absolute inset-0 pointer-events-none"></div>
+        <div class="relative z-10 text-center max-w-3xl" data-aos="zoom-in">
+            <div class="icon-hero mx-auto mb-8" style="width:72px;height:72px;border-radius:20px;">
+                <i data-lucide="timer" class="primary-color w-9 h-9"></i>
+            </div>
+            <h2 class="text-4xl md:text-6xl font-black mb-6">Dez minutos que salvam o seu dia</h2>
+            <p class="text-xl text-soft mb-4">É esse o tempo da manutenção operativa exigida pela norma.</p>
+            <p class="text-base text-softer mb-10 max-w-2xl mx-auto">A IN 1/2020, art. 27, define a manutenção operativa como verificação visual de 10 a 15 minutos, feita pelo motorista toda vez que o veículo for usado. Não é vistoria de oficina, é olhar treinado.</p>
+            <div class="flex flex-wrap items-center justify-center gap-4">
+                <span class="attribute-pill px-6 py-3 text-base"><i data-lucide="eye" class="inline w-4 h-4 mr-2 primary-color"></i>Ver o que olhar</span>
+                <span class="attribute-pill px-6 py-3 text-base"><i data-lucide="clock" class="inline w-4 h-4 mr-2 primary-color"></i>10 a 15 minutos</span>
+            </div>
+        </div>
+        <style>
+            .cta-breathe {
+                background: radial-gradient(ellipse at 50% 60%, var(--mira-glow-strong), transparent 65%);
+                animation: mira-pulse 4s ease-in-out infinite;
+            }
+        </style>
+    </section>
+
+    <!-- ============ SLIDE 7: O VEÍCULO EM 3D (VISTA EXPLODIDA) ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-6" data-aos="fade-up">
+            <h2 class="text-4xl md:text-5xl font-black">Um veículo, sete sistemas</h2>
+            <p class="text-soft text-lg mt-3">Arraste para girar, role para aproximar</p>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-6 relative" data-aos="fade-up">
+            <div id="carro3d" class="scene3d">
+                <div class="scene-readout" id="carro3d-readout"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 8: DENTRO DO MOTOR ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-12" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="cog" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">O motor tem quem fica e quem se mexe</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Peças fixas dão a estrutura, peças móveis fazem a força</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-8 w-full max-w-5xl items-stretch">
+            <div id="motor-a" class="glass-card p-10 transition-all duration-700" data-aos="fade-right">
+                <div class="icon-hero mb-6"><i data-lucide="anchor" class="primary-color w-6 h-6"></i></div>
+                <h3 class="text-2xl md:text-3xl font-bold mb-4">Peças fixas</h3>
+                <ul class="space-y-3 text-soft">
+                    <li class="flex gap-3"><i data-lucide="square" class="primary-color w-5 h-5 shrink-0"></i> <span><b>Bloco dos cilindros:</b> a peça mais pesada do motor.</span></li>
+                    <li class="flex gap-3"><i data-lucide="square" class="primary-color w-5 h-5 shrink-0"></i> <span><b>Cilindros ou camisas:</b> tubos onde a mistura é admitida, comprimida e queimada.</span></li>
+                    <li class="flex gap-3"><i data-lucide="square" class="primary-color w-5 h-5 shrink-0"></i> <span><b>Cabeçote:</b> aloja válvulas, comando e câmara de combustão.</span></li>
+                    <li class="flex gap-3"><i data-lucide="square" class="primary-color w-5 h-5 shrink-0"></i> <span><b>Cárter:</b> fecha o motor por baixo e guarda o óleo lubrificante.</span></li>
+                    <li class="flex gap-3"><i data-lucide="square" class="primary-color w-5 h-5 shrink-0"></i> <span><b>Mancais fixos e juntas:</b> prendem a árvore de manivelas e vedam o conjunto.</span></li>
+                </ul>
+            </div>
+            <div id="motor-b" class="glass-card p-10 transition-all duration-700" data-aos="fade-left">
+                <div class="icon-hero mb-6"><i data-lucide="refresh-cw" class="primary-color w-6 h-6"></i></div>
+                <h3 class="text-2xl md:text-3xl font-bold mb-4">Peças móveis</h3>
+                <ul class="space-y-3 text-soft">
+                    <li class="flex gap-3"><i data-lucide="circle" class="primary-color w-5 h-5 shrink-0"></i> <span><b>Pistão ou êmbolo:</b> desliza dentro do cilindro empurrado pelos gases.</span></li>
+                    <li class="flex gap-3"><i data-lucide="circle" class="primary-color w-5 h-5 shrink-0"></i> <span><b>Biela:</b> liga o pistão ao virabrequim.</span></li>
+                    <li class="flex gap-3"><i data-lucide="circle" class="primary-color w-5 h-5 shrink-0"></i> <span><b>Pino do êmbolo:</b> prende o pistão à biela.</span></li>
+                    <li class="flex gap-3"><i data-lucide="circle" class="primary-color w-5 h-5 shrink-0"></i> <span><b>Virabrequim:</b> a árvore de manivelas que coordena os tempos e aciona outros sistemas.</span></li>
+                    <li class="flex gap-3"><i data-lucide="circle" class="primary-color w-5 h-5 shrink-0"></i> <span><b>Volante do motor:</b> equilibra os movimentos por inércia.</span></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 9: CICLO DE QUATRO TEMPOS EM 3D ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-6" data-aos="fade-up">
+            <h2 class="text-4xl md:text-5xl font-black">Quatro tempos, uma explosão</h2>
+            <p class="text-soft text-lg mt-3">Ciclo Otto: só o terceiro tempo produz força</p>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-6 relative" data-aos="fade-up">
+            <div id="motor3d" class="scene3d">
+                <div class="scene-readout" id="motor3d-readout"></div>
+            </div>
+        </div>
+        <p class="text-softer mt-6 text-center max-w-3xl" data-aos="fade-up">Admissão puxa a mistura, compressão prepara, a vela solta a centelha e a explosão empurra o pistão, escape expulsa os gases. Três dos quatro tempos consomem energia, por isso vela ruim, filtro sujo e motor frio derrubam o rendimento inteiro.</p>
+    </section>
+
+    <!-- ============ SLIDE 10: ALIMENTAÇÃO ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-8" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="fuel" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Quinze de ar para um de combustível</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">A proporção que decide consumo, força e fumaça</p>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-8 relative" data-aos="fade-up">
+            <button class="replay-btn" onclick="window.__alimReplay && window.__alimReplay()">↻ replay</button>
+            <div id="alimentacao-stage" class="anim-stage"></div>
+        </div>
+        <p class="text-softer mt-6 text-center max-w-3xl" data-aos="fade-up">Mistura rica tem mais combustível que ar: consumo alto e fumaça preta. Mistura pobre tem mais ar que combustível: perda de força. A injeção eletrônica calcula essa dose a cada regime e eliminou o carburador dos veículos novos. No diesel, a bomba injetora pressiona o combustível nos bicos.</p>
+    </section>
+
+    <!-- ============ SLIDE 11: LUBRIFICAÇÃO ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-8" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="droplet" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">O óleo faz dois trabalhos</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Reduz o atrito e ainda ajuda a resfriar o motor</p>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-8 relative" data-aos="fade-up">
+            <div id="lubrificacao-stage" class="anim-stage"></div>
+        </div>
+        <div class="flex flex-wrap justify-center gap-3 mt-6 max-w-4xl" data-aos="fade-up">
+            <span class="attribute-pill px-5 py-2 text-sm text-soft">Óleo recomendado pelo fabricante</span>
+            <span class="attribute-pill px-5 py-2 text-sm text-soft">Nível conferido na vareta, motor frio e no plano</span>
+            <span class="attribute-pill px-5 py-2 text-sm text-soft">Troca no prazo, com o filtro</span>
+            <span class="attribute-pill px-5 py-2 text-sm text-soft">Nenhum vazamento aceito como normal</span>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 12: ARREFECIMENTO ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-8" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="thermometer" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Motor quente não se abre</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">A tampa do radiador é a maior causa de queimadura na frota</p>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-8 relative" data-aos="fade-up">
+            <div id="arrefecimento-stage" class="anim-stage"></div>
+        </div>
+        <div class="flex flex-wrap justify-center gap-3 mt-6 max-w-4xl" data-aos="fade-up">
+            <span class="attribute-pill px-5 py-2 text-sm text-soft">Nível do reservatório sempre conferido</span>
+            <span class="attribute-pill px-5 py-2 text-sm text-soft">Aditivo anti ferrugem na água</span>
+            <span class="attribute-pill px-5 py-2 text-sm text-soft">Sem acelerada brusca com motor frio</span>
+            <span class="attribute-pill px-5 py-2 text-sm text-soft">Nunca abrir a tampa com o motor quente</span>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 13: TRANSMISSÃO ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-8" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="settings" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Da explosão até a roda</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Cinco peças transformam força em movimento</p>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-8 relative" data-aos="fade-up">
+            <div id="transmissao-stage" class="anim-stage"></div>
+        </div>
+        <p class="text-softer mt-6 text-center max-w-3xl" data-aos="fade-up">O diferencial é a peça que quase ninguém sabe nomear e todo mundo usa em cada esquina: ele entrega força independente a cada roda e compensa a diferença de giro na curva.</p>
+    </section>
+
+    <!-- ============ SLIDE 14: FREIOS ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-8" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="disc" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Disco ou tambor, ambos dependem de fluido</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">E o ABS não substitui o freio, ele evita o travamento</p>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-8 relative mb-6" data-aos="fade-up">
+            <div id="freios-stage" class="anim-stage" style="height: clamp(320px, 44vh, 460px);"></div>
+        </div>
+        <div class="grid md:grid-cols-3 gap-6 w-full max-w-5xl">
+            <div class="glass-card p-6" data-aos="fade-up" data-aos-delay="100">
+                <h3 class="text-xl font-bold mb-2">Freio a disco</h3>
+                <p class="text-soft text-sm">Pastilhas pressionadas pela pinça contra um disco metálico que gira junto com a roda. Mais comum nas dianteiras.</p>
+            </div>
+            <div class="glass-card p-6" data-aos="fade-up" data-aos-delay="200">
+                <h3 class="text-xl font-bold mb-2">Freio a tambor</h3>
+                <p class="text-soft text-sm">Duas sapatas revestidas com lona se abrem contra o interior do tambor. Comum nas traseiras e no freio de mão.</p>
+            </div>
+            <div class="glass-card p-6" data-aos="fade-up" data-aos-delay="300">
+                <h3 class="text-xl font-bold mb-2">ABS e hidrovácuo</h3>
+                <p class="text-soft text-sm">O ABS lê cada roda e dosa o fluido para evitar travamento. O hidrovácuo alivia a força do pé. Se o ABS falhar, o hidráulico continua funcionando.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 15: DIREÇÃO E ALINHAMENTO ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-8" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="circle-dashed" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Folga, puxada e trepidação</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Três sintomas que sempre terminam em oficina</p>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-8 relative" data-aos="fade-up">
+            <div id="direcao-stage" class="anim-stage"></div>
+        </div>
+        <p class="text-softer mt-6 text-center max-w-3xl" data-aos="fade-up">Você não precisa medir ângulo. Precisa reconhecer o sintoma e comunicar: volante torto na reta, vibração em velocidade, veículo puxando para um lado ou folga no volante. E, na direção hidráulica, conferir o nível de óleo.</p>
+    </section>
+
+    <!-- ============ SLIDE 16: SUSPENSÃO ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-8" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="activity" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">O amortecedor avisa pelo volante</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Perdeu estabilidade e desviou a trajetória, é hora de trocar</p>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-8 relative" data-aos="fade-up">
+            <div id="suspensao-stage" class="anim-stage"></div>
+        </div>
+        <p class="text-softer mt-6 text-center max-w-3xl" data-aos="fade-up">Em veículo leve, molas e barras de torção com amortecedores hidráulicos ou a ar. Em veículo de carga, feixe de molas. Excesso de peso altera a cambagem e desgasta o conjunto inteiro. Arfagem é justamente o desgaste do sistema de suspensão.</p>
+    </section>
+
+    <!-- ============ SLIDE 17: SISTEMA ELÉTRICO ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-8" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="zap" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Quatro circuitos, uma bateria só</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Se um deles falha, o veículo para de conversar</p>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-8 relative" data-aos="fade-up">
+            <div id="eletrico-stage" class="anim-stage"></div>
+        </div>
+        <p class="text-softer mt-6 text-center max-w-3xl" data-aos="fade-up">Cuidado com a bateria: se ela não for selada, verifique o nível e complete com a solução recomendada. Limpe os terminais periodicamente. Partida lenta e luzes fracas são o primeiro aviso.</p>
+    </section>
+
+    <!-- ============ SLIDE 18: PNEUS ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-8" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="circle-dot" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">1,6 mm separa você da aquaplanagem</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Sulco, pressão, carcaça e medida: quatro conferências de trinta segundos</p>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-8 relative" data-aos="fade-up">
+            <div id="pneus-stage" class="anim-stage"></div>
+        </div>
+        <div class="grid md:grid-cols-4 gap-4 w-full max-w-5xl mt-6">
+            <div class="glass-card p-5" data-aos="fade-up" data-aos-delay="100"><h3 class="font-bold mb-1">Calibragem</h3><p class="text-soft text-sm">Sempre a pressão recomendada pelo fabricante, com o pneu frio.</p></div>
+            <div class="glass-card p-5" data-aos="fade-up" data-aos-delay="200"><h3 class="font-bold mb-1">Sulco</h3><p class="text-soft text-sm">Mínimo legal de 1,6 mm. Os fabricantes já alertam abaixo de 2,0 mm.</p></div>
+            <div class="glass-card p-5" data-aos="fade-up" data-aos-delay="300"><h3 class="font-bold mb-1">Carcaça</h3><p class="text-soft text-sm">Sem bolha e sem corte: eles causam estouro ou perda rápida de pressão.</p></div>
+            <div class="glass-card p-5" data-aos="fade-up" data-aos-delay="400"><h3 class="font-bold mb-1">Medida</h3><p class="text-soft text-sm">Dimensão original. Pneu diferente reduz estabilidade e desgasta a suspensão.</p></div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 19: TRÊS MANUTENÇÕES ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="users" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Quem faz o quê na IN 1/2020</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Operativa, preventiva e corretiva não são a mesma coisa</p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-6 w-full max-w-5xl items-stretch">
+            <div id="manut-a" class="glass-card p-8 transition-all duration-700" data-aos="fade-up" data-aos-delay="100">
+                <div class="icon-hero mb-5"><i data-lucide="user-check" class="primary-color w-6 h-6"></i></div>
+                <h3 class="text-2xl font-bold mb-1">Operativa</h3>
+                <p class="text-softer text-sm mb-4">art. 26 e 27 · quem faz: você</p>
+                <p class="text-soft">Verificação visual de 10 a 15 minutos, a cada uso do veículo, seguindo o FORMULÁRIO II. Contínua e simples, por definição da norma.</p>
+            </div>
+            <div id="manut-b" class="glass-card p-8 transition-all duration-700" data-aos="fade-up" data-aos-delay="200">
+                <div class="icon-hero mb-5"><i data-lucide="calendar-check" class="primary-color w-6 h-6"></i></div>
+                <h3 class="text-2xl font-bold mb-1">Preventiva</h3>
+                <p class="text-softer text-sm mb-4">art. 30 a 32 · quem faz: Controle de Frotas</p>
+                <p class="text-soft">Nos prazos do manual do fabricante. Objetivo: menos interrupção, mais vida útil e defeito antecipado antes de afetar outras peças.</p>
+            </div>
+            <div id="manut-c" class="glass-card p-8 transition-all duration-700" data-aos="fade-up" data-aos-delay="300">
+                <div class="icon-hero mb-5"><i data-lucide="wrench" class="primary-color w-6 h-6"></i></div>
+                <h3 class="text-2xl font-bold mb-1">Corretiva</h3>
+                <p class="text-softer text-sm mb-4">art. 33 · quem faz: a oficina</p>
+                <p class="text-soft"><b>Indispensável:</b> há risco, o veículo não sai, conserto imediato. <b>Necessário:</b> sai, mas exige acompanhamento. <b>Útil:</b> preserva, sem prioridade.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 20: TABELA DE PERIODICIDADE ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-8" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="calendar-clock" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">O calendário que o veículo cobra</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Referências gerais, sempre confirmadas no manual do fabricante</p>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-6 md:p-8 overflow-x-auto" data-aos="fade-up">
+            <table class="mira-table" id="tabela-periodicidade">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Periodicidade típica</th>
+                        <th>Sinal de que passou da hora</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Óleo do motor e filtro</td><td>5.000 a 15.000 km, conforme óleo e uso</td><td>Óleo escuro na vareta, motor mais barulhento</td></tr>
+                    <tr><td>Filtros de ar, combustível e cabine</td><td>10.000 a 20.000 km ou o manual</td><td>Perda de força, cheiro no ar-condicionado</td></tr>
+                    <tr><td>Correias</td><td>40.000 a 100.000 km, conforme modelo</td><td>Chiado ao dar partida</td></tr>
+                    <tr><td>Líquido de arrefecimento</td><td>Troca a cada 2 anos</td><td>Nível caindo, temperatura subindo</td></tr>
+                    <tr><td>Pastilhas de freio</td><td>20.000 a 40.000 km</td><td>Pedal baixo, ruído metálico ao frear</td></tr>
+                    <tr><td>Fluido de freio</td><td>A cada 2 anos</td><td>Pedal esponjoso, curso longo</td></tr>
+                    <tr><td>Alinhamento e balanceamento</td><td>10.000 a 20.000 km</td><td>Volante torto, vibração em velocidade</td></tr>
+                    <tr><td>Bateria</td><td>2 a 4 anos</td><td>Partida lenta, luzes fracas</td></tr>
+                    <tr><td>Pneus</td><td>Cerca de 5 anos, mesmo com sulco</td><td>Ressecamento e trincas no costado</td></tr>
+                    <tr><td>Revisão geral</td><td>6 a 12 meses ou 10.000 km, o que vier primeiro</td><td>Prazo do manual vencido</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 21: POR QUE PREENCHER O CHECKLIST ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-12" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="shield-check" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">O checklist é a sua defesa</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Sem registro, sobra a palavra do condutor</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-8 w-full max-w-5xl items-stretch">
+            <div id="check-a" class="glass-card p-10 transition-all duration-700" data-aos="fade-right" style="border-color: rgba(214,46,46,0.25);">
+                <div class="warn-lamp mb-6" style="background: rgba(214, 46, 46, 0.12); border: 1px solid rgba(214, 46, 46, 0.3); animation: none;">
+                    <i data-lucide="file-x" class="w-7 h-7" style="color:#D62E2E;"></i>
+                </div>
+                <h3 class="text-2xl md:text-3xl font-bold mb-4">Sem checklist preenchido</h3>
+                <ul class="space-y-3 text-soft">
+                    <li class="flex gap-3"><i data-lucide="minus" class="w-5 h-5 shrink-0" style="color:#D62E2E;"></i> A avaria aparece na devolução e ninguém sabe quando começou.</li>
+                    <li class="flex gap-3"><i data-lucide="minus" class="w-5 h-5 shrink-0" style="color:#D62E2E;"></i> Pelo art. 9, VI, o servidor envolvido apresenta três orçamentos.</li>
+                    <li class="flex gap-3"><i data-lucide="minus" class="w-5 h-5 shrink-0" style="color:#D62E2E;"></i> O caso vai à Comissão Disciplinar para apuração de responsabilidade.</li>
+                </ul>
+            </div>
+            <div id="check-b" class="glass-card p-10 transition-all duration-700" data-aos="fade-left">
+                <div class="warn-lamp mb-6" style="background: var(--mira-icon-bg); border: 1px solid var(--mira-icon-border); animation: none;">
+                    <i data-lucide="file-check" class="w-7 h-7 primary-color"></i>
+                </div>
+                <h3 class="text-2xl md:text-3xl font-bold mb-4">Com checklist preenchido</h3>
+                <ul class="space-y-3 text-soft">
+                    <li class="flex gap-3"><i data-lucide="check" class="primary-color w-5 h-5 shrink-0"></i> A avaria já estava anotada com data, antes da viagem.</li>
+                    <li class="flex gap-3"><i data-lucide="check" class="primary-color w-5 h-5 shrink-0"></i> O Encarregado de Frotas foi avisado na hora, como manda o art. 28.</li>
+                    <li class="flex gap-3"><i data-lucide="check" class="primary-color w-5 h-5 shrink-0"></i> O documento fica arquivado pelo Controle de Frotas com a ordem de serviço (art. 29).</li>
+                </ul>
+            </div>
+        </div>
+        <p class="text-softer mt-8 text-center max-w-3xl" data-aos="fade-up">O checklist não é burocracia contra o motorista. É o único documento que separa o desgaste natural do dano atribuível a quem dirigiu.</p>
+    </section>
+
+    <!-- ============ SLIDE 22: OS 16 ITENS POR SISTEMA ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-8" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="clipboard-check" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Dezesseis itens, sete sistemas</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">FORMULÁRIO II, o mesmo mapa do veículo virado lista</p>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-8 relative" data-aos="fade-up">
+            <div id="checklist-stage" class="anim-stage"></div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 23: ACHOU IRREGULARIDADE ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-8" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="alert-circle" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Anotou, avisou, acabou o seu risco</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">O caminho do art. 28 em quatro passos</p>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-8 relative" data-aos="fade-up">
+            <button class="replay-btn" onclick="window.__fluxoIrregReplay && window.__fluxoIrregReplay()">↻ replay</button>
+            <div id="irregularidade-stage" class="anim-stage" style="height: clamp(340px, 48vh, 480px);"></div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 24: CHECK LIST RÁPIDO ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="list-checks" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Seis itens para quem só vai dar uma saída</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">FORMULÁRIO III, o mínimo inegociável</p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-6 w-full max-w-5xl" id="rapido-grid">
+            <div class="glass-card p-7" data-aos="fade-up" data-aos-delay="100"><div class="icon-hero mb-4"><i data-lucide="lightbulb" class="primary-color w-6 h-6"></i></div><h3 class="text-xl font-bold mb-2">Luzes e lâmpadas</h3><p class="text-soft text-sm">Faróis, lanternas, setas, luz de freio, de ré e de placa funcionando.</p></div>
+            <div class="glass-card p-7" data-aos="fade-up" data-aos-delay="150"><div class="icon-hero mb-4"><i data-lucide="alert-triangle" class="primary-color w-6 h-6"></i></div><h3 class="text-xl font-bold mb-2">Advertência no painel</h3><p class="text-soft text-sm">Nenhuma luz de alerta acesa depois de ligar o motor.</p></div>
+            <div class="glass-card p-7" data-aos="fade-up" data-aos-delay="200"><div class="icon-hero mb-4"><i data-lucide="fuel" class="primary-color w-6 h-6"></i></div><h3 class="text-xl font-bold mb-2">Nível de combustível</h3><p class="text-soft text-sm">Suficiente para o trajeto previsto, sem contar com a reserva.</p></div>
+            <div class="glass-card p-7" data-aos="fade-up" data-aos-delay="250"><div class="icon-hero mb-4"><i data-lucide="circle-dot" class="primary-color w-6 h-6"></i></div><h3 class="text-xl font-bold mb-2">Pneus</h3><p class="text-soft text-sm">Condição e calibragem, incluindo o estepe cheio.</p></div>
+            <div class="glass-card p-7" data-aos="fade-up" data-aos-delay="300"><div class="icon-hero mb-4"><i data-lucide="scan-line" class="primary-color w-6 h-6"></i></div><h3 class="text-xl font-bold mb-2">Avarias</h3><p class="text-soft text-sm">Volta completa no veículo, olhando lataria, vidros e para-choques.</p></div>
+            <div class="glass-card p-7" data-aos="fade-up" data-aos-delay="350"><div class="icon-hero mb-4"><i data-lucide="file-text" class="primary-color w-6 h-6"></i></div><h3 class="text-xl font-bold mb-2">CRLV no veículo</h3><p class="text-soft text-sm">Documento de porte obrigatório dentro do carro, não na gaveta do setor.</p></div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 25: ECONOMIA DE COMBUSTÍVEL ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-8" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="leaf" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Consumo também se dirige</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">Metade da economia está na manutenção, a outra metade no pé</p>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-8 relative" data-aos="fade-up">
+            <div id="economia-stage" class="anim-stage" style="height: clamp(340px, 50vh, 500px);"></div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 26: PRINCÍPIO DE INCÊNDIO ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+        <div class="text-center mb-8" data-aos="fade-up">
+            <div class="slide-title-row justify-center flex items-center gap-4">
+                <div class="icon-hero"><i data-lucide="flame" class="primary-color w-6 h-6"></i></div>
+                <h2 class="text-4xl md:text-5xl font-black">Princípio de incêndio: sete passos</h2>
+            </div>
+            <p class="text-soft text-lg mt-3">O extintor ABC fica na dianteira, ao alcance do condutor</p>
+        </div>
+        <div class="glass-card w-full max-w-5xl p-8 relative mb-6" data-aos="fade-up">
+            <button class="replay-btn" onclick="window.__incendioReplay && window.__incendioReplay()">↻ replay</button>
+            <div id="incendio-stage" class="anim-stage" style="height: clamp(340px, 48vh, 480px);"></div>
+        </div>
+        <div class="grid md:grid-cols-2 gap-6 w-full max-w-5xl">
+            <div class="glass-card p-6" data-aos="fade-up" data-aos-delay="100">
+                <h3 class="text-xl font-bold mb-2">As três classes</h3>
+                <p class="text-soft text-sm"><b>A:</b> sólidos como estofamento, tapete, plástico e pneu. <b>B:</b> líquidos inflamáveis como gasolina, álcool e óleo. <b>C:</b> equipamentos elétricos energizados, como a bateria e a parte elétrica do veículo. O extintor ABC cobre as três.</p>
+            </div>
+            <div class="glass-card p-6" data-aos="fade-up" data-aos-delay="200">
+                <h3 class="text-xl font-bold mb-2">Quando trocar o extintor</h3>
+                <p class="text-soft text-sm">Após qualquer uso, se apresentar irregularidade, ou no vencimento do teste hidrostático, que vale cinco anos. Verifique o extintor mensalmente, junto com óleo, água do radiador e pressão dos pneus.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ SLIDE 27: ENCERRAMENTO ============ -->
+    <section class="min-h-screen flex flex-col items-center justify-center relative overflow-hidden px-6 py-16">
+        <div class="cta-breathe absolute inset-0 pointer-events-none"></div>
+        <div class="relative z-10 text-center max-w-4xl" data-aos="zoom-in">
+            <div class="icon-hero mx-auto mb-8" style="width:72px;height:72px;border-radius:20px;">
+                <i data-lucide="check-circle" class="primary-color w-9 h-9"></i>
+            </div>
+            <h2 class="text-4xl md:text-6xl font-black mb-8">Três coisas para levar daqui</h2>
+            <div class="grid md:grid-cols-3 gap-6 mb-10 text-left">
+                <div class="glass-card p-6">
+                    <span class="text-4xl font-black primary-color">1</span>
+                    <p class="text-soft mt-3">O veículo avisa antes de quebrar: pelo painel, pelo ruído e pela cor da fumaça.</p>
+                </div>
+                <div class="glass-card p-6">
+                    <span class="text-4xl font-black primary-color">2</span>
+                    <p class="text-soft mt-3">Dez minutos de verificação visual custam menos que qualquer dia de veículo parado.</p>
+                </div>
+                <div class="glass-card p-6">
+                    <span class="text-4xl font-black primary-color">3</span>
+                    <p class="text-soft mt-3">O checklist preenchido é o que separa o desgaste natural da responsabilidade pessoal.</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap items-center justify-center gap-4">
+                <span class="attribute-pill px-6 py-3 text-base"><i data-lucide="message-circle-question" class="inline w-4 h-4 mr-2 primary-color"></i>Perguntas</span>
+                <span class="attribute-pill px-6 py-3 text-base"><i data-lucide="book" class="inline w-4 h-4 mr-2 primary-color"></i>Módulo 8, Noções Básicas de Mecânica</span>
+                <span class="attribute-pill px-6 py-3 text-base"><i data-lucide="scale" class="inline w-4 h-4 mr-2 primary-color"></i>IN 1/2020, Controle Interno de Toledo</span>
+            </div>
+            <p class="text-softer mt-12 text-sm tracking-widest uppercase">Feito com Mira</p>
+        </div>
+    </section>
+
+    <script>
+        // ?estatico=1 desliga a entrada por scroll (útil para captura de tela e impressão)
+        const MIRA_ESTATICO = new URLSearchParams(location.search).has('estatico');
+        if (MIRA_ESTATICO) {
+            document.querySelectorAll('[data-aos]').forEach(e => e.removeAttribute('data-aos'));
+        }
+        // ?solo=9 mostra apenas o slide 9 (conferência e captura de tela)
+        (function () {
+            const solo = new URLSearchParams(location.search).get('solo');
+            if (!solo) return;
+            document.querySelectorAll('body > section').forEach((s, i) => {
+                if (i !== (+solo) - 1) s.style.display = 'none';
+            });
+        })();
+        AOS.init({ duration: 800, once: true, disable: MIRA_ESTATICO });
+        lucide.createIcons();
+
+        const cssVar = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+        const PRIMARY = cssVar('--mira-primary');
+        const ACCENT = cssVar('--mira-accent-2');
+        const INK = cssVar('--mira-text');
+        const SOFT = 'rgba(26, 26, 26, 0.72)';
+        const SOFTER = 'rgba(26, 26, 26, 0.45)';
+        const LINE = 'rgba(26, 26, 26, 0.14)';
+        const FILL = 'rgba(26, 26, 26, 0.04)';
+        const RED = '#D62E2E';
+        const AMBER = '#C9902A';
+        const GREEN = '#2E9E5B';
+
+        // Só o slide em tela gasta CPU: as animações dos demais ficam suspensas.
+        const SECOES_VISIVEIS = new Set();
+        (function () {
+            const obs = new IntersectionObserver(es => es.forEach(e => {
+                if (e.isIntersecting) SECOES_VISIVEIS.add(e.target);
+                else SECOES_VISIVEIS.delete(e.target);
+            }), { threshold: 0.02 });
+            document.querySelectorAll('body > section').forEach(s => obs.observe(s));
+        })();
+        function noPalco(seletor) {
+            const el = document.querySelector(seletor);
+            if (!el) return false;
+            const sec = el.closest('section');
+            return sec ? SECOES_VISIVEIS.has(sec) : true;
+        }
+
+        // ===== CAPA: partículas orbitando (loop) =====
+        (function () {
+            const W = window.innerWidth, H = window.innerHeight;
+            const svg = d3.select('#capa-stage').append('svg').attr('viewBox', `0 0 ${W} ${H}`);
+            const cx = W / 2, cy = H / 2;
+            const particles = d3.range(26).map(() => ({
+                r: 180 + Math.random() * Math.min(W, H) * 0.4,
+                angle: Math.random() * Math.PI * 2,
+                speed: 0.0015 + Math.random() * 0.0035,
+                size: 1.5 + Math.random() * 3.5
+            }));
+            const dots = svg.selectAll('circle').data(particles).join('circle')
+                .attr('r', d => d.size).attr('fill', PRIMARY).attr('opacity', 0.28);
+            d3.timer(() => {
+                if (!noPalco('#capa-stage')) return;
+                dots.attr('cx', d => { d.angle += d.speed; return cx + Math.cos(d.angle) * d.r; })
+                    .attr('cy', d => cy + Math.sin(d.angle) * d.r * 0.6);
+            });
+        })();
+
+        // ===== SLIDE 3: PAINEL DE INSTRUMENTOS =====
+        (function () {
+            const W = 960, H = 540;
+            const svg = d3.select('#painel-stage').append('svg').attr('viewBox', `0 0 ${W} ${H}`);
+
+            const gauges = [
+                { cx: 200, cy: 210, r: 108, label: 'Velocímetro', sub: 'km/h', max: 180, target: () => 40 + Math.random() * 90, big: true },
+                { cx: 480, cy: 210, r: 118, label: 'Tacômetro', sub: 'x1000 rpm', max: 7, target: () => 1 + Math.random() * 3.6, big: true },
+                { cx: 760, cy: 210, r: 108, label: 'Termômetro', sub: 'água do motor', max: 120, target: () => 78 + Math.random() * 14, big: true }
+            ];
+
+            gauges.forEach((g, gi) => {
+                const grp = svg.append('g').attr('transform', `translate(${g.cx},${g.cy})`).attr('opacity', 0);
+                grp.transition().delay(gi * 220).duration(650).attr('opacity', 1);
+
+                grp.append('circle').attr('r', g.r).attr('fill', 'rgba(255,255,255,0.75)').attr('stroke', LINE);
+
+                const a0 = -Math.PI * 0.78, a1 = Math.PI * 0.78;
+                const arc = d3.arc().innerRadius(g.r - 12).outerRadius(g.r - 4).startAngle(a0).endAngle(a1);
+                grp.append('path').attr('d', arc()).attr('fill', FILL);
+
+                const hot = d3.arc().innerRadius(g.r - 12).outerRadius(g.r - 4).startAngle(a1 - 0.5).endAngle(a1);
+                grp.append('path').attr('d', hot()).attr('fill', RED).attr('opacity', 0.55);
+
+                const ticks = d3.range(0, 11);
+                grp.selectAll('line.tick').data(ticks).join('line').attr('class', 'tick')
+                    .attr('transform', d => `rotate(${(a0 + (a1 - a0) * d / 10) * 180 / Math.PI})`)
+                    .attr('y1', -(g.r - 16)).attr('y2', -(g.r - 28))
+                    .attr('stroke', SOFTER).attr('stroke-width', d => d % 5 === 0 ? 2.5 : 1);
+
+                grp.append('text').text(g.label).attr('text-anchor', 'middle').attr('y', 46)
+                    .attr('fill', INK).attr('font-size', 15).attr('font-weight', 800);
+                grp.append('text').text(g.sub).attr('text-anchor', 'middle').attr('y', 66)
+                    .attr('fill', SOFTER).attr('font-size', 12);
+
+                const value = grp.append('text').attr('text-anchor', 'middle').attr('y', -34)
+                    .attr('fill', PRIMARY).attr('font-size', 22).attr('font-weight', 800).text('0');
+
+                const needle = grp.append('line')
+                    .attr('y1', 12).attr('y2', -(g.r - 30))
+                    .attr('stroke', PRIMARY).attr('stroke-width', 4).attr('stroke-linecap', 'round')
+                    .attr('transform', `rotate(${a0 * 180 / Math.PI})`);
+                grp.append('circle').attr('r', 9).attr('fill', PRIMARY);
+
+                function sweep() {
+                    const v = g.target();
+                    const ang = a0 + (a1 - a0) * (v / g.max);
+                    needle.transition().duration(2200).ease(d3.easeCubicInOut)
+                        .attr('transform', `rotate(${ang * 180 / Math.PI})`)
+                        .on('end', sweep);
+                    value.transition().duration(2200).ease(d3.easeCubicInOut)
+                        .tween('t', function () {
+                            const cur = +this.textContent.replace(',', '.') || 0;
+                            const i = d3.interpolateNumber(cur, v);
+                            return t => { this.textContent = g.max > 20 ? Math.round(i(t)) : i(t).toFixed(1).replace('.', ','); };
+                        });
+                }
+                setTimeout(sweep, 600 + gi * 220);
+            });
+
+            const readouts = [
+                { x: 150, label: 'Odômetro total', value: 128450, fmt: v => v.toLocaleString('pt-BR') + ' km', step: 1 },
+                { x: 390, label: 'Odômetro parcial', value: 142.6, fmt: v => v.toFixed(1).replace('.', ',') + ' km', step: 0.1 },
+                { x: 630, label: 'Manômetro do óleo', value: 3.4, fmt: v => v.toFixed(1).replace('.', ',') + ' bar', step: 0 },
+                { x: 850, label: 'Voltímetro', value: 13.8, fmt: v => v.toFixed(1).replace('.', ',') + ' V', step: 0 }
+            ];
+            readouts.forEach((r, i) => {
+                const g = svg.append('g').attr('transform', `translate(${r.x},430)`).attr('opacity', 0);
+                g.transition().delay(900 + i * 160).duration(600).attr('opacity', 1);
+                g.append('rect').attr('x', -105).attr('y', -30).attr('width', 210).attr('height', 62).attr('rx', 14)
+                    .attr('fill', 'rgba(255,255,255,0.7)').attr('stroke', LINE);
+                g.append('text').text(r.label).attr('text-anchor', 'middle').attr('y', -8)
+                    .attr('fill', SOFTER).attr('font-size', 12).attr('font-weight', 600);
+                const val = g.append('text').attr('text-anchor', 'middle').attr('y', 16)
+                    .attr('fill', INK).attr('font-size', 17).attr('font-weight', 800).text(r.fmt(r.value));
+                if (r.step > 0) {
+                    d3.interval(() => { r.value += r.step; val.text(r.fmt(r.value)); }, 1400);
+                }
+            });
+        })();
+
+        // ===== SLIDE 5: FUMAÇAS (três palcos pequenos) =====
+        (function () {
+            function smoke(sel, color, opacity) {
+                const W = 240, H = 150;
+                const svg = d3.select(sel).append('svg').attr('viewBox', `0 0 ${W} ${H}`).style('width', '100%').style('height', '100%');
+                svg.append('rect').attr('x', 20).attr('y', 96).attr('width', 74).attr('height', 26).attr('rx', 6)
+                    .attr('fill', FILL).attr('stroke', LINE);
+                svg.append('rect').attr('x', 92).attr('y', 102).attr('width', 26).attr('height', 14).attr('rx', 4)
+                    .attr('fill', 'rgba(26,26,26,0.18)');
+                const puffs = d3.range(9).map(i => ({ i }));
+                const g = svg.append('g');
+                function emit(d, delay) {
+                    const c = g.append('circle')
+                        .attr('cx', 122).attr('cy', 109).attr('r', 5)
+                        .attr('fill', color).attr('opacity', opacity);
+                    c.transition().delay(delay).duration(2600).ease(d3.easeCubicOut)
+                        .attr('cx', 122 + 90 + Math.random() * 26)
+                        .attr('cy', 60 - Math.random() * 40)
+                        .attr('r', 22 + Math.random() * 12)
+                        .attr('opacity', 0)
+                        .on('end', () => { c.remove(); emit(d, 0); });
+                }
+                puffs.forEach((d, i) => emit(d, i * 290));
+            }
+            smoke('#fumaca-branca', '#B9C2C8', 0.85);
+            smoke('#fumaca-azul', '#6C8FD6', 0.7);
+            smoke('#fumaca-preta', '#3A3A3A', 0.6);
+        })();
+
+        // ===== SLIDE 10: ALIMENTAÇÃO =====
+        (function () {
+            const W = 960, H = 540;
+            const svg = d3.select('#alimentacao-stage').append('svg').attr('viewBox', `0 0 ${W} ${H}`);
+            const etapas = ['Tanque', 'Bomba', 'Filtro', 'Injeção', 'Cilindro'];
+            const xs = d3.scalePoint().domain(d3.range(etapas.length)).range([110, W - 110]);
+            const cy = 180;
+
+            svg.append('line').attr('x1', xs(0)).attr('x2', xs(4)).attr('y1', cy).attr('y2', cy)
+                .attr('stroke', LINE).attr('stroke-width', 3);
+
+            const nodes = svg.selectAll('g.node').data(etapas).join('g')
+                .attr('transform', (d, i) => `translate(${xs(i)},${cy})`);
+            nodes.append('circle').attr('r', 0).attr('fill', 'rgba(255,255,255,0.85)')
+                .attr('stroke', PRIMARY).attr('stroke-width', 2)
+                .transition().delay((d, i) => 250 + i * 220).duration(600).ease(d3.easeBackOut).attr('r', 36);
+            nodes.append('text').text((d, i) => i + 1).attr('text-anchor', 'middle').attr('dy', 7)
+                .attr('fill', PRIMARY).attr('font-size', 20).attr('font-weight', 800)
+                .attr('opacity', 0).transition().delay((d, i) => 550 + i * 220).attr('opacity', 1);
+            nodes.append('text').text(d => d).attr('text-anchor', 'middle').attr('dy', 66)
+                .attr('fill', SOFT).attr('font-size', 15).attr('font-weight', 600)
+                .attr('opacity', 0).transition().delay((d, i) => 650 + i * 220).attr('opacity', 1);
+
+            const drop = svg.append('circle').attr('r', 8).attr('fill', PRIMARY).attr('cy', cy).attr('cx', xs(0));
+            function travel() {
+                drop.attr('cx', xs(0)).attr('opacity', 1)
+                    .transition().duration(3400).ease(d3.easeCubicInOut).attr('cx', xs(4))
+                    .transition().duration(300).attr('opacity', 0).on('end', travel);
+            }
+            setTimeout(travel, 1400);
+            window.__alimReplay = travel;
+
+            // Proporção 15:1
+            const gp = svg.append('g').attr('transform', `translate(${W / 2},370)`);
+            gp.append('text').text('A dose certa da mistura').attr('text-anchor', 'middle').attr('y', -40)
+                .attr('fill', INK).attr('font-size', 16).attr('font-weight', 800);
+            const cols = 15;
+            const airs = d3.range(cols).map(i => ({ x: -300 + i * 34, y: 0 }));
+            const air = gp.selectAll('circle.air').data(airs).join('circle').attr('class', 'air')
+                .attr('cx', d => d.x).attr('cy', 0).attr('r', 0).attr('fill', ACCENT).attr('opacity', 0.55)
+                .transition().delay((d, i) => 1200 + i * 60).duration(400).attr('r', 11);
+            gp.append('circle').attr('cx', 220).attr('cy', 0).attr('r', 0).attr('fill', PRIMARY)
+                .transition().delay(2300).duration(500).ease(d3.easeBackOut).attr('r', 15);
+            gp.append('text').text('15 partes de ar').attr('x', -130).attr('y', 42).attr('text-anchor', 'middle')
+                .attr('fill', SOFT).attr('font-size', 14).attr('opacity', 0)
+                .transition().delay(2300).attr('opacity', 1);
+            gp.append('text').text('1 de combustível').attr('x', 220).attr('y', 42).attr('text-anchor', 'middle')
+                .attr('fill', PRIMARY).attr('font-size', 14).attr('font-weight', 700).attr('opacity', 0)
+                .transition().delay(2500).attr('opacity', 1);
+
+            const badge = gp.append('g').attr('transform', 'translate(0,96)').attr('opacity', 0);
+            badge.transition().delay(2800).duration(500).attr('opacity', 1);
+            const badgeText = badge.append('text').attr('text-anchor', 'middle')
+                .attr('fill', SOFT).attr('font-size', 15).attr('font-weight', 700);
+            const estados = [
+                { t: 'Mistura ideal: 15 de ar para 1 de combustível', c: GREEN },
+                { t: 'Mistura rica: mais combustível que ar, fumaça preta', c: RED },
+                { t: 'Mistura pobre: mais ar que combustível, perda de força', c: AMBER }
+            ];
+            let ei = 0;
+            function ciclo() {
+                const e = estados[ei % estados.length];
+                badgeText.transition().duration(400).attr('opacity', 0).on('end', () => {
+                    badgeText.text(e.t).attr('fill', e.c).transition().duration(400).attr('opacity', 1);
+                });
+                ei++;
+            }
+            ciclo();
+            d3.interval(ciclo, 3200);
+        })();
+
+        // ===== SLIDE 11: LUBRIFICAÇÃO (circuito fechado) =====
+        (function () {
+            const W = 960, H = 540;
+            const svg = d3.select('#lubrificacao-stage').append('svg').attr('viewBox', `0 0 ${W} ${H}`);
+            const pathD = 'M 200 420 L 200 300 Q 200 240 280 240 L 430 240 Q 500 240 500 170 L 500 130 Q 500 90 570 90 L 720 90 Q 780 90 780 160 L 780 330 Q 780 420 660 420 Z';
+            const path = svg.append('path').attr('d', pathD).attr('fill', 'none')
+                .attr('stroke', LINE).attr('stroke-width', 16).attr('stroke-linecap', 'round');
+            const node = path.node();
+            const L = node.getTotalLength();
+            path.attr('stroke-dasharray', L).attr('stroke-dashoffset', L)
+                .transition().duration(1600).ease(d3.easeCubicInOut).attr('stroke-dashoffset', 0);
+
+            const marcos = [
+                { t: 0.02, label: 'Cárter', sub: 'reservatório do óleo' },
+                { t: 0.22, label: 'Bomba de óleo', sub: 'gera a pressão' },
+                { t: 0.46, label: 'Filtro', sub: 'retém as impurezas' },
+                { t: 0.70, label: 'Galerias do motor', sub: 'peças móveis lubrificadas' },
+                { t: 0.90, label: 'Bulbo indicador', sub: 'avisa no painel' }
+            ];
+            marcos.forEach((m, i) => {
+                const p = node.getPointAtLength(L * m.t);
+                const g = svg.append('g').attr('transform', `translate(${p.x},${p.y})`).attr('opacity', 0);
+                g.transition().delay(1500 + i * 200).duration(500).attr('opacity', 1);
+                g.append('circle').attr('r', 22).attr('fill', 'rgba(255,255,255,0.92)').attr('stroke', PRIMARY).attr('stroke-width', 2);
+                g.append('text').text(i + 1).attr('text-anchor', 'middle').attr('dy', 6)
+                    .attr('fill', PRIMARY).attr('font-size', 14).attr('font-weight', 800);
+                g.append('text').text(m.label).attr('text-anchor', 'middle').attr('dy', -34)
+                    .attr('fill', INK).attr('font-size', 14).attr('font-weight', 700);
+                g.append('text').text(m.sub).attr('text-anchor', 'middle').attr('dy', -16)
+                    .attr('fill', SOFTER).attr('font-size', 11);
+            });
+
+            const gotas = d3.range(9).map(i => ({ off: i / 9 }));
+            const dots = svg.selectAll('circle.gota').data(gotas).join('circle').attr('class', 'gota')
+                .attr('r', 7).attr('fill', PRIMARY).attr('opacity', 0);
+            dots.transition().delay(1600).attr('opacity', 0.9);
+            d3.timer(t => {
+                if (!noPalco('#lubrificacao-stage')) return;
+                dots.attr('transform', d => {
+                    const pos = ((t / 9000) + d.off) % 1;
+                    const p = node.getPointAtLength(L * pos);
+                    return `translate(${p.x},${p.y})`;
+                });
+            });
+
+            svg.append('text').text('O óleo circula sem parar enquanto o motor gira')
+                .attr('x', W / 2).attr('y', 500).attr('text-anchor', 'middle')
+                .attr('fill', SOFT).attr('font-size', 15).attr('font-weight', 600)
+                .attr('opacity', 0).transition().delay(2600).duration(600).attr('opacity', 1);
+        })();
+
+        // ===== SLIDE 12: ARREFECIMENTO =====
+        (function () {
+            const W = 960, H = 540;
+            const svg = d3.select('#arrefecimento-stage').append('svg').attr('viewBox', `0 0 ${W} ${H}`);
+
+            // Motor
+            const motor = svg.append('g').attr('transform', 'translate(250,300)');
+            motor.append('rect').attr('x', -90).attr('y', -70).attr('width', 180).attr('height', 140).attr('rx', 14)
+                .attr('fill', FILL).attr('stroke', LINE).attr('stroke-width', 2);
+            motor.append('text').text('Motor').attr('text-anchor', 'middle').attr('dy', 6)
+                .attr('fill', INK).attr('font-size', 17).attr('font-weight', 800);
+            const motorHeat = motor.append('rect').attr('x', -90).attr('y', -70).attr('width', 180).attr('height', 140).attr('rx', 14)
+                .attr('fill', RED).attr('opacity', 0);
+
+            // Radiador
+            const rad = svg.append('g').attr('transform', 'translate(700,300)');
+            rad.append('rect').attr('x', -80).attr('y', -80).attr('width', 160).attr('height', 160).attr('rx', 12)
+                .attr('fill', 'rgba(255,255,255,0.85)').attr('stroke', LINE).attr('stroke-width', 2);
+            d3.range(7).forEach(i => {
+                rad.append('line').attr('x1', -66 + i * 22).attr('x2', -66 + i * 22).attr('y1', -66).attr('y2', 66)
+                    .attr('stroke', LINE).attr('stroke-width', 4);
+            });
+            rad.append('text').text('Radiador').attr('text-anchor', 'middle').attr('y', 104)
+                .attr('fill', INK).attr('font-size', 16).attr('font-weight', 800);
+
+            // Ventoinha
+            const fan = rad.append('g').attr('transform', 'translate(0,0)');
+            const blades = fan.append('g');
+            d3.range(5).forEach(i => {
+                blades.append('ellipse').attr('rx', 8).attr('ry', 30).attr('cy', -30)
+                    .attr('transform', `rotate(${i * 72})`)
+                    .attr('fill', ACCENT).attr('opacity', 0.35);
+            });
+            let fanAngle = 0;
+            d3.timer(() => {
+                if (!noPalco('#arrefecimento-stage')) return;
+                fanAngle += 4; blades.attr('transform', `rotate(${fanAngle})`);
+            });
+
+            // Mangueiras
+            const cima = 'M 250 230 Q 250 150 475 150 Q 700 150 700 220';
+            const baixo = 'M 700 380 Q 700 460 475 460 Q 250 460 250 370';
+            [cima, baixo].forEach(d => {
+                svg.append('path').attr('d', d).attr('fill', 'none').attr('stroke', LINE).attr('stroke-width', 14).attr('stroke-linecap', 'round');
+            });
+            const pCima = svg.append('path').attr('d', cima).attr('fill', 'none').attr('opacity', 0);
+            const pBaixo = svg.append('path').attr('d', baixo).attr('fill', 'none').attr('opacity', 0);
+            const nCima = pCima.node(), nBaixo = pBaixo.node();
+            const lCima = nCima.getTotalLength(), lBaixo = nBaixo.getTotalLength();
+
+            const quentes = d3.range(6).map(i => ({ off: i / 6 }));
+            const frios = d3.range(6).map(i => ({ off: i / 6 }));
+            const dq = svg.selectAll('circle.q').data(quentes).join('circle').attr('class', 'q').attr('r', 7).attr('fill', RED).attr('opacity', 0.85);
+            const df = svg.selectAll('circle.f').data(frios).join('circle').attr('class', 'f').attr('r', 7).attr('fill', ACCENT).attr('opacity', 0.85);
+            d3.timer(t => {
+                if (!noPalco('#arrefecimento-stage')) return;
+                dq.attr('transform', d => { const p = nCima.getPointAtLength(lCima * (((t / 4200) + d.off) % 1)); return `translate(${p.x},${p.y})`; });
+                df.attr('transform', d => { const p = nBaixo.getPointAtLength(lBaixo * (((t / 4200) + d.off) % 1)); return `translate(${p.x},${p.y})`; });
+            });
+
+            svg.append('text').text('Água quente vai do motor ao radiador').attr('x', 475).attr('y', 128)
+                .attr('text-anchor', 'middle').attr('fill', SOFT).attr('font-size', 14).attr('font-weight', 600);
+            svg.append('text').text('Água resfriada volta pela mangueira inferior').attr('x', 475).attr('y', 492)
+                .attr('text-anchor', 'middle').attr('fill', SOFT).attr('font-size', 14).attr('font-weight', 600);
+
+            // Termômetro lateral com ciclo de aquecimento e alerta
+            const term = svg.append('g').attr('transform', 'translate(70,300)');
+            term.append('rect').attr('x', -16).attr('y', -140).attr('width', 32).attr('height', 250).attr('rx', 16)
+                .attr('fill', 'rgba(255,255,255,0.9)').attr('stroke', LINE);
+            const mercurio = term.append('rect').attr('x', -9).attr('y', 100).attr('width', 18).attr('height', 4).attr('rx', 9)
+                .attr('fill', ACCENT);
+            term.append('text').text('Temperatura').attr('text-anchor', 'middle').attr('y', 138)
+                .attr('fill', SOFTER).attr('font-size', 12).attr('font-weight', 700);
+            const alerta = svg.append('text').attr('x', 70).attr('y', 470).attr('text-anchor', 'middle')
+                .attr('fill', RED).attr('font-size', 13).attr('font-weight', 800).attr('opacity', 0)
+                .text('Pare e espere esfriar');
+
+            function ciclo() {
+                mercurio.transition().duration(4200).ease(d3.easeCubicInOut)
+                    .attr('y', -120).attr('height', 224).attr('fill', RED)
+                    .on('start', () => { motorHeat.transition().duration(4200).attr('opacity', 0.18); })
+                    .transition().duration(600)
+                    .on('start', () => { alerta.transition().duration(400).attr('opacity', 1); })
+                    .transition().duration(3000).ease(d3.easeCubicInOut)
+                    .attr('y', 40).attr('height', 64).attr('fill', ACCENT)
+                    .on('start', () => {
+                        alerta.transition().delay(900).duration(500).attr('opacity', 0);
+                        motorHeat.transition().duration(2600).attr('opacity', 0);
+                    })
+                    .on('end', ciclo);
+            }
+            setTimeout(ciclo, 900);
+        })();
+
+        // ===== SLIDE 13: TRANSMISSÃO (engrenagens) =====
+        (function () {
+            const W = 960, H = 540;
+            const svg = d3.select('#transmissao-stage').append('svg').attr('viewBox', `0 0 ${W} ${H}`);
+
+            function gearPath(r, teeth) {
+                const inner = r * 0.78, step = Math.PI * 2 / teeth;
+                let d = '';
+                for (let i = 0; i < teeth; i++) {
+                    const a0 = i * step, a1 = a0 + step * 0.42, a2 = a0 + step * 0.5, a3 = a0 + step * 0.92;
+                    const pt = (ang, rad) => `${(Math.cos(ang) * rad).toFixed(2)},${(Math.sin(ang) * rad).toFixed(2)}`;
+                    d += (i === 0 ? 'M ' : 'L ') + pt(a0, r) + ' L ' + pt(a1, r) + ' L ' + pt(a2, inner) + ' L ' + pt(a3, inner) + ' ';
+                }
+                return d + 'Z';
+            }
+
+            const engrenagens = [
+                { x: 140, y: 290, r: 70, teeth: 14, label: 'Embreagem', sub: 'liga e solta o motor', speed: 0.9 },
+                { x: 320, y: 290, r: 88, teeth: 18, label: 'Caixa de câmbio', sub: 'troca força por velocidade', speed: -0.72 },
+                { x: 520, y: 290, r: 66, teeth: 13, label: 'Árvore de transmissão', sub: 'cardan e cruzetas', speed: 0.95 },
+                { x: 700, y: 290, r: 82, teeth: 16, label: 'Diferencial', sub: 'compensa a curva', speed: -0.78 }
+            ];
+
+            engrenagens.forEach((g, i) => {
+                const grp = svg.append('g').attr('transform', `translate(${g.x},${g.y})`).attr('opacity', 0);
+                grp.transition().delay(200 + i * 240).duration(600).attr('opacity', 1);
+                const gear = grp.append('path').attr('d', gearPath(g.r, g.teeth))
+                    .attr('fill', FILL).attr('stroke', PRIMARY).attr('stroke-width', 2).attr('stroke-opacity', 0.75);
+                grp.append('circle').attr('r', g.r * 0.28).attr('fill', 'rgba(255,255,255,0.9)').attr('stroke', LINE);
+                grp.append('text').text(g.label).attr('text-anchor', 'middle').attr('y', g.r + 34)
+                    .attr('fill', INK).attr('font-size', 14).attr('font-weight', 800);
+                grp.append('text').text(g.sub).attr('text-anchor', 'middle').attr('y', g.r + 54)
+                    .attr('fill', SOFTER).attr('font-size', 12);
+                g.el = gear;
+            });
+
+            let ang = 0;
+            d3.timer(() => {
+                if (!noPalco('#transmissao-stage')) return;
+                ang += 0.6;
+                engrenagens.forEach(g => g.el && g.el.attr('transform', `rotate(${ang * g.speed})`));
+            });
+
+            // Semiárvore até a roda
+            svg.append('line').attr('x1', 782).attr('x2', 866).attr('y1', 290).attr('y2', 290)
+                .attr('stroke', LINE).attr('stroke-width', 8).attr('stroke-linecap', 'round')
+                .attr('opacity', 0).transition().delay(1300).duration(500).attr('opacity', 1);
+            const roda = svg.append('g').attr('transform', 'translate(880,290)').attr('opacity', 0);
+            roda.transition().delay(1500).duration(500).attr('opacity', 1);
+            roda.append('circle').attr('r', 34).attr('fill', 'rgba(26,26,26,0.08)').attr('stroke', INK).attr('stroke-width', 3);
+            const raios = roda.append('g');
+            d3.range(5).forEach(i => raios.append('line').attr('x1', 0).attr('y1', 0)
+                .attr('x2', Math.cos(i * 1.2566) * 28).attr('y2', Math.sin(i * 1.2566) * 28)
+                .attr('stroke', SOFTER).attr('stroke-width', 3));
+            d3.timer(t => { if (noPalco('#transmissao-stage')) raios.attr('transform', `rotate(${t / 12})`); });
+            roda.append('text').text('Roda').attr('text-anchor', 'middle').attr('y', 66)
+                .attr('fill', INK).attr('font-size', 14).attr('font-weight', 800);
+            roda.append('text').text('semiárvore leva o giro').attr('text-anchor', 'middle').attr('y', 86)
+                .attr('fill', SOFTER).attr('font-size', 12);
+
+            // Trilho da força: partícula que atravessa o conjunto até a roda
+            svg.append('line').attr('x1', 110).attr('x2', 880).attr('y1', 150).attr('y2', 150)
+                .attr('stroke', LINE).attr('stroke-width', 2).attr('stroke-dasharray', '6 8');
+            const forca = svg.append('circle').attr('r', 9).attr('fill', PRIMARY).attr('cy', 150).attr('opacity', 0)
+                .style('filter', `drop-shadow(0 0 6px ${PRIMARY})`);
+            function correr() {
+                forca.attr('cx', 110).attr('opacity', 1)
+                    .transition().duration(3600).ease(d3.easeCubicInOut).attr('cx', 880)
+                    .transition().duration(300).attr('opacity', 0).on('end', correr);
+            }
+            setTimeout(correr, 1700);
+            svg.append('text').text('A força do motor atravessa o conjunto até a roda')
+                .attr('x', W / 2).attr('y', 106).attr('text-anchor', 'middle')
+                .attr('fill', SOFT).attr('font-size', 15).attr('font-weight', 600);
+        })();
+
+        // ===== SLIDE 14: FREIOS (disco x tambor) =====
+        (function () {
+            const W = 960, H = 420;
+            const svg = d3.select('#freios-stage').append('svg').attr('viewBox', `0 0 ${W} ${H}`);
+
+            // Disco
+            const disco = svg.append('g').attr('transform', 'translate(260,200)');
+            const discoRot = disco.append('g');
+            discoRot.append('circle').attr('r', 106).attr('fill', 'rgba(26,26,26,0.06)').attr('stroke', INK).attr('stroke-width', 2);
+            discoRot.append('circle').attr('r', 40).attr('fill', 'rgba(255,255,255,0.9)').attr('stroke', LINE);
+            d3.range(16).forEach(i => discoRot.append('line')
+                .attr('x1', Math.cos(i * 0.3927) * 48).attr('y1', Math.sin(i * 0.3927) * 48)
+                .attr('x2', Math.cos(i * 0.3927) * 100).attr('y2', Math.sin(i * 0.3927) * 100)
+                .attr('stroke', LINE).attr('stroke-width', 2));
+            let discoAng = 0, girando = 1;
+            d3.timer(() => {
+                if (!noPalco('#freios-stage')) return;
+                discoAng += 1.6 * girando; discoRot.attr('transform', `rotate(${discoAng})`);
+            });
+
+            const past1 = disco.append('rect').attr('x', -132).attr('y', -26).attr('width', 22).attr('height', 52).attr('rx', 5).attr('fill', PRIMARY).attr('opacity', 0.85);
+            const past2 = disco.append('rect').attr('x', 110).attr('y', -26).attr('width', 22).attr('height', 52).attr('rx', 5).attr('fill', PRIMARY).attr('opacity', 0.85);
+            disco.append('text').text('Freio a disco').attr('text-anchor', 'middle').attr('y', 150)
+                .attr('fill', INK).attr('font-size', 16).attr('font-weight', 800);
+            disco.append('text').text('as pastilhas apertam as duas faces').attr('text-anchor', 'middle').attr('y', 172)
+                .attr('fill', SOFTER).attr('font-size', 12);
+
+            // Tambor
+            const tambor = svg.append('g').attr('transform', 'translate(700,200)');
+            const tamborRot = tambor.append('g');
+            tamborRot.append('circle').attr('r', 106).attr('fill', 'none').attr('stroke', INK).attr('stroke-width', 12).attr('stroke-opacity', 0.35);
+            let tamborAng = 0;
+            d3.timer(() => {
+                if (!noPalco('#freios-stage')) return;
+                tamborAng += 1.6 * girando; tamborRot.attr('transform', `rotate(${tamborAng})`);
+            });
+            const arcSapata = d3.arc().innerRadius(56).outerRadius(76).startAngle(-1.15).endAngle(1.15);
+            const sap1 = tambor.append('path').attr('d', arcSapata()).attr('fill', PRIMARY).attr('opacity', 0.8);
+            const sap2 = tambor.append('path').attr('d', arcSapata()).attr('fill', PRIMARY).attr('opacity', 0.8).attr('transform', 'rotate(180)');
+            tambor.append('circle').attr('r', 26).attr('fill', 'rgba(255,255,255,0.9)').attr('stroke', LINE);
+            tambor.append('text').text('Freio a tambor').attr('text-anchor', 'middle').attr('y', 150)
+                .attr('fill', INK).attr('font-size', 16).attr('font-weight', 800);
+            tambor.append('text').text('as sapatas se abrem contra o tambor').attr('text-anchor', 'middle').attr('y', 172)
+                .attr('fill', SOFTER).attr('font-size', 12);
+
+            const pedal = svg.append('text').attr('x', W / 2).attr('y', 60).attr('text-anchor', 'middle')
+                .attr('fill', SOFT).attr('font-size', 16).attr('font-weight', 700).text('Pedal solto: o fluido descansa');
+
+            function frear() {
+                pedal.text('Pedal pressionado: o fluido empurra pastilhas e sapatas').attr('fill', PRIMARY);
+                girando = 0.25;
+                past1.transition().duration(500).attr('x', -118);
+                past2.transition().duration(500).attr('x', 96);
+                sap1.transition().duration(500).attr('transform', 'scale(1.16)');
+                sap2.transition().duration(500).attr('transform', 'rotate(180) scale(1.16)');
+                setTimeout(soltar, 2400);
+            }
+            function soltar() {
+                pedal.text('Pedal solto: o fluido descansa').attr('fill', SOFT);
+                girando = 1;
+                past1.transition().duration(500).attr('x', -132);
+                past2.transition().duration(500).attr('x', 110);
+                sap1.transition().duration(500).attr('transform', 'scale(1)');
+                sap2.transition().duration(500).attr('transform', 'rotate(180) scale(1)');
+                setTimeout(frear, 2400);
+            }
+            setTimeout(frear, 1600);
+        })();
+
+        // ===== SLIDE 15: DIREÇÃO E ALINHAMENTO =====
+        (function () {
+            const W = 960, H = 540;
+            const svg = d3.select('#direcao-stage').append('svg').attr('viewBox', `0 0 ${W} ${H}`);
+
+            svg.append('rect').attr('x', 330).attr('y', 150).attr('width', 300).attr('height', 240).attr('rx', 26)
+                .attr('fill', FILL).attr('stroke', LINE).attr('stroke-width', 2);
+            svg.append('text').text('Vista de cima').attr('x', 480).attr('y', 270).attr('text-anchor', 'middle')
+                .attr('fill', SOFTER).attr('font-size', 14).attr('font-weight', 700);
+
+            const rodas = [
+                { x: 285, y: 200, lado: -1 }, { x: 675, y: 200, lado: 1 }
+            ];
+            const els = rodas.map(r => {
+                const g = svg.append('g').attr('transform', `translate(${r.x},${r.y})`);
+                const rect = g.append('rect').attr('x', -16).attr('y', -48).attr('width', 32).attr('height', 96).attr('rx', 8)
+                    .attr('fill', 'rgba(26,26,26,0.14)').attr('stroke', INK).attr('stroke-width', 2);
+                return { g, rect, lado: r.lado };
+            });
+            // Rodas traseiras fixas
+            [[285, 380], [675, 380]].forEach(([x, y]) => {
+                svg.append('rect').attr('x', x - 16).attr('y', y - 48).attr('width', 32).attr('height', 96).attr('rx', 8)
+                    .attr('fill', 'rgba(26,26,26,0.08)').attr('stroke', LINE).attr('stroke-width', 2);
+            });
+
+            const titulo = svg.append('text').attr('x', W / 2).attr('y', 80).attr('text-anchor', 'middle')
+                .attr('fill', INK).attr('font-size', 22).attr('font-weight', 800);
+            const desc = svg.append('text').attr('x', W / 2).attr('y', 110).attr('text-anchor', 'middle')
+                .attr('fill', SOFT).attr('font-size', 15);
+
+            const estados = [
+                { nome: 'Alinhado', txt: 'Rodas paralelas: desgaste uniforme e volante centrado', ang: 0, skew: 0 },
+                { nome: 'Cambagem negativa', txt: 'Rodas inclinadas para dentro dos paralamas', ang: 0, skew: -14 },
+                { nome: 'Cambagem positiva', txt: 'Rodas inclinadas para fora dos paralamas', ang: 0, skew: 14 },
+                { nome: 'Convergência', txt: 'A parte traseira das rodas abre mais que a dianteira', ang: 7, skew: 0 },
+                { nome: 'Divergência', txt: 'A parte dianteira das rodas abre mais que a traseira', ang: -7, skew: 0 },
+                { nome: 'Cáster', txt: 'Inclinação do pino mestre: o volante volta sozinho após a curva', ang: 0, skew: 0, caster: true }
+            ];
+            const casterMark = svg.append('line').attr('x1', 480).attr('y1', 150).attr('x2', 480).attr('y2', 390)
+                .attr('stroke', PRIMARY).attr('stroke-width', 3).attr('stroke-dasharray', '8 8').attr('opacity', 0);
+
+            let idx = 0;
+            function passo() {
+                const e = estados[idx % estados.length];
+                titulo.transition().duration(350).attr('opacity', 0).on('end', () => {
+                    titulo.text(e.nome).transition().duration(350).attr('opacity', 1);
+                });
+                desc.transition().duration(350).attr('opacity', 0).on('end', () => {
+                    desc.text(e.txt).transition().duration(350).attr('opacity', 1);
+                });
+                els.forEach(el => {
+                    el.rect.transition().duration(900).ease(d3.easeCubicInOut)
+                        .attr('transform', `rotate(${e.ang * el.lado}) skewX(${e.skew * el.lado})`)
+                        .attr('stroke', e.nome === 'Alinhado' ? GREEN : PRIMARY);
+                });
+                casterMark.transition().duration(600).attr('opacity', e.caster ? 0.8 : 0);
+                idx++;
+            }
+            passo();
+            d3.interval(passo, 3000);
+
+            const sintomas = ['Volante torto na reta', 'Vibração em velocidade', 'Puxando para um lado', 'Folga no volante'];
+            sintomas.forEach((s, i) => {
+                const g = svg.append('g').attr('transform', `translate(${170 + i * 220},470)`).attr('opacity', 0);
+                g.transition().delay(1200 + i * 200).duration(500).attr('opacity', 1);
+                g.append('rect').attr('x', -100).attr('y', -18).attr('width', 200).attr('height', 36).attr('rx', 18)
+                    .attr('fill', 'rgba(255,255,255,0.8)').attr('stroke', LINE);
+                g.append('text').text(s).attr('text-anchor', 'middle').attr('dy', 5)
+                    .attr('fill', SOFT).attr('font-size', 13).attr('font-weight', 600);
+            });
+        })();
+
+        // ===== SLIDE 16: SUSPENSÃO =====
+        (function () {
+            const W = 960, H = 540;
+            const svg = d3.select('#suspensao-stage').append('svg').attr('viewBox', `0 0 ${W} ${H}`);
+
+            // Pista com irregularidades rolando
+            const road = svg.append('g');
+            const bumpPath = d3.line().curve(d3.curveBasis);
+            const pontos = d3.range(0, 40).map(i => [i * 60, 430 + (i % 4 === 0 ? -18 : i % 3 === 0 ? 12 : 0)]);
+            const estrada = road.append('path').attr('d', bumpPath(pontos))
+                .attr('fill', 'none').attr('stroke', INK).attr('stroke-width', 4).attr('stroke-opacity', 0.35);
+            d3.timer(t => { if (noPalco('#suspensao-stage')) road.attr('transform', `translate(${-((t / 12) % 240)},0)`); });
+
+            // Carroceria
+            const body = svg.append('g').attr('transform', 'translate(480,190)');
+            body.append('rect').attr('x', -220).attr('y', -60).attr('width', 440).attr('height', 110).attr('rx', 20)
+                .attr('fill', FILL).attr('stroke', LINE).attr('stroke-width', 2);
+            body.append('text').text('Carroceria estabilizada').attr('text-anchor', 'middle').attr('dy', 4)
+                .attr('fill', INK).attr('font-size', 16).attr('font-weight', 800);
+
+            function conjunto(cx) {
+                const g = svg.append('g').attr('transform', `translate(${cx},0)`);
+                const mola = g.append('path').attr('fill', 'none').attr('stroke', PRIMARY).attr('stroke-width', 5).attr('stroke-linecap', 'round');
+                const amort = g.append('rect').attr('x', 22).attr('y', 250).attr('width', 16).attr('height', 90).attr('rx', 8)
+                    .attr('fill', 'rgba(26,26,26,0.12)').attr('stroke', LINE);
+                const haste = g.append('line').attr('x1', 30).attr('x2', 30).attr('stroke', INK).attr('stroke-width', 5).attr('stroke-linecap', 'round');
+                const rodaG = g.append('g');
+                rodaG.append('circle').attr('cx', 0).attr('cy', 400).attr('r', 44)
+                    .attr('fill', 'rgba(26,26,26,0.10)').attr('stroke', INK).attr('stroke-width', 3);
+                const raios = rodaG.append('g').attr('transform', 'translate(0,400)');
+                d3.range(6).forEach(i => raios.append('line').attr('x2', Math.cos(i) * 34).attr('y2', Math.sin(i) * 34).attr('stroke', SOFTER).attr('stroke-width', 2));
+                d3.timer(t => { if (noPalco('#suspensao-stage')) raios.attr('transform', `translate(0,400) rotate(${t / 8})`); });
+                return { mola, haste, rodaG };
+            }
+            const c1 = conjunto(300), c2 = conjunto(660);
+
+            function molaPath(topo, base) {
+                const voltas = 7, dx = 26;
+                let d = `M 0 ${topo}`;
+                for (let i = 0; i < voltas; i++) {
+                    const y0 = topo + (base - topo) * (i / voltas);
+                    const y1 = topo + (base - topo) * ((i + 0.5) / voltas);
+                    const y2 = topo + (base - topo) * ((i + 1) / voltas);
+                    d += ` L ${dx} ${y1} L 0 ${y2}`;
+                    void y0;
+                }
+                return d;
+            }
+
+            d3.timer(t => {
+                if (!noPalco('#suspensao-stage')) return;
+                [[c1, 0], [c2, Math.PI * 0.7]].forEach(([c, fase]) => {
+                    const osc = Math.sin(t / 420 + fase) * 16 + Math.sin(t / 170 + fase) * 6;
+                    const topo = 250, base = 372 + osc;
+                    c.mola.attr('d', molaPath(topo, base));
+                    c.haste.attr('y1', 258).attr('y2', base - 6);
+                    c.rodaG.attr('transform', `translate(0,${osc})`);
+                });
+            });
+
+            svg.append('text').text('A roda sobe e desce, a carroceria segue firme')
+                .attr('x', W / 2).attr('y', 90).attr('text-anchor', 'middle')
+                .attr('fill', SOFT).attr('font-size', 16).attr('font-weight', 700);
+            svg.append('text').text('Quando o amortecedor cansa, esse movimento vira balanço e o veículo desvia a trajetória')
+                .attr('x', W / 2).attr('y', 505).attr('text-anchor', 'middle')
+                .attr('fill', SOFTER).attr('font-size', 14);
+        })();
+
+        // ===== SLIDE 17: SISTEMA ELÉTRICO =====
+        (function () {
+            const W = 960, H = 540;
+            const svg = d3.select('#eletrico-stage').append('svg').attr('viewBox', `0 0 ${W} ${H}`);
+
+            // Bateria central
+            const bat = svg.append('g').attr('transform', 'translate(480,270)');
+            bat.append('rect').attr('x', -70).attr('y', -46).attr('width', 140).attr('height', 92).attr('rx', 12)
+                .attr('fill', 'rgba(255,255,255,0.92)').attr('stroke', PRIMARY).attr('stroke-width', 2.5);
+            bat.append('text').text('Bateria').attr('text-anchor', 'middle').attr('dy', -6)
+                .attr('fill', INK).attr('font-size', 16).attr('font-weight', 800);
+            bat.append('text').text('12 V').attr('text-anchor', 'middle').attr('dy', 18)
+                .attr('fill', PRIMARY).attr('font-size', 15).attr('font-weight', 800);
+            const pulso = bat.append('rect').attr('x', -70).attr('y', -46).attr('width', 140).attr('height', 92).attr('rx', 12)
+                .attr('fill', 'none').attr('stroke', PRIMARY).attr('opacity', 0);
+            d3.interval(() => {
+                pulso.attr('opacity', 0.6).attr('transform', 'scale(1)')
+                    .transition().duration(1500).ease(d3.easeCubicOut).attr('transform', 'scale(1.28)').attr('opacity', 0);
+            }, 1800);
+
+            const circuitos = [
+                { nome: 'Partida', desc: 'motor de arranque, bendix, cremalheira', x: 190, y: 130, cor: PRIMARY },
+                { nome: 'Ignição', desc: 'bobina, distribuidor, vela', x: 770, y: 130, cor: ACCENT },
+                { nome: 'Recarga', desc: 'alternador e regulador de tensão', x: 190, y: 410, cor: GREEN },
+                { nome: 'Iluminação', desc: 'faróis, setas, freio, ré e placa', x: 770, y: 410, cor: AMBER }
+            ];
+
+            circuitos.forEach((c, i) => {
+                const linha = svg.append('path')
+                    .attr('d', `M 480 270 Q ${(480 + c.x) / 2} ${c.y} ${c.x} ${c.y}`)
+                    .attr('fill', 'none').attr('stroke', LINE).attr('stroke-width', 6).attr('stroke-linecap', 'round');
+                const node = linha.node(), L = node.getTotalLength();
+                linha.attr('stroke-dasharray', L).attr('stroke-dashoffset', L)
+                    .transition().delay(200 + i * 220).duration(800).attr('stroke-dashoffset', 0);
+
+                const g = svg.append('g').attr('transform', `translate(${c.x},${c.y})`).attr('opacity', 0);
+                g.transition().delay(700 + i * 220).duration(600).attr('opacity', 1);
+                g.append('rect').attr('x', -140).attr('y', -46).attr('width', 280).attr('height', 92).attr('rx', 16)
+                    .attr('fill', 'rgba(255,255,255,0.9)').attr('stroke', c.cor).attr('stroke-opacity', 0.5).attr('stroke-width', 2);
+                g.append('text').text(c.nome).attr('text-anchor', 'middle').attr('dy', -10)
+                    .attr('fill', c.cor).attr('font-size', 17).attr('font-weight', 800);
+                g.append('text').text(c.desc).attr('text-anchor', 'middle').attr('dy', 16)
+                    .attr('fill', SOFT).attr('font-size', 12);
+
+                const eletrons = d3.range(4).map(k => ({ off: k / 4 }));
+                const es = svg.selectAll(`circle.e${i}`).data(eletrons).join('circle').attr('class', `e${i}`)
+                    .attr('r', 5).attr('fill', c.cor).attr('opacity', 0);
+                es.transition().delay(900 + i * 220).attr('opacity', 0.9);
+                d3.timer(t => {
+                    if (!noPalco('#eletrico-stage')) return;
+                    es.attr('transform', d => {
+                        const p = node.getPointAtLength(L * (((t / 2600) + d.off) % 1));
+                        return `translate(${p.x},${p.y})`;
+                    });
+                });
+            });
+        })();
+
+        // ===== SLIDE 18: PNEUS =====
+        (function () {
+            const W = 960, H = 540;
+            const svg = d3.select('#pneus-stage').append('svg').attr('viewBox', `0 0 ${W} ${H}`);
+
+            function pneu(cx, sulco, titulo, subtitulo, cor, ok) {
+                const g = svg.append('g').attr('transform', `translate(${cx},0)`);
+                g.append('text').text(titulo).attr('text-anchor', 'middle').attr('y', 70)
+                    .attr('fill', cor).attr('font-size', 20).attr('font-weight', 800);
+                g.append('text').text(subtitulo).attr('text-anchor', 'middle').attr('y', 96)
+                    .attr('fill', SOFT).attr('font-size', 14);
+
+                // pista molhada
+                g.append('rect').attr('x', -170).attr('y', 330).attr('width', 340).attr('height', 60).attr('rx', 8)
+                    .attr('fill', 'rgba(42,111,232,0.14)').attr('stroke', 'rgba(42,111,232,0.3)');
+                g.append('text').text('pista molhada').attr('text-anchor', 'middle').attr('y', 412)
+                    .attr('fill', SOFTER).attr('font-size', 12);
+
+                // banda de rodagem
+                const banda = g.append('g').attr('transform', 'translate(0,240)');
+                banda.append('rect').attr('x', -160).attr('y', -80).attr('width', 320).attr('height', 80).attr('rx', 10)
+                    .attr('fill', 'rgba(26,26,26,0.14)').attr('stroke', INK).attr('stroke-width', 2);
+                const nSulcos = 6;
+                d3.range(nSulcos).forEach(i => {
+                    banda.append('rect')
+                        .attr('x', -140 + i * 50).attr('y', -sulco).attr('width', 16).attr('height', sulco)
+                        .attr('rx', 3).attr('fill', 'var(--mira-bg)');
+                });
+
+                // medida do sulco
+                g.append('line').attr('x1', 178).attr('x2', 178).attr('y1', 240 - sulco).attr('y2', 240)
+                    .attr('stroke', cor).attr('stroke-width', 3);
+                g.append('text').text(ok ? '7,0 mm' : '1,2 mm').attr('x', 190).attr('y', 240 - sulco / 2 + 5)
+                    .attr('fill', cor).attr('font-size', 14).attr('font-weight', 800);
+
+                // água
+                const aguas = d3.range(10).map(i => ({ i }));
+                const drops = g.selectAll(`circle.a${cx}`).data(aguas).join('circle').attr('class', `a${cx}`)
+                    .attr('r', 5).attr('fill', ACCENT).attr('opacity', 0.7);
+                function fluir() {
+                    drops.each(function (d, i) {
+                        const sel = d3.select(this);
+                        const x0 = -150 + i * 32;
+                        sel.attr('cx', x0).attr('cy', 355).attr('opacity', 0.7);
+                        if (ok) {
+                            sel.transition().delay(i * 90).duration(1500).ease(d3.easeCubicOut)
+                                .attr('cx', x0 + (i % 2 ? 90 : -90)).attr('cy', 300).attr('opacity', 0);
+                        } else {
+                            sel.transition().delay(i * 90).duration(1500).ease(d3.easeCubicInOut)
+                                .attr('cy', 250).attr('r', 9).attr('opacity', 0.85);
+                        }
+                    });
+                    setTimeout(fluir, 2600);
+                }
+                setTimeout(fluir, 1000);
+
+                const veredito = g.append('text').attr('text-anchor', 'middle').attr('y', 470)
+                    .attr('fill', cor).attr('font-size', 15).attr('font-weight', 800).attr('opacity', 0)
+                    .text(ok ? 'A água escapa pelos sulcos' : 'A água se acumula: aquaplanagem');
+                veredito.transition().delay(2400).duration(700).attr('opacity', 1);
+            }
+
+            pneu(250, 44, 'Sulco em dia', 'acima do mínimo legal de 1,6 mm', GREEN, true);
+            pneu(710, 8, 'Pneu careca', 'abaixo do mínimo legal de 1,6 mm', RED, false);
+
+            svg.append('line').attr('x1', 480).attr('y1', 60).attr('x2', 480).attr('y2', 470)
+                .attr('stroke', LINE).attr('stroke-dasharray', '6 8');
+        })();
+
+        // ===== SLIDE 22: CHECKLIST POR SISTEMA =====
+        (function () {
+            const W = 960, H = 540;
+            const svg = d3.select('#checklist-stage').append('svg').attr('viewBox', `0 0 ${W} ${H}`);
+
+            // Silhueta do veículo, ao centro
+            const carro = svg.append('g').attr('transform', 'translate(480,250) scale(0.62)');
+            carro.append('path')
+                .attr('d', 'M -230 40 L -210 -10 Q -200 -40 -160 -46 L -60 -58 Q 0 -66 60 -58 L 150 -46 Q 196 -38 214 -6 L 230 34 Q 234 60 208 62 L -208 62 Q -236 60 -230 40 Z')
+                .attr('fill', FILL).attr('stroke', LINE).attr('stroke-width', 2);
+            [[-140, 66], [150, 66]].forEach(([x, y]) => {
+                carro.append('circle').attr('cx', x).attr('cy', y).attr('r', 30)
+                    .attr('fill', 'rgba(26,26,26,0.10)').attr('stroke', INK).attr('stroke-width', 2.5);
+            });
+
+            const grupos = [
+                { nome: 'Estrutura', itens: ['1. Carroceria sem avarias', '3. Sem vazamento geral'] },
+                { nome: 'Segurança e documento', itens: ['4. Ferramentas, macaco, chave de roda e triângulo', '9. CRLV no veículo', '10. Cinto de segurança'] },
+                { nome: 'Elétrica', itens: ['11. Luzes de falha no painel', '12. Faróis, lanternas, freio, placa, alerta e buzina'] },
+                { nome: 'Freios e visibilidade', itens: ['13. Freio de serviço e de estacionamento', '14. Limpadores e palhetas'] },
+                { nome: 'Combustível', itens: ['15. Combustível para a viagem', '16. Completar se necessário'] },
+                { nome: 'Pneus', itens: ['2. Estado e calibragem', '5. Estepe cheio'] },
+                { nome: 'Fluidos', itens: ['6. Óleo do motor na vareta', '7. Óleo de freio', '8. Líquido de arrefecimento'] }
+            ];
+            // Distribuídos numa elipse ao redor do veículo, sem encostar na silhueta
+            grupos.forEach((g, i) => {
+                const ang = -Math.PI / 2 + (i / grupos.length) * Math.PI * 2;
+                g.pos = [Math.cos(ang) * 360, Math.sin(ang) * 150];
+            });
+
+            const painel = svg.append('g').attr('transform', 'translate(480,492)');
+            painel.append('rect').attr('x', -430).attr('y', -34).attr('width', 860).attr('height', 68).attr('rx', 18)
+                .attr('fill', 'rgba(255,255,255,0.9)').attr('stroke', LINE);
+            const gTitulo = painel.append('text').attr('text-anchor', 'middle').attr('dy', -6)
+                .attr('fill', PRIMARY).attr('font-size', 17).attr('font-weight', 800);
+            const gItens = painel.append('text').attr('text-anchor', 'middle').attr('dy', 18)
+                .attr('fill', SOFT).attr('font-size', 14);
+
+            const marcadores = grupos.map((g, i) => {
+                const m = svg.append('g').attr('transform', `translate(${480 + g.pos[0]},${250 + g.pos[1]})`).attr('opacity', 0);
+                m.transition().delay(300 + i * 160).duration(500).attr('opacity', 1);
+                const c = m.append('circle').attr('r', 20).attr('fill', 'rgba(255,255,255,0.95)').attr('stroke', LINE).attr('stroke-width', 2);
+                m.append('text').text(g.itens.length).attr('text-anchor', 'middle').attr('dy', 6)
+                    .attr('fill', SOFTER).attr('font-size', 14).attr('font-weight', 800);
+                const rot = m.append('text').text(g.nome).attr('text-anchor', 'middle').attr('dy', -30)
+                    .attr('fill', SOFTER).attr('font-size', 12).attr('font-weight', 700);
+                return { c, rot, m };
+            });
+
+            let gi = 0;
+            function destacar() {
+                const g = grupos[gi % grupos.length];
+                marcadores.forEach((m, i) => {
+                    const on = i === gi % grupos.length;
+                    m.c.transition().duration(500)
+                        .attr('stroke', on ? PRIMARY : LINE)
+                        .attr('stroke-width', on ? 3.5 : 2)
+                        .attr('r', on ? 27 : 20)
+                        .attr('fill', on ? 'rgba(232,114,42,0.14)' : 'rgba(255,255,255,0.95)');
+                    m.rot.transition().duration(500)
+                        .attr('fill', on ? PRIMARY : SOFTER)
+                        .attr('font-size', on ? 14 : 12);
+                });
+                gTitulo.transition().duration(300).attr('opacity', 0).on('end', () => {
+                    gTitulo.text(g.nome).transition().duration(300).attr('opacity', 1);
+                });
+                gItens.transition().duration(300).attr('opacity', 0).on('end', () => {
+                    gItens.text(g.itens.join('   ·   ')).transition().duration(300).attr('opacity', 1);
+                });
+                gi++;
+            }
+            setTimeout(() => { destacar(); d3.interval(destacar, 3400); }, 1500);
+
+            svg.append('text').text('Os 16 itens do FORMULÁRIO II, agrupados pelos sistemas do veículo')
+                .attr('x', W / 2).attr('y', 46).attr('text-anchor', 'middle')
+                .attr('fill', SOFT).attr('font-size', 15).attr('font-weight', 600);
+        })();
+
+        // ===== SLIDE 23: FLUXO DA IRREGULARIDADE =====
+        (function () {
+            const W = 960, H = 420;
+            const svg = d3.select('#irregularidade-stage').append('svg').attr('viewBox', `0 0 ${W} ${H}`);
+            const etapas = [
+                { t: 'Registrar', d: 'anote a irregularidade e a data no próprio checklist', icon: '1' },
+                { t: 'Encaminhar', d: 'entregue o FORMULÁRIO II imediatamente ao Encarregado de Frotas', icon: '2' },
+                { t: 'Classificar', d: 'indispensável vai à oficina antes de rodar; necessário roda com acompanhamento', icon: '3' },
+                { t: 'Arquivar', d: 'o Controle de Frotas guarda o checklist com a ordem de serviço', icon: '4' }
+            ];
+            const xs = d3.scalePoint().domain(d3.range(4)).range([140, W - 140]);
+            const cy = 160;
+
+            svg.append('line').attr('x1', xs(0)).attr('x2', xs(3)).attr('y1', cy).attr('y2', cy)
+                .attr('stroke', LINE).attr('stroke-width', 3);
+
+            const nodes = svg.selectAll('g.n').data(etapas).join('g').attr('class', 'n')
+                .attr('transform', (d, i) => `translate(${xs(i)},${cy})`);
+            const circles = nodes.append('circle').attr('r', 0).attr('fill', 'rgba(255,255,255,0.92)')
+                .attr('stroke', PRIMARY).attr('stroke-width', 2);
+            circles.transition().delay((d, i) => 250 + i * 240).duration(600).ease(d3.easeBackOut).attr('r', 40);
+            nodes.append('text').text(d => d.icon).attr('text-anchor', 'middle').attr('dy', 8)
+                .attr('fill', PRIMARY).attr('font-size', 22).attr('font-weight', 800)
+                .attr('opacity', 0).transition().delay((d, i) => 550 + i * 240).attr('opacity', 1);
+            nodes.append('text').text(d => d.t).attr('text-anchor', 'middle').attr('dy', 74)
+                .attr('fill', INK).attr('font-size', 17).attr('font-weight', 800)
+                .attr('opacity', 0).transition().delay((d, i) => 650 + i * 240).attr('opacity', 1);
+            nodes.append('foreignObject').attr('x', -110).attr('y', 88).attr('width', 220).attr('height', 110)
+                .append('xhtml:div')
+                .attr('style', `color:${SOFT};font-size:13px;line-height:1.35;text-align:center;font-family:Inter,sans-serif;`)
+                .html(d => d.d);
+
+            const p = svg.append('circle').attr('r', 9).attr('fill', PRIMARY).attr('cy', cy)
+                .style('filter', `drop-shadow(0 0 8px ${PRIMARY})`);
+            function andar() {
+                p.attr('cx', xs(0)).attr('opacity', 1)
+                    .transition().duration(3600).ease(d3.easeCubicInOut).attr('cx', xs(3))
+                    .transition().duration(300).attr('opacity', 0).on('end', andar);
+                circles.transition().delay((d, i) => i * 900).duration(400).attr('r', 46)
+                    .transition().duration(400).attr('r', 40);
+            }
+            setTimeout(andar, 1500);
+            window.__fluxoIrregReplay = andar;
+        })();
+
+        // ===== SLIDE 25: ECONOMIA =====
+        (function () {
+            const W = 960, H = 460;
+            const svg = d3.select('#economia-stage').append('svg').attr('viewBox', `0 0 ${W} ${H}`);
+            const fatores = [
+                { nome: 'Manutenção em dia', desc: 'pneu calibrado, filtro limpo, motor regulado', v: 0.9 },
+                { nome: 'Direção suave', desc: 'sem acelerada e frenagem bruscas, marcha adequada', v: 0.75 },
+                { nome: 'Antecipação do trânsito', desc: 'ler a via evita frenagem inútil e desgasta menos o freio', v: 0.6 },
+                { nome: 'Uso racional de acessórios', desc: 'ar-condicionado e elétricos com critério', v: 0.4 }
+            ];
+            const barW = 620, x0 = 260;
+            fatores.forEach((f, i) => {
+                const y = 90 + i * 88;
+                svg.append('text').text(f.nome).attr('x', x0 - 24).attr('y', y + 6).attr('text-anchor', 'end')
+                    .attr('fill', INK).attr('font-size', 16).attr('font-weight', 800);
+                svg.append('text').text(f.desc).attr('x', x0 - 24).attr('y', y + 26).attr('text-anchor', 'end')
+                    .attr('fill', SOFTER).attr('font-size', 12);
+                svg.append('rect').attr('x', x0).attr('y', y - 16).attr('width', barW).attr('height', 30).attr('rx', 15)
+                    .attr('fill', FILL);
+                const bar = svg.append('rect').attr('x', x0).attr('y', y - 16).attr('width', 0).attr('height', 30).attr('rx', 15)
+                    .attr('fill', PRIMARY).attr('opacity', 0.85);
+                function anima() {
+                    bar.attr('width', 0).transition().delay(200 + i * 200).duration(1600).ease(d3.easeCubicOut)
+                        .attr('width', barW * f.v)
+                        .transition().delay(2600).duration(900).attr('width', barW * f.v * 0.92)
+                        .transition().duration(900).attr('width', barW * f.v)
+                        .on('end', anima);
+                }
+                anima();
+            });
+            svg.append('text').text('Peso relativo de cada hábito na conta de combustível da frota')
+                .attr('x', W / 2).attr('y', 40).attr('text-anchor', 'middle')
+                .attr('fill', SOFT).attr('font-size', 15).attr('font-weight', 600);
+        })();
+
+        // ===== SLIDE 26: INCÊNDIO (sete passos) =====
+        (function () {
+            const W = 960, H = 420;
+            const svg = d3.select('#incendio-stage').append('svg').attr('viewBox', `0 0 ${W} ${H}`);
+            const passos = [
+                'Estacionar em local seguro e desligar o veículo',
+                'Retirar o extintor e romper o lacre da válvula',
+                'Ficar a favor do vento e se aproximar protegido',
+                'Extintor na vertical, encaixar o bico numa fresta do capô',
+                'Levantar o capô e mirar na base do fogo',
+                'Movimentar o jato em leque, de um lado ao outro',
+                'Conferir de longe e não voltar a ligar o veículo'
+            ];
+            const y0 = 60, dy = 48;
+            const linha = svg.append('line').attr('x1', 90).attr('x2', 90).attr('y1', y0).attr('y2', y0)
+                .attr('stroke', PRIMARY).attr('stroke-width', 3).attr('stroke-opacity', 0.4);
+
+            const nodes = passos.map((p, i) => {
+                const g = svg.append('g').attr('transform', `translate(90,${y0 + i * dy})`).attr('opacity', 0);
+                const c = g.append('circle').attr('r', 17).attr('fill', 'rgba(255,255,255,0.95)')
+                    .attr('stroke', LINE).attr('stroke-width', 2);
+                g.append('text').text(i + 1).attr('text-anchor', 'middle').attr('dy', 6)
+                    .attr('fill', SOFTER).attr('font-size', 14).attr('font-weight', 800);
+                const t = g.append('text').text(p).attr('x', 34).attr('dy', 6)
+                    .attr('fill', SOFT).attr('font-size', 16).attr('font-weight', 600);
+                return { g, c, t };
+            });
+
+            function rodar() {
+                linha.attr('y2', y0).transition().duration(passos.length * 520).ease(d3.easeLinear)
+                    .attr('y2', y0 + (passos.length - 1) * dy);
+                nodes.forEach((n, i) => {
+                    n.g.attr('opacity', 0.35);
+                    n.c.attr('stroke', LINE).attr('stroke-width', 2).attr('fill', 'rgba(255,255,255,0.95)');
+                    n.t.attr('fill', SOFT).attr('font-weight', 600);
+                    n.g.transition().delay(i * 520).duration(400).attr('opacity', 1)
+                        .on('start', () => {
+                            n.c.transition().duration(400).attr('stroke', PRIMARY).attr('stroke-width', 3).attr('fill', 'rgba(232,114,42,0.14)');
+                            n.t.transition().duration(400).attr('fill', INK).attr('font-weight', 700);
+                        });
+                });
+                setTimeout(rodar, passos.length * 520 + 2600);
+            }
+            rodar();
+            window.__incendioReplay = rodar;
+
+            // Chama pulsando no canto
+            const fogo = svg.append('g').attr('transform', 'translate(830,220)');
+            const chama = fogo.append('path')
+                .attr('d', 'M 0 40 C -34 12 -20 -14 -6 -28 C -2 -14 8 -20 6 -34 C 24 -18 34 6 20 30 C 14 40 6 44 0 40 Z')
+                .attr('fill', PRIMARY).attr('opacity', 0.75);
+            d3.timer(t => {
+                if (!noPalco('#incendio-stage')) return;
+                const s = 1 + Math.sin(t / 220) * 0.08;
+                chama.attr('transform', `scale(${s.toFixed(3)})`);
+            });
+            fogo.append('text').text('Classes A, B e C').attr('text-anchor', 'middle').attr('y', 84)
+                .attr('fill', SOFTER).attr('font-size', 13).attr('font-weight', 700);
+        })();
+
+        // ===== TABELA DE PERIODICIDADE: varredura de linha (loop) =====
+        (function () {
+            const rows = Array.from(document.querySelectorAll('#tabela-periodicidade tbody tr'));
+            if (!rows.length) return;
+            let i = 0;
+            setInterval(() => {
+                rows.forEach(r => r.classList.remove('hot'));
+                rows[i % rows.length].classList.add('hot');
+                i++;
+            }, 1800);
+        })();
+
+        // ===== SPOTLIGHTS ALTERNANDO EM CARDS COMPARATIVOS (loop) =====
+        (function () {
+            function alternar(ids, intervalo) {
+                const els = ids.map(id => document.getElementById(id)).filter(Boolean);
+                if (els.length < 2) return;
+                let t = 0;
+                setInterval(() => {
+                    els.forEach((el, i) => {
+                        const on = i === t % els.length;
+                        el.style.transform = on ? 'translateY(-8px) scale(1.02)' : 'none';
+                        el.style.boxShadow = on ? '0 20px 50px var(--mira-glow-strong)' : '0 10px 30px var(--mira-glow-soft)';
+                    });
+                    t++;
+                }, intervalo);
+            }
+            alternar(['dever-a', 'dever-b'], 2600);
+            alternar(['motor-a', 'motor-b'], 2800);
+            alternar(['manut-a', 'manut-b', 'manut-c'], 2400);
+            alternar(['check-a', 'check-b'], 2600);
+        })();
+
+        // ===== SLIDE 24: PULSO NOS SEIS ITENS DO CHECK LIST RÁPIDO =====
+        (function () {
+            const cards = Array.from(document.querySelectorAll('#rapido-grid .glass-card'));
+            if (!cards.length) return;
+            let i = 0;
+            setInterval(() => {
+                cards.forEach((c, k) => {
+                    const on = k === i % cards.length;
+                    c.style.borderColor = on ? 'var(--mira-icon-border)' : 'var(--mira-card-border)';
+                    c.style.transform = on ? 'translateY(-6px)' : 'none';
+                    const icon = c.querySelector('.icon-hero');
+                    if (icon) icon.style.background = on ? 'rgba(232,114,42,0.24)' : 'var(--mira-icon-bg)';
+                });
+                i++;
+            }, 1500);
+        })();
+
+        // ============================================================
+        // CENAS 3D EM CSS PURO (abrem por file://, sem servidor)
+        // ============================================================
+        function criarCena(hostId, construir, aoAnimar) {
+            const host = document.getElementById(hostId);
+            if (!host) return;
+            const world = document.createElement('div');
+            world.className = 'world3d';
+            host.appendChild(world);
+
+            const estado = { rx: -18, ry: 28, zoom: 1, auto: true, arrastando: false };
+            let retomar = null;
+
+            function aplicar() {
+                world.style.transform = `scale(${estado.zoom}) rotateX(${estado.rx}deg) rotateY(${estado.ry}deg)`;
+            }
+            aplicar();
+
+            host.addEventListener('pointerdown', e => {
+                estado.arrastando = true;
+                estado.auto = false;
+                clearTimeout(retomar);
+                host.setPointerCapture(e.pointerId);
+                estado.px = e.clientX; estado.py = e.clientY;
+            });
+            host.addEventListener('pointermove', e => {
+                if (!estado.arrastando) return;
+                estado.ry += (e.clientX - estado.px) * 0.4;
+                estado.rx -= (e.clientY - estado.py) * 0.3;
+                estado.rx = Math.max(-80, Math.min(80, estado.rx));
+                estado.px = e.clientX; estado.py = e.clientY;
+                aplicar();
+            });
+            function soltar() {
+                if (!estado.arrastando) return;
+                estado.arrastando = false;
+                clearTimeout(retomar);
+                retomar = setTimeout(() => { estado.auto = true; }, 2500);
+            }
+            host.addEventListener('pointerup', soltar);
+            host.addEventListener('pointercancel', soltar);
+            host.addEventListener('pointerleave', soltar);
+            host.addEventListener('wheel', e => {
+                e.preventDefault();
+                estado.zoom = Math.max(0.45, Math.min(2.2, estado.zoom - e.deltaY * 0.0012));
+                aplicar();
+            }, { passive: false });
+
+            const api = construir(world);
+
+            // Etiquetas sempre de frente para quem olha (contra-rotação da cena)
+            const etiquetas = Array.from(world.querySelectorAll('.tag3d')).map(el => {
+                const alvo = JSON.parse(el.dataset.pos || '[0,0,0]');
+                return { el, cur: alvo.slice(), alvo };
+            });
+
+            let visivel = true, raf = null;
+            function loop(t) {
+                raf = requestAnimationFrame(loop);
+                if (estado.auto) { estado.ry += 0.22; aplicar(); }
+                if (aoAnimar) aoAnimar(t, api, estado);
+                etiquetas.forEach(tag => {
+                    const alvo = JSON.parse(tag.el.dataset.pos || '[0,0,0]');
+                    for (let i = 0; i < 3; i++) tag.cur[i] += (alvo[i] - tag.cur[i]) * 0.08;
+                    tag.el.style.transform =
+                        `translate3d(${tag.cur[0].toFixed(1)}px, ${tag.cur[1].toFixed(1)}px, ${tag.cur[2].toFixed(1)}px)` +
+                        ` rotateY(${(-estado.ry).toFixed(1)}deg) rotateX(${(-estado.rx).toFixed(1)}deg)` +
+                        ` translate(-50%, -50%)`;
+                });
+            }
+            new IntersectionObserver(entries => entries.forEach(en => {
+                visivel = en.isIntersecting;
+                if (visivel && raf === null) raf = requestAnimationFrame(loop);
+                else if (!visivel && raf !== null) { cancelAnimationFrame(raf); raf = null; }
+            }), { threshold: 0.05 }).observe(host);
+        }
+
+        // Helper: caixa 3D montada de seis faces
+        function caixa3d(w, h, d, cor, opacidade) {
+            const el = document.createElement('div');
+            el.className = 'part3d';
+            const faces = [
+                { w: w, h: h, t: `translateZ(${d / 2}px)` },
+                { w: w, h: h, t: `rotateY(180deg) translateZ(${d / 2}px)` },
+                { w: d, h: h, t: `rotateY(90deg) translateZ(${w / 2}px)` },
+                { w: d, h: h, t: `rotateY(-90deg) translateZ(${w / 2}px)` },
+                { w: w, h: d, t: `rotateX(90deg) translateZ(${h / 2}px)` },
+                { w: w, h: d, t: `rotateX(-90deg) translateZ(${h / 2}px)` }
+            ];
+            faces.forEach(f => {
+                const face = document.createElement('div');
+                face.className = 'face3d';
+                face.style.width = f.w + 'px';
+                face.style.height = f.h + 'px';
+                face.style.left = (-f.w / 2) + 'px';
+                face.style.top = (-f.h / 2) + 'px';
+                face.style.background = cor;
+                face.style.opacity = opacidade;
+                face.style.transform = f.t;
+                el.appendChild(face);
+            });
+            return el;
+        }
+
+        // Helper: cilindro 3D montado de painéis radiais
+        function cilindro3d(raio, altura, cor, opacidade, lados) {
+            const el = document.createElement('div');
+            el.className = 'part3d';
+            const n = lados || 14;
+            const larg = 2 * Math.PI * raio / n + 1.5;
+            for (let i = 0; i < n; i++) {
+                const face = document.createElement('div');
+                face.className = 'face3d';
+                face.style.width = larg + 'px';
+                face.style.height = altura + 'px';
+                face.style.left = (-larg / 2) + 'px';
+                face.style.top = (-altura / 2) + 'px';
+                face.style.background = cor;
+                face.style.opacity = opacidade;
+                face.style.transform = `rotateY(${(360 / n) * i}deg) translateZ(${raio}px)`;
+                el.appendChild(face);
+            }
+            return el;
+        }
+
+        function etiqueta3d(texto, x, y, z) {
+            const t = document.createElement('div');
+            t.className = 'tag3d';
+            t.textContent = texto;
+            t.dataset.pos = JSON.stringify([x, y, z]);
+            t.style.transform = `translate3d(${x}px, ${y}px, ${z}px) translate(-50%, -50%)`;
+            return t;
+        }
+
+        // ===== SLIDE 7: VEÍCULO EM VISTA EXPLODIDA =====
+        criarCena('carro3d', function (world) {
+            const LARANJA = 'rgba(232, 114, 42, 0.55)';
+            const AZUL = 'rgba(42, 111, 232, 0.45)';
+            const CINZA = 'rgba(26, 26, 26, 0.20)';
+            const VERDE = 'rgba(46, 158, 91, 0.45)';
+
+            const pecas = [];
+            function add(el, base, explodido, rotulo, eixoX) {
+                if (eixoX) el.dataset.eixo = 'x';
+                world.appendChild(el);
+                let tag = null;
+                if (rotulo) {
+                    tag = etiqueta3d(rotulo, base[0], base[1] - 46, base[2]);
+                    tag.style.opacity = '0';
+                    tag.style.transition = 'opacity 0.8s ease';
+                    world.appendChild(tag);
+                }
+                pecas.push({ el, tag, base, explodido, rotulo });
+                return el;
+            }
+
+            // Carroceria: base baixa e comprida mais a cabine, para ler como carro
+            add(caixa3d(310, 40, 130, CINZA, 0.45), [0, -14, 0], [0, -180, 0], 'Carroçaria e chassi');
+            add(caixa3d(140, 46, 118, CINZA, 0.35), [20, -57, 0], [20, -260, 0], '');
+            add(caixa3d(86, 56, 92, LARANJA, 0.75), [-104, 26, 0], [-260, 20, 0], 'Motor');
+            add(caixa3d(74, 38, 58, LARANJA, 0.6), [-14, 32, 0], [-90, 150, 0], 'Transmissão');
+            add(caixa3d(46, 44, 40, AZUL, 0.6), [-152, 12, 0], [-300, -110, 0], 'Arrefecimento');
+            add(caixa3d(44, 28, 34, VERDE, 0.7), [-70, -8, 46], [-70, -140, 210], 'Elétrico e bateria');
+            add(caixa3d(150, 14, 92, CINZA, 0.55), [80, 40, 0], [230, 150, 0], 'Suspensão');
+
+            const rodas = [[-104, 56, 74], [-104, 56, -74], [116, 56, 74], [116, 56, -74]];
+            rodas.forEach((p, i) => {
+                const roda = cilindro3d(32, 26, 'rgba(26,26,26,0.30)', 0.85, 14);
+                add(roda, p, [p[0], p[1] + 130, p[2] * 2.3], i === 0 ? 'Pneus e rodas' : '', true);
+            });
+
+            const freios = [[-104, 56, 74], [116, 56, 74]];
+            freios.forEach((p, i) => {
+                const disco = cilindro3d(19, 10, 'rgba(232,114,42,0.8)', 0.9, 14);
+                add(disco, [p[0], p[1], p[2] + 2], [p[0], p[1] - 170, p[2] + 130], i === 0 ? 'Freios' : '', true);
+            });
+
+            const readout = document.getElementById('carro3d-readout');
+            const estados = ['Veículo montado', 'Vista explodida'];
+            estados.forEach((e, i) => {
+                const s = document.createElement('span');
+                s.textContent = e;
+                if (i === 0) s.classList.add('on');
+                readout.appendChild(s);
+            });
+
+            let explodido = false;
+            function posicionar(p, alvo) {
+                const eixo = p.el.dataset.eixo === 'x' ? ' rotateX(90deg)' : '';
+                p.el.style.transform = `translate3d(${alvo[0]}px, ${alvo[1]}px, ${alvo[2]}px)${eixo}`;
+                if (p.tag) {
+                    p.tag.dataset.pos = JSON.stringify([alvo[0], alvo[1] - 46, alvo[2]]);
+                    p.tag.style.opacity = explodido ? '1' : '0';
+                }
+            }
+            function alternar() {
+                explodido = !explodido;
+                pecas.forEach(p => posicionar(p, explodido ? p.explodido : p.base));
+                Array.from(readout.children).forEach((s, i) => s.classList.toggle('on', i === (explodido ? 1 : 0)));
+            }
+            pecas.forEach(p => posicionar(p, p.base));
+            setTimeout(alternar, 1800);
+            setInterval(alternar, 5200);
+            return {};
+        });
+
+        // ===== SLIDE 9: MOTOR QUATRO TEMPOS =====
+        criarCena('motor3d', function (world) {
+            const METAL = 'rgba(26, 26, 26, 0.16)';
+            const LARANJA = 'rgba(232, 114, 42, 0.62)';
+
+            // Bloco e cilindro
+            const bloco = caixa3d(190, 60, 150, METAL, 0.55);
+            bloco.style.transform = 'translate3d(0px, 150px, 0px)';
+            world.appendChild(bloco);
+
+            const cilindro = cilindro3d(52, 230, 'rgba(26, 26, 26, 0.10)', 0.5, 16);
+            cilindro.style.transform = 'translate3d(0px, 0px, 0px)';
+            world.appendChild(cilindro);
+
+            // Cabeçote
+            const cabecote = caixa3d(150, 44, 130, METAL, 0.6);
+            cabecote.style.transform = 'translate3d(0px, -140px, 0px)';
+            world.appendChild(cabecote);
+
+            // Pistão
+            const pistao = cilindro3d(44, 56, LARANJA, 0.9, 14);
+            pistao.style.transition = 'none';
+            world.appendChild(pistao);
+
+            // Biela
+            const biela = caixa3d(14, 120, 14, 'rgba(26,26,26,0.45)', 0.9);
+            biela.style.transition = 'none';
+            world.appendChild(biela);
+
+            // Virabrequim
+            const virabrequim = document.createElement('div');
+            virabrequim.className = 'part3d';
+            virabrequim.style.transition = 'none';
+            const munhao = cilindro3d(46, 26, 'rgba(26,26,26,0.30)', 0.85, 14);
+            munhao.style.transform = 'rotateZ(90deg)';
+            virabrequim.appendChild(munhao);
+            const braco = caixa3d(16, 62, 16, LARANJA, 0.85);
+            virabrequim.appendChild(braco);
+            world.appendChild(virabrequim);
+
+            // Válvulas
+            const valvAdm = cilindro3d(9, 74, 'rgba(42,111,232,0.75)', 0.95, 10);
+            const valvEsc = cilindro3d(9, 74, 'rgba(214,46,46,0.7)', 0.95, 10);
+            valvAdm.style.transition = 'transform 0.25s ease';
+            valvEsc.style.transition = 'transform 0.25s ease';
+            world.appendChild(valvAdm);
+            world.appendChild(valvEsc);
+
+            // Vela
+            const vela = caixa3d(12, 34, 12, 'rgba(26,26,26,0.5)', 0.95);
+            vela.style.transform = 'translate3d(0px, -186px, 0px)';
+            world.appendChild(vela);
+            const faisca = document.createElement('div');
+            faisca.className = 'part3d';
+            faisca.style.width = '26px'; faisca.style.height = '26px';
+            faisca.style.marginLeft = '-13px'; faisca.style.marginTop = '-13px';
+            faisca.style.borderRadius = '50%';
+            faisca.style.background = 'radial-gradient(circle, rgba(255,214,120,0.95), rgba(232,114,42,0))';
+            faisca.style.opacity = '0';
+            faisca.style.transition = 'opacity 0.12s linear';
+            faisca.style.transform = 'translate3d(0px, -158px, 0px)';
+            world.appendChild(faisca);
+
+            // Etiquetas fixas
+            [
+                ['Cabeçote e válvulas', -150, -168, 0],
+                ['Cilindro', 118, -30, 0],
+                ['Pistão', -118, 24, 0],
+                ['Virabrequim', 132, 196, 0]
+            ].forEach(([txt, x, y, z]) => world.appendChild(etiqueta3d(txt, x, y, z)));
+
+            const readout = document.getElementById('motor3d-readout');
+            const tempos = ['Admissão', 'Compressão', 'Explosão', 'Escape'];
+            tempos.forEach((t, i) => {
+                const s = document.createElement('span');
+                s.textContent = (i + 1) + '. ' + t;
+                readout.appendChild(s);
+            });
+
+            return { pistao, biela, virabrequim, valvAdm, valvEsc, faisca, readout, tempoAtual: -1 };
+        }, function (t, api) {
+            // Ciclo Otto: duas voltas do virabrequim por ciclo completo
+            const theta = (t / 900) % (Math.PI * 4);
+            const r = 62, L = 150;
+            const y = -(r * Math.cos(theta) + Math.sqrt(L * L - (r * Math.sin(theta)) * (r * Math.sin(theta)))) + 120;
+
+            api.pistao.style.transform = `translate3d(0px, ${y.toFixed(1)}px, 0px)`;
+            const bielaY = y + 78;
+            const ang = Math.atan2(r * Math.sin(theta), L) * 180 / Math.PI;
+            api.biela.style.transform = `translate3d(0px, ${bielaY.toFixed(1)}px, 0px) rotateZ(${(-ang).toFixed(1)}deg)`;
+            api.virabrequim.style.transform = `translate3d(0px, 190px, 0px) rotateZ(${(theta * 180 / Math.PI).toFixed(1)}deg)`;
+
+            const tempo = Math.floor(theta / Math.PI) % 4;
+            const admAberta = tempo === 0;
+            const escAberta = tempo === 3;
+            api.valvAdm.style.transform = `translate3d(-30px, ${(-176 + (admAberta ? 26 : 0)).toFixed(1)}px, 0px)`;
+            api.valvEsc.style.transform = `translate3d(30px, ${(-176 + (escAberta ? 26 : 0)).toFixed(1)}px, 0px)`;
+
+            // Centelha no início da explosão
+            const dentroExplosao = tempo === 2 && (theta % Math.PI) < 0.5;
+            api.faisca.style.opacity = dentroExplosao ? (0.4 + Math.random() * 0.6).toFixed(2) : '0';
+
+            if (tempo !== api.tempoAtual) {
+                api.tempoAtual = tempo;
+                Array.from(api.readout.children).forEach((s, i) => s.classList.toggle('on', i === tempo));
+            }
+        });
+
+        // === CONTROLES DE SLIDE: navegação card-a-card (progresso + botão + teclado) ===
+        (function () {
+            const cardSections = Array.from(document.querySelectorAll('body > section'));
+            if (cardSections.length === 0) return;
+
+            const progress = document.getElementById('mira-progress');
+            const nextBtn = document.getElementById('mira-next');
+            const nextIcon = document.getElementById('mira-next-icon');
+
+            const atBottom = () =>
+                (window.scrollY + window.innerHeight) >= (document.documentElement.scrollHeight - 100);
+
+            function currentIndex() {
+                const y = window.scrollY + window.innerHeight * 0.3;
+                let idx = -1;
+                for (let i = 0; i < cardSections.length; i++) {
+                    if (cardSections[i].offsetTop <= y) idx = i;
+                }
+                return idx;
+            }
+
+            function goTo(i) {
+                const idx = Math.max(0, Math.min(cardSections.length - 1, i));
+                cardSections[idx].scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            // Link direto para um slide: index.html#s7 abre no slide 7.
+            function irPeloHash() {
+                const m = location.hash.match(/^#s(\d+)$/);
+                if (!m) return;
+                const idx = Math.max(0, Math.min(cardSections.length - 1, (+m[1]) - 1));
+                window.scrollTo(0, cardSections[idx].offsetTop);
+            }
+            window.addEventListener('load', () => setTimeout(irPeloHash, 400));
+            window.addEventListener('hashchange', irPeloHash);
+            irPeloHash();
+
+            // O ícone só é redesenhado quando a direção muda. Chamar lucide.createIcons()
+            // a cada evento de scroll reprocessa o deck inteiro e trava a rolagem.
+            let iconeAtual = 'chevron-down';
+            void nextIcon;
+            window.addEventListener('scroll', () => {
+                const docH = document.documentElement.scrollHeight - window.innerHeight;
+                progress.style.width = (docH > 0 ? (window.scrollY / docH) * 100 : 0) + '%';
+                nextBtn.classList.toggle('visible', window.scrollY > 300);
+                const desejado = atBottom() ? 'chevron-up' : 'chevron-down';
+                if (desejado !== iconeAtual) {
+                    iconeAtual = desejado;
+                    nextBtn.innerHTML = `<i data-lucide="${desejado}" class="w-6 h-6"></i>`;
+                    lucide.createIcons();
+                }
+            }, { passive: true });
+
+            nextBtn.addEventListener('click', () => {
+                if (atBottom()) { window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+                goTo(currentIndex() + 1);
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (['ArrowRight', 'ArrowDown', 'PageDown'].includes(e.key)) {
+                    e.preventDefault();
+                    goTo(currentIndex() + 1);
+                } else if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(e.key)) {
+                    e.preventDefault();
+                    const idx = currentIndex();
+                    if (idx <= 0) window.scrollTo({ top: 0, behavior: 'smooth' });
+                    else goTo(idx - 1);
+                } else if (e.key === 'Home') {
+                    e.preventDefault();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else if (e.key === 'End') {
+                    e.preventDefault();
+                    goTo(cardSections.length - 1);
+                } else if (e.key.toLowerCase() === 'f') {
+                    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+                    else document.exitFullscreen();
+                }
+            });
+        })();
+    </script>
+
+    <!-- Modo edição (reordenar slides): tecla E ou ?edit=1 -->
+    <script src="mira/mira-edit.js" defer></script>
+    <!-- Edição livre estilo Canva (mover/redimensionar/rotacionar/duplicar/excluir/texto): tecla E -->
+    <script src="mira/mira-edit-free.js" defer></script>
+    <!-- mira-draw (desenhar sobre o slide): tecla P ou ?draw=1 -->
+    <script src="mira/mira-draw.js" defer></script>
+</body>
+
+</html>
